@@ -74,18 +74,18 @@ public class Fake_Game
         foreach (Card current in Game.runtimeData.user.inventory.cards.Values)
         {
             List<int> list = new List<int>
-		{
-			20,
-			21,
-			22,
-			24,
-			32,
-			36,
-			37,
-			41,
-			42,
-			43
-		};
+		    {
+			    20,
+			    21,
+			    22,
+			    24,
+			    32,
+			    36,
+			    37,
+			    41,
+			    42,
+			    43
+		    };
             if (list.Contains(current.seriesId))
             {
                 if (!current.inUse && !current.bookmark)

@@ -43,28 +43,49 @@
     <Compile Include="Fake_User.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MyGame.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\tos\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\tos\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
-    <Reference Include="Encryption_Android">
+    <Reference Include="Assembly-UnityScript">
+      <HintPath>..\..\packages\tos\Assembly-UnityScript.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-UnityScript-firstpass">
+      <HintPath>..\..\packages\tos\Assembly-UnityScript-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang">
+      <HintPath>..\..\packages\tos\Boo.Lang.dll</HintPath>
+    </Reference>
+    <Reference Include="Crypto, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\tos\Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="Encryption_Android, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\tos\Encryption_Android.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\tos\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="JsonFx.Json, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\tos\JsonFx.Json.dll</HintPath>
     </Reference>
+    <Reference Include="P31RestKit, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\tos\P31RestKit.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
-    <Reference Include="UnityEngine">
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\tos\UnityEngine.dll</HintPath>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="MyGame.cs" />
+    <Reference Include="UnityScript.Lang">
+      <HintPath>..\..\packages\tos\UnityScript.Lang.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

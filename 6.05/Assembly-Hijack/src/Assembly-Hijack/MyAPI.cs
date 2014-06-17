@@ -15,17 +15,17 @@ public class MyAPI
 
         Action<URLRequest> successHook = request =>
             {
-                if (path.Equals("user/login"))
-                {
-                    try
-                    {
-                        InspectLoginData(request);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogError(ex.ToString());
-                    }
-                }
+                //if (path.Equals("user/login"))
+                //{
+                //    try
+                //    {
+                //        InspectLoginData(request);
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        Debug.LogError(ex.ToString());
+                //    }
+                //}
 
                 onSuccess(request);
             };
