@@ -32,11 +32,22 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Fake_API.cs" />
+    <Compile Include="Fake_Game.cs" />
+    <Compile Include="GameManager.cs" />
+    <Compile Include="MyAPI.cs" />
     <Compile Include="MadHead\MyChecksum.cs" />
+    <Compile Include="MyPuzzle.cs" />
+    <Compile Include="MyRestoreGameplay.cs" />
+    <Compile Include="SampleClass.cs" />
+    <Compile Include="Fake_User.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\packages\tos\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\tos\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="Encryption_Android">
       <HintPath>..\..\packages\tos\Encryption_Android.dll</HintPath>
@@ -57,8 +68,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetPath)" "$(SolutionDir)..\Assembly-CSharp"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

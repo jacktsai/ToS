@@ -1,0 +1,1 @@
+@"%WDK_HOME%\Bin\ildasm" /out=hijack.il /utf8 Assembly-Hijack.dll
