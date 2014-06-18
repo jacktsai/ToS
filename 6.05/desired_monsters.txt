@@ -1,6 +1,0 @@
-#format: monster_id, level, skill_level
-448,99,5
-438,99,5
-439,99,5
-441,99,5
-442,99,5

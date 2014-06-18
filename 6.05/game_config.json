@@ -15,13 +15,18 @@
 "332,50,10"
 ],
 "teamSize" : 120,
-"clearFloors" : false,
+"clearAllFloors" : false,
 "unlockFloors" : false,
 "disableAds" : true,
 
-"registration" :
+"register" :
 {
-"auto" : true,
+"enabled" : true,
 "partner" : 3
+},
+
+"completeNextFloor" :
+{
+"enabled" : true,
 }
 }
