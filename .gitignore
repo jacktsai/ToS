@@ -1,1 +1,8 @@
 **/tos-decoded/**
+*.dll
+*.pdb
+*.trx
+**/obj
+**/bin
+*.suo
+**/TestResults

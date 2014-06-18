@@ -1,0 +1,9 @@
+[com.madhead.tos.zh][<482> Thread-482] com.jack.xposed.mod.TosHandler$3.afterHookedMethod [TosHandler.java #255]
+-> de.robv.android.xposed.XposedBridge.handleHookedMethod [XposedBridge.java #645]
+-> java.net.URL.openConnection [URL.java #-2]
+-> com.unity3d.player.WWW.run [null #-1]
+
+https://zh.towerofsaviors.com/api/floor/helpers?floorId=3&uid=725629019&session=3fbda5475b2ec4ebc27867e72855b8f9&language=zh_TW&platform=android&version=6.05&timestamp=1402989041&timezone=8&nData=56378bd93118baad0d44ff7132008ca5&iay=b5d0cb7&hash=3fc4e7acec63626b282ed0b5c64ba175
+
+[RESPONSE CONTENT]
+{"respond":1,"data":{"alluserList":["0|\u9ad8\u7d1a\u528d\u58eb\u8096\u6069|1402989044|1|10|10|0|10000000#6#0#1#1####|1|5|0||","0|\u51b0\u82b1\u9f8d|1402989044|1|10|10|0|10000001#41#0#1#1####|1|5|0||","0|\u706b\u5c71\u5730\u7cbe|1402989044|1|10|10|0|10000002#58#0#1#1####|1|5|0||"]}}ÿÿ

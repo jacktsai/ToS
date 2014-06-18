@@ -1,0 +1,9 @@
+[com.madhead.tos.zh][<389> Thread-389] com.jack.xposed.mod.TosHandler$3.afterHookedMethod [TosHandler.java #255]
+-> de.robv.android.xposed.XposedBridge.handleHookedMethod [XposedBridge.java #645]
+-> java.net.URL.openConnection [URL.java #-2]
+-> com.unity3d.player.WWW.run [null #-1]
+
+https://zh.towerofsaviors.com/api/user/check_exist?uniqueKey=ed0ea7cfb183b6eaabb6ca8a8c72b7db&type=device&deviceKey=3111692ee9e5eb13774fb61bd1b0152f&mac=&language=zh_TW&platform=android&version=6.05&timestamp=1402988350&timezone=8&nData=62c583df1bf17d3c5ad39429e3283fba&iay=8cae45c&hash=c7df3021b06728f6e77b77fff46cb971
+
+[RESPONSE CONTENT]
+{"respond":1,"data":{"exist":false}}ÿÿ
