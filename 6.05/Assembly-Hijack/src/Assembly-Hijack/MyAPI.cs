@@ -9,18 +9,29 @@ using Debug = UnityEngine.Debug;
 
 public class MyAPI
 {
-    private static string API_USER_LOGIN = "user/login";
-    private static string API_FLOOR_COMPLETE = "floor/complete";
+    private const string API_USER_LOGIN = "user/login";
+    private const string API_USER_REGISTER = "user/register";
+    private const string API_FLOOR_COMPLETE = "floor/complete";
 
     public static API.Result _startURLRequest(string path, Dictionary<string, object> param, Action<URLRequest> onSuccess, Action<URLRequest> onFailed, API.Mode mode = API.Mode.NORMAL, bool isDataRequest = false)
     {
+        switch (path)
+        {
+            case API_USER_REGISTER:
+                if (MyGameConfig.registration != null)
+                {
+                    param["attribute"] = (int)MyGameConfig.registration.partner;
+                }
+                break;
+        }
+
         Action<URLRequest> successHook = request =>
             {
                 onSuccess(request);
 
                 if (path.Equals(API_USER_LOGIN))
                 {
-                    ViewController.SwitchView(ViewIndex.WORLDMAP_WORLD_MAP, null, null);
+                    ViewController.SwitchView(ViewIndex.WORLDMAP_WORLD_MAP);
                 }
             };
 

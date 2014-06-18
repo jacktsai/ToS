@@ -8,8 +8,6 @@ public class MyRestoreGameplay
 {
     public static void StartGame()
     {
-        Debug.Log(">> RestoreGameplay.StartGame");
         RestoreGameplay.StartGame();
-        Debug.Log("<< RestoreGameplay.StartGame");
     }
 }

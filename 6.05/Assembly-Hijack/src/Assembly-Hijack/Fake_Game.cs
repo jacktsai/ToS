@@ -19,7 +19,7 @@ public class Fake_Game
 
     public static void SetData(Login.Data data, bool restore = false)
     {
-        GameManager.InspectData(data);
+        MyGameManager.InspectData(data);
         Watchdog.Log("*** Game.SetData() ***");
         if (!restore)
         {
@@ -60,7 +60,7 @@ public class Fake_Game
 
     public static void SetUser(BaseJson userInfo, bool restore = false)
     {
-        GameManager.InspectUser(userInfo);
+        MyGameManager.InspectUser(userInfo);
 
         Watchdog.Log("*** Game.SetUser() ***");
         if (userInfo.user != null)
@@ -169,7 +169,7 @@ public class Fake_Game
             {
                 string helperString = helpers[i];
                 GameJSON.Helper helper = ObjectParser.ParseHelper(helperString, '|');
-                GameManager.InspectHelpers(i, helper);
+                MyGameManager.InspectHelpers(i, helper);
                 list.Add(new Helper(helper));
             }
         }

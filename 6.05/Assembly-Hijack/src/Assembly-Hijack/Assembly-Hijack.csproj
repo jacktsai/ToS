@@ -33,10 +33,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Fake_API.cs" />
+    <Compile Include="Fake_BootLoader.cs" />
     <Compile Include="Fake_Game.cs" />
-    <Compile Include="GameManager.cs" />
+    <Compile Include="MyGameConfig.cs" />
+    <Compile Include="MyGameManager.cs" />
     <Compile Include="MyAPI.cs" />
     <Compile Include="MadHead\MyChecksum.cs" />
+    <Compile Include="MyBootLoader.cs" />
     <Compile Include="MyPuzzle.cs" />
     <Compile Include="MyRestoreGameplay.cs" />
     <Compile Include="SampleClass.cs" />
