@@ -7,9 +7,60 @@ using JsonFx.Json;
 
 public class Fake_Game
 {
+    public Action onLocalNotificationOn;
+
+    public static Fake_Game instance
+    {
+        get
+        {
+            return new Fake_Game();
+        }
+    }
+
+    public static void SetData(Login.Data data, bool restore = false)
+    {
+        GameManager.InspectData(data);
+        Watchdog.Log("*** Game.SetData() ***");
+        if (!restore)
+        {
+            GameStateManager.Write("API_DATA_JSON", JsonWriter.Serialize(data));
+        }
+        Fake_Game.instance.onLocalNotificationOn = null;
+        Native.Notification.CancelAllLocalNotifications();
+        Game.runtimeData.notificationOffset = data.notificationOffset;
+        Game.SetGeneralNotifications(data.notifications);
+        Game.SetLimitations(data.limitations);
+        Game.SetGuildLevelData(data.guildLevels);
+        Game.SetNormalSkillsData(data.normalSkills, false);
+        Game.SetMonstersData(data.monsters, false);
+        Game.SetRefineLevelData(data.refineLevels, false);
+        Game.SetCombineNormalSkillsData(data.combineNormalSkills, false);
+        Game.SetTeamSkillData(data.teamSkills, false);
+        Game.SetStoriesData(data.storyList, false);
+        Game.SetStagesData(data.stageList, false);
+        Game.SetFloorsData(data.floorList, false);
+        Game.SetStageBonusData(data.stageBonus);
+        Game.SetLuckyBonusData(data.luckyDrawBonus);
+        Game.SetDiamondStoreBonusData(data.diamondStoreBonus);
+        Game.SetCheatingBlacklist(data.asci);
+        Game.SetEventLuckyDrawData(data.eventLuckyDraw);
+        Game.SetMessages(new string[]
+	{
+		data.stageMessage,
+		data.luckyDrawMessage,
+		data.dailyMessage,
+		data.rewardMessage
+	});
+        GameStateManager.Commit(GameStateManager.CommitLevel.API);
+        if (Game.Config.notificationOn)
+        {
+            Game.LocalNotificationOn();
+        }
+    }
+
     public static void SetUser(BaseJson userInfo, bool restore = false)
     {
-        GameManager.Inspect(userInfo);
+        GameManager.InspectUser(userInfo);
 
         Watchdog.Log("*** Game.SetUser() ***");
         if (userInfo.user != null)
@@ -107,5 +158,21 @@ public class Fake_Game
             }
         }
         Game.UserInfoUpdated();
+    }
+
+    public static List<Helper> GetHelperList(string[] helpers)
+    {
+        List<Helper> list = new List<Helper>();
+        if (helpers != null)
+        {
+            for (int i = 0; i < helpers.Length; i++)
+            {
+                string helperString = helpers[i];
+                GameJSON.Helper helper = ObjectParser.ParseHelper(helperString, '|');
+                GameManager.InspectHelpers(i, helper);
+                list.Add(new Helper(helper));
+            }
+        }
+        return list;
     }
 }

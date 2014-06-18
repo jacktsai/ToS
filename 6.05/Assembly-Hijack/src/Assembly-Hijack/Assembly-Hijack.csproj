@@ -80,6 +80,7 @@
       <HintPath>..\..\packages\tos\P31RestKit.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Xml" />
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\tos\UnityEngine.dll</HintPath>
     </Reference>
