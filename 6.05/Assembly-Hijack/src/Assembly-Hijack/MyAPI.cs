@@ -18,9 +18,9 @@ public class MyAPI
         switch (path)
         {
             case API_USER_REGISTER:
-                if (MyGameConfig.registration != null)
+                if (MyGameConfig.register != null)
                 {
-                    param["attribute"] = (int)MyGameConfig.registration.partner;
+                    param["attribute"] = (int)MyGameConfig.register.partner;
                 }
                 break;
         }

@@ -175,4 +175,9 @@ public class Fake_Game
         }
         return list;
     }
+
+    public static void ShowHints()
+    {
+        //PresetDialog.Create.Game_Hints().Show(false, null, false);
+    }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using AssemblyHijack.Automation;
 using GameJSON;
 using JsonFx.Json;
 using Native;
@@ -9,80 +10,49 @@ using UnityEngine;
 
 public class MyGame
 {
-    private static List<Floor> predicateFloors = new List<Floor>();
-    private static int currentFloorIndex;
+    private static readonly IEnumerable<IRunnable> RUNNER;
 
-    private static void CompleteFloor(Action completeAction)
+    static MyGame()
     {
-        Game.runtimeData.currentFloor = predicateFloors[currentFloorIndex];
-        Game.runtimeData.currentStage = Game.runtimeData.currentFloor.stage;
-        Game.runtimeData.currentZone = Game.runtimeData.currentStage.zone;
+        var runner = new List<IRunnable>();
+        runner.Add(new CompleteCurrentFloor());
+        runner.Add(new RegisterUser());
+        runner.Add(new EnterFloor());
 
-        if (Game.runtimeData.currentFloor.floorId == 1)
+        RUNNER = runner;
+    }
+
+    private static void NextAction()
+    {
+        foreach (var runner in RUNNER)
         {
-            Game.EnterCurrentFloor(() =>
+            if (runner.CanRun())
             {
-                Game.ClearCurrentFloor(completeAction);
-            });
+                Game.NetworkWaiting();
+                runner.Run(NextAction);
+                Game.NetworkCompleted(null);
+                return;
+            }
         }
-        else
-        {
-            Game.GetHelperList(
-                Game.runtimeData.currentFloor.floorId,
-                helpers =>
-                {
-                    Game.runtimeData.currentSelectedHelper = helpers[0];
-                    Game.EnterCurrentFloor(() =>
-                    {
-                        Game.ClearCurrentFloor(completeAction);
-                    });
-                },
-                () =>
-                {
-                });
-        }
+    }
 
-        currentFloorIndex++;
+    private static void MergeCard()
+    {
+        // find out source card
+        // if source card level is max, quit.
+        // find out target cards max 5
+        // if target cards count zero, quit.
+        // do merge
+        // do NextAction() on complete.
     }
 
     public static void GetConfig(Action onSuccess)
     {
+        Debug.Log("GetConfig");
         Action successHook = () =>
             {
                 onSuccess();
-
-                if (!Game.localUserExists && MyGameConfig.registration != null && MyGameConfig.registration.auto)
-                {
-                    var name = String.Format("#{0:000}", UnityEngine.Random.Range(1, 10000));
-                    var partner = MyGameConfig.registration.partner;
-                    var type = "device";
-
-                    Game.UniqueKey = SystemInformation.LocalKey;
-                    Game.runtimeData.registerName = name;
-                    Game.runtimeData.selectedPartner = partner;
-                    Game.runtimeData.registrationType = type;
-                    Game.Register(name, partner, type,
-                        Game.runtimeData.registrationSocialUID,
-                        Game.runtimeData.registrationSocialToken,
-                        () =>
-                        {
-                            predicateFloors.Clear();
-                            currentFloorIndex = 0;
-
-                            Action nextAction = () => ViewController.SwitchView(ViewIndex.WORLDMAP_WORLD_MAP);
-
-                            foreach (var item in Game.database.floors.Values)
-                            {
-                                predicateFloors.Add(item);
-
-                                nextAction = () => CompleteFloor(nextAction);
-                            }
-
-                            nextAction();
-                        },
-                        () => { }
-                    );
-                }
+                NextAction();
             };
 
         Game.GetConfig(successHook);
@@ -90,15 +60,25 @@ public class MyGame
 
     public static void SetConfig(Config config, bool restore = false)
     {
+        Debug.Log("SetConfig");
         Game.SetConfig(config, restore);
 
         if (MyGameConfig.disableAds)
         {
             Core.Config.AdMob_PublisherId = string.Empty;
         }
+    }
 
-        if (Game.restoreOnResume || Game.floorDataReady)
-        {
-        }
+    public static void Login(Action onSuccess)
+    {
+        Debug.Log("Login");
+
+        Action successHook = () =>
+            {
+                onSuccess();
+                NextAction();
+            };
+
+        Game.Login(successHook);
     }
 }

@@ -32,6 +32,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Automation\CompleteCurrentFloor.cs" />
+    <Compile Include="Automation\IRunnable.cs" />
+    <Compile Include="Automation\RegisterUser.cs" />
+    <Compile Include="Automation\Runnable.cs" />
+    <Compile Include="Automation\EnterFloor.cs" />
     <Compile Include="Fake_API.cs" />
     <Compile Include="Fake_BootLoader.cs" />
     <Compile Include="Fake_Game.cs" />

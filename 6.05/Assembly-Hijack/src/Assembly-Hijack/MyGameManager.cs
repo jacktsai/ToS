@@ -46,7 +46,7 @@ public class MyGameManager
             if (MyGameConfig.teamSize != null)
                 user.teamSize = MyGameConfig.teamSize.Value;
 
-            if (MyGameConfig.clearFloors)
+            if (MyGameConfig.clearAllFloors)
             {
                 // 全部通關完成
                 if (Game.database != null)

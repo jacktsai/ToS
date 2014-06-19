@@ -16,28 +16,4 @@ public class MyBootLoader : BootLoader
     public static void AfterStart()
     {
     }
-
-    private void NormalFlow()
-    {
-        Watchdog.Log("[BootLoader]*** BootLoader normal flow ***");
-        BootLoader.startTime = Watchdog.GetTimeStamp();
-        MyGame.GetConfig(delegate
-        {
-            if (Game.localUserExists)
-            {
-                Game.Login(delegate
-                {
-                    BootLoader.waitStandyBy = true;
-                });
-            }
-            else
-            {
-                BootLoader.waitStandyBy = true;
-            }
-            if (Core.Config.enableAdMobPublishing && Core.Config.AdMob_PublisherId != string.Empty)
-            {
-                AdsManager.Init(Core.Config.AdMob_PublisherId);
-            }
-        });
-    }
 }

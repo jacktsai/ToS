@@ -15,26 +15,47 @@ public class MyGameConfig
         public string[] helperCards;
 
         public int? teamSize = null;
-        public bool? clearFloors = null;
-        public bool? unlockFloors = null;
-        public bool? disableAds = null;
+        public bool clearAllFloors = false;
+        public bool unlockFloors = false;
+        public bool disableAds = false;
 
-        public Registration registration = null;
+        public Register register = new Register();
+        public Floor floor = new Floor();
+        public Merge merge = new Merge();
     }
 
-    public class Registration
+    public class Register
     {
-        public bool auto = false;
+        public bool enabled = false;
         public Element.ID partner = Element.ID.FIRE;
+    }
+
+    public class Floor
+    {
+        public bool enabled = false;
+
+        /// <summary>
+        /// floor ID
+        /// </summary>
+        public int[] id;
+    }
+
+    public class Merge
+    {
+        public bool enabled = false;
+        public int[] source = new int[0];
+        public int[] target = new int[0];
     }
 
     public static List<GameJSON.Card> desiredMonsters = new List<GameJSON.Card>();
     public static List<GameJSON.Card> desiredHelpers = new List<GameJSON.Card>();
     public static int? teamSize = null;
-    public static bool clearFloors = false;
+    public static bool clearAllFloors = false;
     public static bool unlockFloors = false;
     public static bool disableAds = false;
-    public static Registration registration = null;
+    public static Register register = null;
+    public static Floor floor = null;
+    public static Merge mergeCard = null;
 
     static MyGameConfig()
     {
@@ -56,17 +77,12 @@ public class MyGameConfig
                     desiredHelpers = ParseCardStrings(config.helperCards);
 
                     teamSize = config.teamSize;
-
-                    if (config.clearFloors.HasValue)
-                        clearFloors = config.clearFloors.Value;
-
-                    if (config.unlockFloors.HasValue)
-                        unlockFloors = config.unlockFloors.Value;
-
-                    if (config.disableAds.HasValue)
-                        disableAds = config.disableAds.Value;
-
-                    registration = config.registration;
+                    clearAllFloors = config.clearAllFloors;
+                    unlockFloors = config.unlockFloors;
+                    disableAds = config.disableAds;
+                    register = config.register;
+                    floor = config.floor;
+                    mergeCard = config.merge;
                 }
             }
             catch (Exception ex)
