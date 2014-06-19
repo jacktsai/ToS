@@ -18,12 +18,15 @@ public class MyGameManager
 
     public static void InspectUser(BaseJson json)
     {
+        //MyDialog.ShowWaiting("正在檢驗角色資料");
         json.user = InspectUser(json.user);
+        //MyDialog.ShowWaiting("正在檢驗卡片資料");
         json.cards = InspectCards(json.cards);
     }
 
     public static void InspectHelpers(int index, GameJSON.Helper helper)
     {
+        //MyDialog.ShowWaiting("正在檢驗好友資料");
         if (index < MyGameConfig.desiredHelpers.Count)
         {
             GameJSON.Card currentHelper = helper.helperCard;

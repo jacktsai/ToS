@@ -32,14 +32,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Automation\CompleteCurrentFloor.cs" />
+    <Compile Include="Automation\AcceptFriend.cs" />
     <Compile Include="Automation\IRunnable.cs" />
+    <Compile Include="Automation\MergeCard.cs" />
     <Compile Include="Automation\RegisterUser.cs" />
     <Compile Include="Automation\Runnable.cs" />
-    <Compile Include="Automation\EnterFloor.cs" />
+    <Compile Include="Automation\CompleteFloor.cs" />
+    <Compile Include="Automation\SellCard.cs" />
     <Compile Include="Fake_API.cs" />
     <Compile Include="Fake_BootLoader.cs" />
     <Compile Include="Fake_Game.cs" />
+    <Compile Include="MyDialog.cs" />
     <Compile Include="MyGameConfig.cs" />
     <Compile Include="MyGameManager.cs" />
     <Compile Include="MyAPI.cs" />
@@ -98,7 +101,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "$(SolutionDir)..\Assembly-CSharp"</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetPath)" "$(SolutionDir)..\Assembly-CSharp"
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

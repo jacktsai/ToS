@@ -22,6 +22,7 @@ public class MyGameConfig
         public Register register = new Register();
         public Floor floor = new Floor();
         public Merge merge = new Merge();
+        public Sell sell = new Sell();
     }
 
     public class Register
@@ -33,33 +34,38 @@ public class MyGameConfig
     public class Floor
     {
         public bool enabled = false;
-
-        /// <summary>
-        /// floor ID
-        /// </summary>
-        public int[] id;
+        public bool requestFriend = false;
+        public int[] floorIds;
     }
 
     public class Merge
     {
         public bool enabled = false;
-        public int[] source = new int[0];
-        public int[] target = new int[0];
+        public int[] cards = new int[0];
     }
 
-    public static List<GameJSON.Card> desiredMonsters = new List<GameJSON.Card>();
-    public static List<GameJSON.Card> desiredHelpers = new List<GameJSON.Card>();
-    public static int? teamSize = null;
-    public static bool clearAllFloors = false;
-    public static bool unlockFloors = false;
-    public static bool disableAds = false;
-    public static Register register = null;
-    public static Floor floor = null;
-    public static Merge mergeCard = null;
+    public class Sell
+    {
+        public bool enabled = false;
+        public int[] cards = new int[0];
+    }
+
+    public static List<GameJSON.Card> desiredMonsters;
+    public static List<GameJSON.Card> desiredHelpers;
+    public static int? teamSize;
+    public static bool clearAllFloors;
+    public static bool unlockFloors;
+    public static bool disableAds;
+    public static Register register;
+    public static Floor floor;
+    public static Merge merge;
+    public static Sell sell;
 
     static MyGameConfig()
     {
+        Debug.Log("Loading game_config.json ...");
         LoadConfig();
+        Debug.Log("game_config.json loaded !!");
     }
 
     private static void LoadConfig()
@@ -82,7 +88,8 @@ public class MyGameConfig
                     disableAds = config.disableAds;
                     register = config.register;
                     floor = config.floor;
-                    mergeCard = config.merge;
+                    merge = config.merge;
+                    sell = config.sell;
                 }
             }
             catch (Exception ex)

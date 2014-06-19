@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading;
-using Native;
-using UnityEngine;
+﻿using AssemblyHijack.Automation;
 
 public class MyBootLoader : BootLoader
 {
-    public static void BeforeStart()
+    public static void NormalFlow(BootLoader bootLoader)
     {
+        bootLoader.NormalFlow();
     }
 
-    public static void AfterStart()
+    public static void RestoreFlow(BootLoader bootLoader)
     {
+        bootLoader.RestoreFlow();
     }
 }
