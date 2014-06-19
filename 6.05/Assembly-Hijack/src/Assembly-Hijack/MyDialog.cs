@@ -6,12 +6,12 @@ internal class MyDialog
 
     public static void ShowWaiting(String format, params object[] args)
     {
-        Close();
+        //Close();
 
-        DialogBuilder builder = Create(String.Format(format, args));
-        builder.AddLoadingImage();
+        //DialogBuilder builder = Create(String.Format(format, args));
+        //builder.AddLoadingImage();
 
-        Show(builder);
+        //Show(builder);
     }
 
     public static void ShowConfirm(String message, Action onConfirm = null)
@@ -49,6 +49,7 @@ internal class MyDialog
                 if (onCancel != null)
                     onCancel();
             });
+        builder.canHide = false;
 
         Show(builder);
     }
@@ -75,7 +76,6 @@ internal class MyDialog
 
     private static void Show(DialogBuilder builder)
     {
-        builder.canHide = false;
         builder.Show();
         instance = PopUpDialog.instance;
     }

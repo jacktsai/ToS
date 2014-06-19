@@ -33,6 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Automation\AcceptFriend.cs" />
+    <Compile Include="Automation\ClaimReword.cs" />
     <Compile Include="Automation\IRunnable.cs" />
     <Compile Include="Automation\MergeCard.cs" />
     <Compile Include="Automation\RegisterUser.cs" />
