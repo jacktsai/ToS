@@ -22,7 +22,19 @@ namespace AssemblyHijack.Automation
             targetFloor = null;
             User user = Game.runtimeData.user;
             Floor availableFloor = null;
-            if (Game.runtimeData.completedFloorIds.Count > 0)
+            if (!user.completedFloorIds.Contains(1))
+            {
+                availableFloor = Game.database.floors[1];
+            }
+            else if (!user.completedFloorIds.Contains(2))
+            {
+                availableFloor = Game.database.floors[2];
+            }
+            else if (!user.completedFloorIds.Contains(3))
+            {
+                availableFloor = Game.database.floors[3];
+            }
+            else
             {
                 foreach (var floor in Game.database.floors.Values)
                 {
@@ -49,16 +61,12 @@ namespace AssemblyHijack.Automation
 
                     availableFloor = floor;
                 }
-
-                if (availableFloor != null)
-                {
-                    Debug.Log(String.Format("floor [#{0}{1}] ready to go, required stamina {2}, current {3}.", availableFloor.floorId, availableFloor.name, availableFloor.stamina, user.currentStamina));
-                    targetFloor = availableFloor;
-                }
             }
-            else
+
+            if (availableFloor != null)
             {
-                targetFloor = Game.database.floors[1];
+                Debug.Log(String.Format("floor [#{0}{1}] ready to go, required stamina {2}, current {3}.", availableFloor.floorId, availableFloor.name, availableFloor.stamina, user.currentStamina));
+                targetFloor = availableFloor;
             }
 
             if (targetFloor == null)

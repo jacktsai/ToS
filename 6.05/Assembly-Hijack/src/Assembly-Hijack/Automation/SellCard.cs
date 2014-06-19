@@ -12,9 +12,6 @@ namespace AssemblyHijack.Automation
 
         protected override bool Check()
         {
-            if (!Game.runtimeData.user.inventory.isFull)
-                return false;
-
             cards.Clear();
             StringBuilder cardNames = new StringBuilder();
             foreach (var card in Game.runtimeData.user.inventory.cards.Values)

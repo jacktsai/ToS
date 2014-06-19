@@ -21,15 +21,10 @@ namespace AssemblyHijack.Automation
             Game.runtimeData.selectedPartner = partner;
             Game.runtimeData.registrationType = type;
 
-            MyDialog.ShowWaiting("註冊新帳號中...\n名稱：{0}\n鍵值：{1}", name, Game.UniqueKey);
             Game.Register(name, partner, type,
                 Game.runtimeData.registrationSocialUID,
                 Game.runtimeData.registrationSocialToken,
-                () =>
-                {
-                    MyDialog.Close();
-                    next();
-                },
+                next,
                 () => { }
             );
         }

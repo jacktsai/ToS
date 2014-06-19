@@ -70,7 +70,7 @@ public class MyGame
 
                     if (register.CanRun())
                     {
-                        MyDialog.ShowConfirmCancel("是否要自動註冊新帳號？\n鍵值：" + SystemInformation.LocalKey, () => register.Run(PromptAutomation));
+                        MyDialog.ShowConfirmCancel("是否要自動註冊新帳號？\n" + SystemInformation.LocalKey, () => register.Run(PromptAutomation));
                     }
                 }
             };
