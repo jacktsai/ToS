@@ -11,28 +11,38 @@ namespace AssemblyHijack.Automation
 {
     internal class CompleteFloor : Runnable
     {
-        private bool deailyAllCleared = false;
+        private Floor[] dedicatedFloors = null;
         private Floor targetFloor = null;
 
-        public CompleteFloor()
+        private IEnumerable<Floor> GetDedicatedFloors()
         {
-            if (MyGameConfig.floor.floorIds.Length < 1)
+            if (dedicatedFloors == null)
             {
-                MyGameConfig.floor.floorIds = Game.database.floors.Keys.OrderBy(id => id).ToArray();
+                if (MyGameConfig.floor.floors.Length > 0)
+                {
+                    dedicatedFloors = MyGameConfig.floor.floors.Select(id => Game.database.floors[id]).ToArray();
+                }
+                else
+                {
+                    dedicatedFloors = Game.database.floors.Values.ToArray();
+                }
+
+                int count = dedicatedFloors.Count();
+                MyDebug.Log("關卡總數：{0:#,0}", count);
             }
+
+            return dedicatedFloors;
         }
 
         private Floor FindOutBestFloor()
         {
             Floor dedicated = null;
-            if (MyGameConfig.floor.daily)
-            {
-                dedicated = FindDaily();
-            }
+
+            dedicated = FindDaily();
 
             if (dedicated == null)
             {
-                dedicated = FindNormally();
+                dedicated = FindByMode();
             }
 
             return dedicated;
@@ -40,67 +50,70 @@ namespace AssemblyHijack.Automation
 
         private Floor FindDaily()
         {
-            if (deailyAllCleared)
+            if (!MyGameConfig.floor.daily)
                 return null;
 
-            foreach (var floor in Game.database.floors.Values)
+            foreach (var stage in Game.database.stages.Values)
             {
-                if (!floor.isAvailable || floor.isLocked || floor.unlockByItem)
+                if (stage.type != Stage.Type.DAILY)
                     continue;
 
-                if (floor.stamina == 0 && !floor.isPlayed)
-                    return floor;
+                foreach (var floor in stage.availableFloors)
+                {
+                    if (!floor.isPlayed)
+                        return floor;
+                }
             }
-
-            Debug.Log("ALL DAILY HAS BEEN CLEARED!");
-            deailyAllCleared = true;
 
             return null;
         }
 
-        private Floor FindNormally()
+        private Floor FindByMode()
         {
             Floor dedicated = null;
             Floor bonus = null;
 
-            foreach (var floorId in MyGameConfig.floor.floorIds)
+            foreach (var floor in GetDedicatedFloors())
             {
-                var floor = Game.database.floors[floorId];
                 MyDebug.Log(floor);
+                Stage stage = floor.stage;
 
-                if (floor.stamina > MyGameConfig.floor.maxStamina)
+                if (stage.type == Stage.Type.TUTORIAL || stage.type == Stage.Type.ONEOFF)
                 {
-                    Debug.Log(String.Format("[#{0}{1}] IS HEAVY STAMINA, SKIP", floor.floorId, floor.name));
-                    continue;
+                    if (floor.isCleared)
+                    {
+                        Debug.Log(String.Format("[#{0}{1}] HAS BEEN CLEARED, SKIP", floor.floorId, floor.name));
+                        continue;
+                    }
                 }
 
                 if (floor.unlockByItem && !floor.isItemCollected)
                 {
-                    Debug.Log(String.Format("[#{0}{1}] IS ENOUGH ITEM, SKIP", floor.floorId, floor.name));
+                    Debug.Log(String.Format("[#{0}{1}] IS NOT ENOUGH ITEM, SKIP", floor.floorId, floor.name));
                     continue;
                 }
 
                 if (!floor.isAvailable)
                 {
-                    Debug.Log(String.Format("[#{0}{1}] IS NOT AVAILABLE", floor.floorId, floor.name));
+                    Debug.Log(String.Format("[#{0}{1}] IS NOT AVAILABLE, STOP", floor.floorId, floor.name));
                     break;
                 }
 
                 if (floor.isLocked)
                 {
-                    Debug.Log(String.Format("[#{0}{1}] IS LOCKED", floor.floorId, floor.name));
+                    Debug.Log(String.Format("[#{0}{1}] IS LOCKED, STOP", floor.floorId, floor.name));
                     break;
                 }
 
                 if (floor.stamina > Game.runtimeData.user.currentStamina)
                 {
-                    Debug.Log(String.Format("[#{0}{1}] REQUIRED {2} stamina, current {3}", floor.floorId, floor.name, floor.stamina, Game.runtimeData.user.currentStamina));
+                    Debug.Log(String.Format("[#{0}{1}] STAMINA REQUIRED {2} , CURRENT {3}, STOP", floor.floorId, floor.name, floor.stamina, Game.runtimeData.user.currentStamina));
                     break;
                 }
 
                 if (dedicated != null && !dedicated.isCleared)
                 {
-                    Debug.Log(String.Format("[#{0}{1}] IS NOT CLEARED, CLEAR IT FIRST", dedicated.floorId, dedicated.name));
+                    Debug.Log(String.Format("[#{0}{1}] IS NOT CLEARED, CLEAR IT FIRST, STOP", dedicated.floorId, dedicated.name));
                     break;
                 }
 
@@ -108,31 +121,28 @@ namespace AssemblyHijack.Automation
 
                 if (!dedicated.isCleared)
                 {
-                    Debug.Log(String.Format("[#{0}{1}] WILL BE CLEARED FIRST", dedicated.floorId, dedicated.name));
+                    Debug.Log(String.Format("[#{0}{1}] WOULD BE CLEARED FIRST, STOP", dedicated.floorId, dedicated.name));
                     break;
                 }
 
-                foreach (var item in Game.runtimeData.stageBonus.stages)
+                if (stage.isBonus && (stage.bonusType == Stage.BonusType.STAMINA || stage.bonusType == Stage.BonusType.EXP))
                 {
-                    if (floor.stageId == item.stageId)
+                    if (bonus != null)
                     {
-                        // bonusType description
-                        // 1 = stamina 0.5x
-                        // 2 = card drop 2x
-                        // 3 = exp 2x
-                        // 5 = item drop 2x
-                        if (item.bonusType == 1 || item.bonusType == 3)
-                        {
+                        // 以 EXP 的優先較高，否則取關卡等級高者
+                        if (stage.bonusType == Stage.BonusType.EXP || bonus.stage.bonusType == Stage.BonusType.STAMINA)
                             bonus = floor;
-                            break;
-                        }
                     }
+                    else
+                        bonus = floor;
+
+                    Debug.Log(String.Format("[#{0}{1}] WOULD BE THE BEST BONUS FLOOR", bonus.floorId, bonus.name));
                 }
             }
 
             if (dedicated != null && bonus != null)
             {
-                if (MyGameConfig.floor.bonusOnly && dedicated.isCleared)
+                if (dedicated.isCleared)
                     dedicated = bonus;
             }
 
@@ -148,6 +158,7 @@ namespace AssemblyHijack.Automation
             }
 
             targetFloor = FindOutBestFloor();
+
             if (targetFloor != null)
             {
                 Debug.Log(String.Format("FLOOR [#{0}{1}] ready to go, required stamina {2}, current {3}.", targetFloor.floorId, targetFloor.name, targetFloor.stamina, Game.runtimeData.user.currentStamina));

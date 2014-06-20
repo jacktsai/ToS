@@ -34,6 +34,13 @@
   <ItemGroup>
     <Compile Include="Automation\AcceptFriend.cs" />
     <Compile Include="Automation\ClaimReword.cs" />
+    <Compile Include="Automation\FloorStrategy\BonusOnly.cs" />
+    <Compile Include="Automation\FloorStrategy\ClearOnly.cs" />
+    <Compile Include="Automation\FloorStrategy\Daily.cs" />
+    <Compile Include="Automation\FloorStrategy\Dedicated.cs" />
+    <Compile Include="Automation\FloorStrategy\Extreme.cs" />
+    <Compile Include="Automation\FloorStrategy\IStrategy.cs" />
+    <Compile Include="Automation\FloorStrategy\Strategy.cs" />
     <Compile Include="Automation\IRunnable.cs" />
     <Compile Include="Automation\MergeCard.cs" />
     <Compile Include="Automation\RegisterUser.cs" />
