@@ -17,7 +17,6 @@ public class MyGameConfig
         public int? teamSize = null;
         public bool clearAllFloors = false;
         public bool unlockFloors = false;
-        public bool disableAds = false;
 
         public Register register = new Register();
         public Floor floor = new Floor();
@@ -90,7 +89,7 @@ public class MyGameConfig
     public class Merge
     {
         public bool enabled = false;
-        public int[] cards = new int[] { 270, 271, 272, 273, 274, 275, 276, 277, 278, 279 };
+        public int[] sacrificer = new int[] { 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284 };
     }
 
     public class Sell
@@ -119,7 +118,6 @@ public class MyGameConfig
     public static int? teamSize;
     public static bool clearAllFloors;
     public static bool unlockFloors;
-    public static bool disableAds;
     public static Register register;
     public static Floor floor;
     public static Merge merge;
@@ -128,9 +126,9 @@ public class MyGameConfig
 
     static MyGameConfig()
     {
-        Debug.Log("Loading game_config.json ...");
+        MyDebug.Log("Loading game_config.json ...");
         LoadConfig();
-        Debug.Log("game_config.json loaded !!");
+        MyDebug.Log("game_config.json loaded !!");
     }
 
     private static void LoadConfig()
@@ -150,7 +148,6 @@ public class MyGameConfig
                     teamSize = config.teamSize;
                     clearAllFloors = config.clearAllFloors;
                     unlockFloors = config.unlockFloors;
-                    disableAds = config.disableAds;
                     register = config.register;
                     floor = config.floor;
                     merge = config.merge;

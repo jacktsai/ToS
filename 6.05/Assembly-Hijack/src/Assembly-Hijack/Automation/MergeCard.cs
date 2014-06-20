@@ -26,7 +26,7 @@ namespace AssemblyHijack.Automation
                 if (card.inUse || card.bookmark)
                     continue;
 
-                if (MyGameConfig.merge.cards.Contains(card.monsterId))
+                if (MyGameConfig.merge.sacrificer.Contains(card.monsterId))
                 {
                     childrenBonus += card.bonus;
                     children.Add(card);
@@ -43,22 +43,22 @@ namespace AssemblyHijack.Automation
             target = null;
             if (children.Count < 1)
             {
-                Debug.Log(String.Format("沒有飼料卡可供餵食！"));
+                MyDebug.Log("沒有飼料卡可供餵食！");
                 return false;
             }
 
             foreach (var cardId in Game.runtimeData.teamCardIds)
             {
                 var card = Game.runtimeData.user.inventory.GetCard(cardId);
-                Debug.Log(String.Format("[{0}] {1} / {2}", card.name, card.accumulativeLevelExp, card.accumulativeNextLevelMinExp));
+                MyDebug.Log("[{0}] {1} / {2}", card.name, card.accumulativeLevelExp, card.accumulativeNextLevelMinExp);
                 if (card.accumulativeLevelExp < card.accumulativeNextLevelMinExp)
                 {
                     expectedCoin = card.mergeCoin * children.Count + (card.bonus + childrenBonus) * Core.Config.UPGRADE_CARDBOUNS_COST;
-                    Debug.Log(String.Format("升級[{0}]預估需要[{1:#,0}]錢！", card.name, expectedCoin));
+                    MyDebug.Log("升級[{0}]預估需要[{1:#,0}]錢！", card.name, expectedCoin);
 
                     if (Game.runtimeData.user.coin >= expectedCoin)
                     {
-                        Debug.Log(String.Format("判定升級[{0}], 餵食{1}", card.name, cardNames));
+                        MyDebug.Log("判定升級[{0}], 餵食{1}", card.name, cardNames);
 
                         target = card;
                         return true;
@@ -66,7 +66,7 @@ namespace AssemblyHijack.Automation
                 }
             }
 
-            Debug.Log(String.Format("找不到合適的卡片進行升級！"));
+            MyDebug.Log("找不到合適的卡片進行升級！");
 
             return false;
         }
@@ -82,14 +82,9 @@ namespace AssemblyHijack.Automation
                 cardNames.AppendFormat("{0}", card.name);
             }
 
-            MyDialog.ShowWaiting("正在花費{0:#,0}升級[{1}]\n{2}", expectedCoin, target.name, cardNames);
             Game.SetMonsterUpgradeTarget(target);
             Game.SetMonsterUpgradeChildren(children.ToArray());
-            Game.UpgradeMonster(() =>
-                {
-                    MyDialog.Close();
-                    next();
-                });
+            Game.UpgradeMonster(next);
         }
     }
 }

@@ -2,66 +2,57 @@
 
 internal class MyDialog
 {
-    public static PopUpDialog instance;
-
-    public static void ShowWaiting(String format, params object[] args)
-    {
-        //Close();
-
-        //DialogBuilder builder = Create(String.Format(format, args));
-        //builder.AddLoadingImage();
-
-        //Show(builder);
-    }
-
     public static void ShowConfirm(String message, Action onConfirm = null)
     {
-        Close();
+        //ViewController.SwitchView(() =>
+        //    {
+        //        DialogBuilder builder = Create(message);
+        //        builder.AddButton(Locale.t("LABEL_OK"),
+        //            () =>
+        //            {
+        //                if (onConfirm != null)
+        //                    onConfirm();
+        //            });
 
-        DialogBuilder builder = Create(message);
-        builder.AddButton(Locale.t("LABEL_OK"),
-            () =>
+        //        builder.Show();
+        //    });
+
+        if (onConfirm == null)
+        {
+            onConfirm = delegate
             {
-                Close();
-                if (onConfirm != null)
-                    onConfirm();
-            });
+                ViewController.SwitchView(ViewIndex.WORLDMAP_WORLD_MAP);
+            };
+        }
 
-        Show(builder);
+        ViewController.SwitchView(() =>
+        {
+            DialogBuilder dialogBuilder = new DialogBuilder();
+            dialogBuilder.SetTitle("###[超級機]###");
+            dialogBuilder.AddSubView(MenuIcon.Create(MenuIcon.IconType.LUCKYDRAW_DISNEY, null).gameObject);
+            dialogBuilder.SetScrollText(message);
+            dialogBuilder.AddButton(Locale.t("LABEL_OK"), onConfirm);
+            dialogBuilder.Show();
+        });
     }
 
     public static void ShowConfirmCancel(String message, Action onConfirm, Action onCancel = null)
     {
-        Close();
-
         DialogBuilder builder = Create(message);
         builder.AddButton(Locale.t("LABEL_OK"),
             () =>
             {
-                Close();
                 if (onConfirm != null)
                     onConfirm();
             });
         builder.AddButton(Locale.t("LABEL_CANCEL"),
             () =>
             {
-                Close();
                 if (onCancel != null)
                     onCancel();
             });
-        builder.canHide = false;
 
         Show(builder);
-    }
-
-    public static void Close()
-    {
-        if (instance != null)
-        {
-            instance.canHide = true;
-            instance.Hide();
-            instance = null;
-        }
     }
 
     private static DialogBuilder Create(string message)
@@ -77,6 +68,24 @@ internal class MyDialog
     private static void Show(DialogBuilder builder)
     {
         builder.Show();
-        instance = PopUpDialog.instance;
+    }
+
+    public static void ShowLuckyDrawMessage(Action onComplete)
+    {
+        ViewController.SwitchView(delegate
+        {
+            if (Game.runtimeData.luckyDrawMessage != null)
+            {
+                DialogBuilder dialogBuilder = new DialogBuilder();
+                dialogBuilder.SetTitle(Locale.t("DIALOG_147"));
+                dialogBuilder.SetScrollText(Game.runtimeData.luckyDrawMessage);
+                dialogBuilder.AddButton(Locale.t("LABEL_OK"), onComplete);
+                dialogBuilder.Show();
+            }
+            else
+            {
+                onComplete.Invoke();
+            }
+        });
     }
 }

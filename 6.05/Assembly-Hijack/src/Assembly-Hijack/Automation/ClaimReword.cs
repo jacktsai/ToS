@@ -27,7 +27,7 @@ namespace AssemblyHijack.Automation
 
                 if (MyGameConfig.reward.types.Contains((int)reward.rewardType))
                 {
-                    Debug.Log(String.Format("領取獎勵 {0} [{1}]", reward.rewardType, reward.message));
+                    MyDebug.Log("領取獎勵 {0} [{1}]", reward.rewardType, reward.message);
                     Game.ClaimReward(
                         reward.rewardId,
                         (diamondCompensated, cardIds) =>
@@ -35,9 +35,7 @@ namespace AssemblyHijack.Automation
                             reward.claimed = true;
                             ClaimReward(next);
                         },
-                        () =>
-                        {
-                        });
+                        null);
                     return;
                 }
             }

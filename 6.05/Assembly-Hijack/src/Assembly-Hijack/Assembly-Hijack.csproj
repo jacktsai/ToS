@@ -47,20 +47,10 @@
     <Compile Include="Automation\Runnable.cs" />
     <Compile Include="Automation\CompleteFloor.cs" />
     <Compile Include="Automation\SellCard.cs" />
-    <Compile Include="Fake_API.cs" />
-    <Compile Include="Fake_BootLoader.cs" />
-    <Compile Include="Fake_Game.cs" />
     <Compile Include="MyDialog.cs" />
     <Compile Include="MyGameConfig.cs" />
     <Compile Include="MyGameManager.cs" />
-    <Compile Include="MyAPI.cs" />
-    <Compile Include="MadHead\MyChecksum.cs" />
-    <Compile Include="MyBootLoader.cs" />
-    <Compile Include="MyPuzzle.cs" />
-    <Compile Include="MyRestoreGameplay.cs" />
     <Compile Include="MyDebug.cs" />
-    <Compile Include="SampleClass.cs" />
-    <Compile Include="Fake_User.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

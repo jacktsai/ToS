@@ -4,19 +4,25 @@ namespace AssemblyHijack.Automation
 {
     internal class AcceptFriend : Runnable
     {
+        private DateTime nextTime = DateTime.Now;
+
         protected override bool Check()
         {
-            return Game.runtimeData.friendRequests.Count > 0 && !Game.runtimeData.user.isFriendsFull;
+            return nextTime < DateTime.Now;
         }
 
         protected override void Execute(Action next)
         {
-            MyDialog.ShowWaiting("正在接受所有好友的申請");
-            Game.AcceptAllFriendRequest(() =>
+            Game.GetFriendRequests(
+                () =>
                 {
-                    MyDialog.Close();
-                    next();
-                }, () => { });
+                    if (Game.runtimeData.friendRequests.Count > 0 && !Game.runtimeData.user.isFriendsFull)
+                    {
+                        Game.AcceptAllFriendRequest(next, null);
+                    }
+
+                    nextTime = DateTime.Now.AddSeconds(1);
+                });
         }
     }
 }

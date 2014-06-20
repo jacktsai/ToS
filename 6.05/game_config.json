@@ -4,7 +4,6 @@
 "teamSize" : 120,
 "clearAllFloors" : false,
 "unlockFloors" : false,
-"disableAds" : true,
 
 "register" :
 {
@@ -15,11 +14,10 @@
 "floor" :
 {
 "enabled" : true,
-"requestFriend" : true,
-"floorIds" : [],
-"maxStamina" : 30,
+"mode" : "extreme",
 "daily" : true,
-"bonusOnly" : false,
+"requestFriend" : true,
+"maxStamina" : 30,
 "recovery" :
 {
 "enabled" : true,
@@ -32,7 +30,7 @@
 "merge" :
 {
 "enabled" : true,
-"cards" : [270,271,272,273,274,275,276,277,278,279]
+"sacrificer" : [270,271,272,273,274,275,276,277,278,279,280,281,282,283,284]
 },
 
 "sell" :

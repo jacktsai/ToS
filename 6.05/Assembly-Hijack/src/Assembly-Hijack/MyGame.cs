@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using AssemblyHijack;
 using AssemblyHijack.Automation;
 using GameJSON;
 using JsonFx.Json;
@@ -15,7 +16,7 @@ public class MyGame
 
     static MyGame()
     {
-        Debug.Log("Loading RUNNERs ...");
+        MyDebug.Log("Loading RUNNERs ...");
 
         if (MyGameConfig.sell.enabled)
             RUNNER.Add(new SellCard());
@@ -28,13 +29,14 @@ public class MyGame
 
         if (MyGameConfig.floor.enabled)
         {
-            RUNNER.Add(new CompleteFloor());
+            // 會造成不明原因卡住，先不使用
+            //if (MyGameConfig.floor.requestFriend)
+            //    RUNNER.Add(new AcceptFriend());
 
-            if (MyGameConfig.floor.requestFriend)
-                RUNNER.Add(new AcceptFriend());
+            RUNNER.Add(new CompleteFloor());
         }
 
-        Debug.Log(String.Format("{0} RUNNER(s) has been loaded !!", RUNNER.Count));
+        MyDebug.Log("{0} RUNNER(s) has been loaded !!", RUNNER.Count);
     }
 
     private static void NextAction()
@@ -59,70 +61,58 @@ public class MyGame
 
     public static void GetConfig(Action onSuccess)
     {
-        //MyDialog.ShowWaiting("正在取得設定檔...");
-
         Action successHook = () =>
             {
                 onSuccess();
 
-                //MyDialog.Close();
+                //if (MyGameConfig.register.enabled)
+                //{
+                //    var register = new RegisterUser();
 
-                if (MyGameConfig.register.enabled)
-                {
-                    var register = new RegisterUser();
-
-                    if (register.CanRun())
-                    {
-                        MyDialog.ShowConfirmCancel("是否要自動註冊新帳號？\n" + SystemInformation.LocalKey, () => register.Run(PromptAutomation));
-                    }
-                }
+                //    if (register.CanRun())
+                //    {
+                //        MyDialog.ShowConfirmCancel("是否要自動註冊新帳號？\n" + SystemInformation.LocalKey, () => register.Run(PromptAutomation));
+                //    }
+                //}
             };
 
         Game.GetConfig(successHook);
     }
 
-    public static void SetConfig(Config config, bool restore = false)
-    {
-        //MyDialog.ShowWaiting("設定檔載入中...");
-
-        Game.SetConfig(config, restore);
-
-        if (MyGameConfig.disableAds)
-        {
-            Core.Config.AdMob_PublisherId = string.Empty;
-        }
-
-        //MyDialog.Close();
-    }
-
     public static void Login(Action onSuccess)
     {
-        //MyDialog.ShowWaiting("帳號登入中...");
-
         Action successHook = () =>
             {
                 onSuccess();
 
-                //MyDialog.Close();
-                PromptAutomation();
+                //PromptAutomation();
             };
 
         Game.Login(successHook);
     }
 
-    public static void NetworkWaiting()
+    public static void SetConfig(Config config, bool restore = false)
     {
-        if (MyDialog.instance == null)
-        {
-            Game.NetworkWaiting();
-        }
+        MyDebug.Log("Before - {0}.SetConfig", typeof(MyGame).Name);
+        MyDialog.ShowConfirm("設定檔載入中...");
+
+        Game.SetConfig(config, restore);
+        Core.Config.AdMob_PublisherId = string.Empty;
+
+        MyDebug.Log("After - {0}.SetConfig", typeof(MyGame).Name);
     }
 
-    public static void NetworkCompleted(URLRequest request = null)
+    public static void SetData(Login.Data data, bool restore = false)
     {
-        if (MyDialog.instance == null)
-        {
-            Game.NetworkCompleted(null);
-        }
+        MyDebug.Log("Before - {0}.SetData", typeof(MyGame).Name);
+        Game.SetData(data, restore);
+        MyDebug.Log("After - {0}.SetData", typeof(MyGame).Name);
+    }
+
+    public static void SetUser(BaseJson userInfo, bool restore = false)
+    {
+        MyDebug.Log("Before - {0}.SetUser", typeof(MyGame).Name);
+        Game.SetUser(userInfo, restore);
+        MyDebug.Log("After - {0}.SetUser", typeof(MyGame).Name);
     }
 }

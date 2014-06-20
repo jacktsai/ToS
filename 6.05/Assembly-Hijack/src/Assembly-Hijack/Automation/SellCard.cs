@@ -35,12 +35,12 @@ namespace AssemblyHijack.Automation
 
             if (cards.Count < 1)
             {
-                Debug.Log("沒有卡片可供出售！");
+                MyDebug.Log("沒有卡片可供出售！");
                 return false;
             }
             else
             {
-                Debug.Log(String.Format("判定出售{0}", cardNames));
+                MyDebug.Log("判定出售{0}", cardNames);
                 return true;
             }
         }
