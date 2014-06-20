@@ -29,9 +29,8 @@ public class MyGame
 
         if (MyGameConfig.floor.enabled)
         {
-            // 會造成不明原因卡住，先不使用
-            //if (MyGameConfig.floor.requestFriend)
-            //    RUNNER.Add(new AcceptFriend());
+            if (MyGameConfig.floor.requestFriend)
+                RUNNER.Add(new AcceptFriend());
 
             RUNNER.Add(new CompleteFloor());
         }
@@ -51,68 +50,109 @@ public class MyGame
         }
     }
 
+    private static void PromptRegister()
+    {
+        if (!Game.localUserExists)
+        {
+            ViewController.SwitchView(delegate
+            {
+                DialogBuilder builder = MyDialog.Create();
+                builder.SetMessage("是否要自動註冊新帳號？\n" + SystemInformation.LocalKey);
+                builder.AddButton(Locale.t("LABEL_OK"), delegate
+                {
+                    var name = String.Format("#{0:000}", UnityEngine.Random.Range(1, 10000));
+                    var partner = MyGameConfig.register.partner;
+                    var type = "device";
+
+                    Game.UniqueKey = SystemInformation.LocalKey;
+                    Game.runtimeData.registerName = name;
+                    Game.runtimeData.selectedPartner = partner;
+                    Game.runtimeData.registrationType = type;
+
+                    Game.Register(name, partner, type,
+                        Game.runtimeData.registrationSocialUID,
+                        Game.runtimeData.registrationSocialToken,
+                        PromptAutomation,
+                        null
+                    );
+                });
+                builder.AddButton(Locale.t("LABEL_CANCEL"), delegate
+                {
+                    ViewController.SwitchView(ViewIndex.REGISTER_TYPESELECTION);
+                });
+
+                builder.Show();
+            });
+        }
+    }
+
     private static void PromptAutomation()
     {
         if (RUNNER.Count > 0)
         {
-            MyDialog.ShowConfirmCancel("是否要啟動自動化程序？", NextAction);
+            ViewController.SwitchView(delegate
+            {
+                Thread.Sleep(3000);
+
+                DialogBuilder builder = MyDialog.Create();
+                builder.SetMessage("是否要啟動自動化程序？");
+                builder.AddButton(Locale.t("LABEL_OK"), delegate
+                {
+                    ViewController.SwitchView(ViewIndex.WORLDMAP_WORLD_MAP);
+                    NextAction();
+                });
+                builder.AddButton(Locale.t("LABEL_CANCEL"), delegate
+                {
+                    ViewController.SwitchView(ViewIndex.WORLDMAP_WORLD_MAP);
+                });
+
+                builder.Show();
+            });
         }
     }
 
     public static void GetConfig(Action onSuccess)
     {
-        Action successHook = () =>
-            {
-                onSuccess();
-
-                //if (MyGameConfig.register.enabled)
-                //{
-                //    var register = new RegisterUser();
-
-                //    if (register.CanRun())
-                //    {
-                //        MyDialog.ShowConfirmCancel("是否要自動註冊新帳號？\n" + SystemInformation.LocalKey, () => register.Run(PromptAutomation));
-                //    }
-                //}
-            };
-
-        Game.GetConfig(successHook);
-    }
-
-    public static void Login(Action onSuccess)
-    {
-        Action successHook = () =>
-            {
-                onSuccess();
-
-                //PromptAutomation();
-            };
-
-        Game.Login(successHook);
+        Game.GetConfig(onSuccess);
     }
 
     public static void SetConfig(Config config, bool restore = false)
     {
-        MyDebug.Log("Before - {0}.SetConfig", typeof(MyGame).Name);
-        MyDialog.ShowConfirm("設定檔載入中...");
-
+        MyDebug.Log(">> - {0}.SetConfig", typeof(MyGame).Name);
         Game.SetConfig(config, restore);
         Core.Config.AdMob_PublisherId = string.Empty;
 
-        MyDebug.Log("After - {0}.SetConfig", typeof(MyGame).Name);
+        if (!Game.restoreOnResume && !Game.floorDataReady)
+        {
+            PromptRegister();
+        }
+
+        MyDebug.Log("<< - {0}.SetConfig", typeof(MyGame).Name);
+    }
+
+    public static void Login(Action onSuccess)
+    {
+        MyDebug.Log(">> - {0}.Login", typeof(MyGame).Name);
+        Action successHook = () =>
+        {
+            onSuccess();
+            PromptAutomation();
+        };
+        Game.Login(successHook);
+        MyDebug.Log("<< - {0}.Login", typeof(MyGame).Name);
     }
 
     public static void SetData(Login.Data data, bool restore = false)
     {
-        MyDebug.Log("Before - {0}.SetData", typeof(MyGame).Name);
+        MyDebug.Log(">> - {0}.SetData", typeof(MyGame).Name);
         Game.SetData(data, restore);
-        MyDebug.Log("After - {0}.SetData", typeof(MyGame).Name);
+        MyDebug.Log("<< - {0}.SetData", typeof(MyGame).Name);
     }
 
     public static void SetUser(BaseJson userInfo, bool restore = false)
     {
-        MyDebug.Log("Before - {0}.SetUser", typeof(MyGame).Name);
+        MyDebug.Log(">> - {0}.SetUser", typeof(MyGame).Name);
         Game.SetUser(userInfo, restore);
-        MyDebug.Log("After - {0}.SetUser", typeof(MyGame).Name);
+        MyDebug.Log("<< - {0}.SetUser", typeof(MyGame).Name);
     }
 }

@@ -16,12 +16,16 @@ namespace AssemblyHijack.Automation
             Game.GetFriendRequests(
                 () =>
                 {
+                    nextTime = DateTime.Now.AddSeconds(120);
+
                     if (Game.runtimeData.friendRequests.Count > 0 && !Game.runtimeData.user.isFriendsFull)
                     {
                         Game.AcceptAllFriendRequest(next, null);
                     }
-
-                    nextTime = DateTime.Now.AddSeconds(1);
+                    else
+                    {
+                        next();
+                    }
                 });
         }
     }
