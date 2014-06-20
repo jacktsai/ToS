@@ -20,6 +20,9 @@ public class MyGame
         if (MyGameConfig.sell.enabled)
             RUNNER.Add(new SellCard());
 
+        if (MyGameConfig.reward.enabled)
+            RUNNER.Add(new ClaimReword());
+
         if (MyGameConfig.merge.enabled)
             RUNNER.Add(new MergeCard());
 
