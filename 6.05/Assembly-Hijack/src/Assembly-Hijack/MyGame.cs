@@ -54,6 +54,8 @@ public class MyGame
     {
         if (!Game.localUserExists)
         {
+            Game.NetworkCompleted();
+
             ViewController.SwitchView(delegate
             {
                 DialogBuilder builder = MyDialog.Create();
@@ -90,10 +92,10 @@ public class MyGame
     {
         if (RUNNER.Count > 0)
         {
+            Game.NetworkCompleted();
+
             ViewController.SwitchView(delegate
             {
-                Thread.Sleep(3000);
-
                 DialogBuilder builder = MyDialog.Create();
                 builder.SetMessage("是否要啟動自動化程序？");
                 builder.AddButton(Locale.t("LABEL_OK"), delegate

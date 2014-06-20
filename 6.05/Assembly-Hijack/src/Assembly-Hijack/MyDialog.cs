@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 internal class MyDialog
 {
@@ -13,6 +14,14 @@ internal class MyDialog
 
     public static void ShowConfirm(String message, Action onConfirm = null, Action onCancel = null)
     {
+        if (onConfirm == null)
+        {
+            onConfirm = delegate
+            {
+                ViewController.SwitchView(ViewIndex.WORLDMAP_WORLD_MAP);
+            };
+        }
+
         ViewController.SwitchView(delegate
         {
             DialogBuilder builder = Create();
