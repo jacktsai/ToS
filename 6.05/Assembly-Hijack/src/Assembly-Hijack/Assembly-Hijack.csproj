@@ -51,6 +51,7 @@
     <Compile Include="MyBootLoader.cs" />
     <Compile Include="MyPuzzle.cs" />
     <Compile Include="MyRestoreGameplay.cs" />
+    <Compile Include="MyDebug.cs" />
     <Compile Include="SampleClass.cs" />
     <Compile Include="Fake_User.cs" />
   </ItemGroup>

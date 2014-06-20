@@ -37,6 +37,9 @@ public class MyGameConfig
         public bool enabled = false;
         public bool requestFriend = false;
         public int[] floorIds = new int[0];
+        public int maxStamina = 30;
+        public bool daily = false;
+        public bool bonusOnly = false;
         public Recovery recovery = new Recovery();
 
         /// <summary>

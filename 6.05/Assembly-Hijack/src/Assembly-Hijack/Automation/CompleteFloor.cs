@@ -11,7 +11,133 @@ namespace AssemblyHijack.Automation
 {
     internal class CompleteFloor : Runnable
     {
+        private bool deailyAllCleared = false;
         private Floor targetFloor = null;
+
+        public CompleteFloor()
+        {
+            if (MyGameConfig.floor.floorIds.Length < 1)
+            {
+                MyGameConfig.floor.floorIds = Game.database.floors.Keys.OrderBy(id => id).ToArray();
+            }
+        }
+
+        private Floor FindOutBestFloor()
+        {
+            Floor dedicated = null;
+            if (MyGameConfig.floor.daily)
+            {
+                dedicated = FindDaily();
+            }
+
+            if (dedicated == null)
+            {
+                dedicated = FindNormally();
+            }
+
+            return dedicated;
+        }
+
+        private Floor FindDaily()
+        {
+            if (deailyAllCleared)
+                return null;
+
+            foreach (var floor in Game.database.floors.Values)
+            {
+                if (!floor.isAvailable || floor.isLocked || floor.unlockByItem)
+                    continue;
+
+                if (floor.stamina == 0 && !floor.isPlayed)
+                    return floor;
+            }
+
+            Debug.Log("ALL DAILY HAS BEEN CLEARED!");
+            deailyAllCleared = true;
+
+            return null;
+        }
+
+        private Floor FindNormally()
+        {
+            Floor dedicated = null;
+            Floor bonus = null;
+
+            foreach (var floorId in MyGameConfig.floor.floorIds)
+            {
+                var floor = Game.database.floors[floorId];
+                MyDebug.Log(floor);
+
+                if (floor.stamina > MyGameConfig.floor.maxStamina)
+                {
+                    Debug.Log(String.Format("[#{0}{1}] IS HEAVY STAMINA, SKIP", floor.floorId, floor.name));
+                    continue;
+                }
+
+                if (floor.unlockByItem && !floor.isItemCollected)
+                {
+                    Debug.Log(String.Format("[#{0}{1}] IS ENOUGH ITEM, SKIP", floor.floorId, floor.name));
+                    continue;
+                }
+
+                if (!floor.isAvailable)
+                {
+                    Debug.Log(String.Format("[#{0}{1}] IS NOT AVAILABLE", floor.floorId, floor.name));
+                    break;
+                }
+
+                if (floor.isLocked)
+                {
+                    Debug.Log(String.Format("[#{0}{1}] IS LOCKED", floor.floorId, floor.name));
+                    break;
+                }
+
+                if (floor.stamina > Game.runtimeData.user.currentStamina)
+                {
+                    Debug.Log(String.Format("[#{0}{1}] REQUIRED {2} stamina, current {3}", floor.floorId, floor.name, floor.stamina, Game.runtimeData.user.currentStamina));
+                    break;
+                }
+
+                if (dedicated != null && !dedicated.isCleared)
+                {
+                    Debug.Log(String.Format("[#{0}{1}] IS NOT CLEARED, CLEAR IT FIRST", dedicated.floorId, dedicated.name));
+                    break;
+                }
+
+                dedicated = floor;
+
+                if (!dedicated.isCleared)
+                {
+                    Debug.Log(String.Format("[#{0}{1}] WILL BE CLEARED FIRST", dedicated.floorId, dedicated.name));
+                    break;
+                }
+
+                foreach (var item in Game.runtimeData.stageBonus.stages)
+                {
+                    if (floor.stageId == item.stageId)
+                    {
+                        // bonusType description
+                        // 1 = stamina 0.5x
+                        // 2 = card drop 2x
+                        // 3 = exp 2x
+                        // 5 = item drop 2x
+                        if (item.bonusType == 1 || item.bonusType == 3)
+                        {
+                            bonus = floor;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (dedicated != null && bonus != null)
+            {
+                if (MyGameConfig.floor.bonusOnly && dedicated.isCleared)
+                    dedicated = bonus;
+            }
+
+            return dedicated;
+        }
 
         protected override bool Check()
         {
@@ -21,106 +147,21 @@ namespace AssemblyHijack.Automation
                 return false;
             }
 
-            targetFloor = null;
-            User user = Game.runtimeData.user;
-            Floor lastAvailableFloor = null;
-            Floor lastBonusFloor = null;
-            foreach (var floor in Game.database.floors.Values)
+            targetFloor = FindOutBestFloor();
+            if (targetFloor != null)
             {
-                if (floor.stageId == 1 && Game.runtimeData.completedFloorIds.Contains(floor.floorId))
-                {
-                    //Debug.Log(String.Format("floor [#{0}{1}] CANNNOT ENTER TWICE", floor.floorId, floor.name));
-                    continue;
-                }
-
-                //if (floor.isChallengeFloor)
-                //{
-                //    Debug.Log(String.Format("floor [#{0}{1}] IS CHALLENGE FLOOR", floor.floorId, floor.name));
-                //    continue;
-                //}
-
-                if (!floor.isAvailable)
-                {
-                    Debug.Log(String.Format("floor [#{0}{1}] IS NOT AVAILABLE", floor.floorId, floor.name));
-                    break;
-                }
-
-                if (floor.isLocked)
-                {
-                    Debug.Log(String.Format("floor [#{0}{1}] IS LOCKED", floor.floorId, floor.name));
-                    break;
-                }
-
-                if (floor.stamina > user.currentStamina)
-                {
-                    Debug.Log(String.Format("floor [#{0}{1}] REQUIRED {2} stamina, current {3}", floor.floorId, floor.name, floor.stamina, user.currentStamina));
-                    break;
-                }
-
-                if (lastAvailableFloor != null && !lastAvailableFloor.isCleared)
-                {
-                    Debug.Log(String.Format("floor [#{0}{1}] IS NOT CLEARED", lastAvailableFloor.floorId, lastAvailableFloor.name));
-                    break;
-                }
-
-                if (floor.unlockByItem && !floor.isItemCollected)
-                {
-                    Debug.Log(String.Format("floor [#{0}{1}] IS ENOUGH ITEM, SKIP THIS FLOOR", floor.floorId, floor.name));
-                    continue;
-                }
-
-                lastAvailableFloor = floor;
-
-                foreach (var item in Game.runtimeData.stageBonus.stages)
-                {
-                    if (floor.stageId == item.stageId)
-                    {
-                        lastBonusFloor = floor;
-                        break;
-                    }
-                }
+                Debug.Log(String.Format("FLOOR [#{0}{1}] ready to go, required stamina {2}, current {3}.", targetFloor.floorId, targetFloor.name, targetFloor.stamina, Game.runtimeData.user.currentStamina));
+                return true;
             }
-
-            if (lastAvailableFloor != null)
-            {
-                if (lastAvailableFloor.isCleared && lastBonusFloor != null)
-                    lastAvailableFloor = lastBonusFloor;
-
-                Debug.Log(String.Format("floor [#{0}{1}] ready to go, required stamina {2}, current {3}.", lastAvailableFloor.floorId, lastAvailableFloor.name, lastAvailableFloor.stamina, user.currentStamina));
-                targetFloor = lastAvailableFloor;
-            }
-
-            if (targetFloor == null)
+            else
             {
                 MyDialog.ShowConfirm("已經沒有下一個適合的關卡進行戰鬥！");
                 return false;
             }
-
-            return true;
         }
 
         protected override void Execute(Action next)
         {
-            string json = JsonWriter.Serialize(targetFloor);
-            char[] chars = json.ToCharArray();
-            int packageIndex = 0;
-            while (true)
-            {
-                var charBuffer = new List<char>(800);
-                int baseIndex = packageIndex * charBuffer.Capacity;
-                for (int i = 0; i < charBuffer.Capacity && baseIndex + i < chars.Length; i++)
-                {
-                    charBuffer.Add(chars[baseIndex + i]);
-                }
-
-                if (charBuffer.Count < 1)
-                    break;
-
-                Debug.Log(new String(charBuffer.ToArray()));
-                packageIndex++;
-                charBuffer.Clear();
-            }
-
             Game.SetCurrentTeamIndex(1);
             Game.SetCurrentZone(targetFloor.stage.zoneId);
             Game.SetCurrentStage(targetFloor.stage);
