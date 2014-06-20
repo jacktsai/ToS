@@ -40,10 +40,16 @@ namespace AssemblyHijack.Automation
             candidate = null;
 
             if (MyGameConfig.floor.daily)
+            {
+                MyDebug.Log("嚐試取得每日關卡...");
                 candidate = dailyFloors.NextFloor();
+            }
 
             if (candidate == null)
+            {
+                MyDebug.Log("嚐試取得普通關卡...");
                 candidate = normalFloors.NextFloor();
+            }
 
             if (candidate != null)
             {

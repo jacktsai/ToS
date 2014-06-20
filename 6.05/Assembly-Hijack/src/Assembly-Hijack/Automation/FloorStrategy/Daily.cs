@@ -9,29 +9,21 @@ namespace AssemblyHijack.Automation.FloorStrategy
     {
         public override Floor NextFloor()
         {
-            Floor candidate = null;
-
             foreach (var stage in Game.database.stages.Values)
             {
-                if (stage.type != Stage.Type.DAILY)
-                    continue;
+                MyDebug.Log("stage type is [{0}{1}]", (int)stage.type, stage.type.ToString());
 
-                foreach (var floor in stage.availableFloors)
+                if (stage.type == Stage.Type.DAILY)
                 {
-                    PatrolGuide guide = JudgePatro(floor);
-
-                    if (guide == PatrolGuide.SKIP)
-                        continue;
-
-                    if (guide == PatrolGuide.STOP)
-                        goto patro_end;
-
-                    candidate = floor;
+                    foreach (var floor in stage.availableFloors)
+                    {
+                        if (!floor.isPlayed)
+                            return floor;
+                    }
                 }
             }
 
-        patro_end:
-            return candidate;
+            return null;
         }
     }
 }
