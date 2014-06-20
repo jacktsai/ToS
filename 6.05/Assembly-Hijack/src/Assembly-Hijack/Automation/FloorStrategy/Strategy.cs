@@ -28,7 +28,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
         {
             Stage stage = target.stage;
 
-            if (stage.type == Stage.Type.ONEOFF && target.isCleared)
+            if ((stage.type == Stage.Type.TUTORIAL || stage.type == Stage.Type.ONEOFF) && target.isCleared)
             {
                 MyDebug.Log("[#{0}{1}] HAS BEEN CLEARED, SKIP", target.floorId, target.name);
                 return PatrolGuide.SKIP;

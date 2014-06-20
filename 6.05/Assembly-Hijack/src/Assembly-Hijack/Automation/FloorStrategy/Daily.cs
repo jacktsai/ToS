@@ -11,13 +11,15 @@ namespace AssemblyHijack.Automation.FloorStrategy
         {
             foreach (var stage in Game.database.stages.Values)
             {
-                MyDebug.Log("stage type is [{0}{1}]", (int)stage.type, stage.type.ToString());
-
-                if (stage.type == Stage.Type.DAILY)
+                if (stage.type == Stage.Type.URGENT || stage.type == Stage.Type.DAILY || stage.type == Stage.Type.UNLIMITED)
                 {
                     foreach (var floor in stage.availableFloors)
                     {
-                        if (!floor.isPlayed)
+                        if (floor.stamina > 0)
+                            continue;
+
+                        PatrolGuide patro = JudgePatro(floor);
+                        if (patro == PatrolGuide.NONE)
                             return floor;
                     }
                 }
