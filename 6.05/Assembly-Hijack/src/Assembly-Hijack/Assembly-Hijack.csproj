@@ -48,8 +48,10 @@
     <Compile Include="Automation\SellCard.cs" />
     <Compile Include="MyDialog.cs" />
     <Compile Include="MyGameConfig.cs" />
-    <Compile Include="MyGameManager.cs" />
+    <Compile Include="MyIMPlayerPrefManager.cs" />
     <Compile Include="MyLog.cs" />
+    <Compile Include="MyPuzzle.cs" />
+    <Compile Include="MyRestoreGameplay.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

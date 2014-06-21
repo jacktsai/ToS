@@ -11,18 +11,47 @@ public class MyGameConfig
 
     public class JsonFormat
     {
-        public string[] userCards;
-        public string[] helperCards;
-
-        public int? teamSize = null;
-        public bool clearAllFloors = false;
-        public bool unlockFloors = false;
+        public User user = new User();
+        public Puzzle puzzle = new Puzzle();
 
         public Register register = new Register();
         public Floor floor = new Floor();
         public Merge merge = new Merge();
         public Sell sell = new Sell();
         public Reward reward = new Reward();
+    }
+
+    public class User
+    {
+        public bool enabled = false;
+        public bool tutorial = false;
+        public int teamSize = 120;
+        public bool reveal = false;
+        public Card[] desires = new Card[0];
+        public Card[] helpers = new Card[0];
+
+        public class Card
+        {
+            public int monsterId = 0;
+            public int monsterLv = 0;
+            public int skillLv = 0;
+        }
+    }
+
+    public class Puzzle
+    {
+        public bool enabled = false;
+        public float countDown = 120f;
+
+        /// <summary>
+        /// 1 = 水
+        /// 2 = 火
+        /// 3 = 木
+        /// 4 = 光
+        /// 5 = 暗
+        /// 6 = 心
+        /// </summary>
+        public int[] elements = new[] { 1, 2, 3, 4, 5, 6 };
     }
 
     public class Register
@@ -113,16 +142,13 @@ public class MyGameConfig
         public int[] types = new int[] { 1, 2, 14 };
     }
 
-    public static List<GameJSON.Card> desiredMonsters;
-    public static List<GameJSON.Card> desiredHelpers;
-    public static int? teamSize;
-    public static bool clearAllFloors;
-    public static bool unlockFloors;
+    public static User user;
     public static Register register;
     public static Floor floor;
     public static Merge merge;
     public static Sell sell;
     public static Reward reward;
+    public static Puzzle puzzle;
 
     static MyGameConfig()
     {
@@ -142,17 +168,13 @@ public class MyGameConfig
                     string allContent = configFile.ReadToEnd();
                     JsonFormat config = JsonFx.Json.JsonReader.Deserialize<JsonFormat>(allContent);
 
-                    desiredMonsters = ParseCardStrings(config.userCards);
-                    desiredHelpers = ParseCardStrings(config.helperCards);
-
-                    teamSize = config.teamSize;
-                    clearAllFloors = config.clearAllFloors;
-                    unlockFloors = config.unlockFloors;
+                    user = config.user;
                     register = config.register;
                     floor = config.floor;
                     merge = config.merge;
                     sell = config.sell;
                     reward = config.reward;
+                    puzzle = config.puzzle;
                 }
             }
             catch (Exception ex)
@@ -160,28 +182,5 @@ public class MyGameConfig
                 Debug.LogError(ex);
             }
         }
-    }
-
-    private static List<GameJSON.Card> ParseCardStrings(string[] cardStrings)
-    {
-        List<GameJSON.Card> cardList = new List<GameJSON.Card>();
-
-        if (cardStrings != null && cardStrings.Length > 0)
-        {
-            foreach (var cardString in cardStrings)
-            {
-                string[] values = cardString.Split(',');
-                GameJSON.Card card = new GameJSON.Card
-                {
-                    monsterId = MParser.ArrayItemParseToInt(ref values, 0, 1),
-                    level = MParser.ArrayItemParseToInt(ref values, 1, 0),
-                    skillLevel = MParser.ArrayItemParseToInt(ref values, 2, 0),
-                };
-
-                cardList.Add(card);
-            }
-        }
-
-        return cardList;
     }
 }

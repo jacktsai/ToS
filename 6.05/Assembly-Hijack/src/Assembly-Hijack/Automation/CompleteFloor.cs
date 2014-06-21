@@ -81,71 +81,57 @@ namespace AssemblyHijack.Automation
             Game.SetCurrentStage(candidate.stage);
             Game.SetCurrentFloor(candidate);
 
-            Action<List<Helper>> enterFloor = (helpers) =>
-            {
-                Helper helper = null;
-
-                if (helpers != null)
+            Game.GetHelperList(
+                candidate.floorId,
+                (helpers) =>
                 {
                     // 隨機從中挑選一位助攻
-                    helper = helpers[UnityEngine.Random.Range(0, helpers.Count)];
-                }
+                    Helper helper = helpers[UnityEngine.Random.Range(0, helpers.Count)];
 
-                Game.SetCurrentSelectedHelper(helper);
-                Game.EnterCurrentFloor(() =>
-                {
-                    MyLog.Debug("進入關卡 [#{0}-{1}]", candidate.floorId, candidate.name);
-                    RestoreGameplay.StartGame();
-
-                    while (Game.instance.MoveToNextWave())
+                    Game.SetCurrentSelectedHelper(helper);
+                    Game.EnterCurrentFloor(() =>
                     {
-                        int waveIndex = Game.runtimeData.currentWaveIndex - 1;
-                        int waveCount = Game.runtimeData.currentFloor.waves.Count;
-                        MyLog.Debug("慘烈廝殺中... {0} / {1}", waveIndex + 1, waveCount);
-                        Wave wave = Game.runtimeData.currentFloor.waves[waveIndex];
+                        MyLog.Debug("進入關卡 [#{0}-{1}]", candidate.floorId, candidate.name);
+                        RestoreGameplay.StartGame();
 
-                        foreach (var enemy in wave.enemies)
+                        while (Game.instance.MoveToNextWave())
                         {
-                            if (enemy.lootItem != null)
+                            int waveIndex = Game.runtimeData.currentWaveIndex - 1;
+                            int waveCount = Game.runtimeData.currentFloor.waves.Count;
+                            MyLog.Debug("慘烈廝殺中... {0} / {1}", waveIndex + 1, waveCount);
+                            Wave wave = Game.runtimeData.currentFloor.waves[waveIndex];
+
+                            foreach (var enemy in wave.enemies)
                             {
-                                Loot loot = enemy.lootItem;
-                                if (loot.type == Loot.Type.COIN)
-                                    MyLog.Debug("敵人 [#{0}-{1}] 帶了 {2:#,0} 金幣來孝敬！", enemy.monsterId, enemy.name, loot.amount);
-                                else if (loot.type == Loot.Type.MONSTER)
-                                    MyLog.Debug("敵人 [#{0}-{1}] 帶了 [#{2}-{3}] 孝敬！", enemy.monsterId, enemy.name, loot.card.monsterId, loot.card.name);
+                                if (enemy.lootItem != null)
+                                {
+                                    Loot loot = enemy.lootItem;
+                                    if (loot.type == Loot.Type.COIN)
+                                        MyLog.Debug("敵人 [#{0}-{1}] 帶了 {2:#,0} 金幣來孝敬！", enemy.monsterId, enemy.name, loot.amount);
+                                    else if (loot.type == Loot.Type.MONSTER)
+                                        MyLog.Debug("敵人 [#{0}-{1}] 帶了 [#{2}-{3}] 孝敬！", enemy.monsterId, enemy.name, loot.card.monsterId, loot.card.name);
+                                    else
+                                        MyLog.Debug("敵人 [#{0}-{1}] 帶了不明物品 [{2}]！", enemy.monsterId, enemy.name, loot.type);
+                                }
                                 else
-                                    MyLog.Debug("敵人 [#{0}-{1}] 帶了不明物品 [{2}]！", enemy.monsterId, enemy.name, loot.type);
+                                {
+                                    MyLog.Debug("不帶東西的敵人 [#{0}-{1}] 出現了！", enemy.monsterId, enemy.name);
+                                }
                             }
-                            else
-                            {
-                                MyLog.Debug("不帶東西的敵人 [#{0}-{1}] 出現了！", enemy.monsterId, enemy.name);
-                            }
-                        }                        
-                    }
+                        }
 
-                    RestoreGameplay.End(true, false, false);
-                    MyLog.Debug("*** 最高連擊[{0:#,0}] 最高攻擊[{1:#,0}] ***", RestoreGameplay.maxCombo, RestoreGameplay.maxPlayerAttack);
+                        RestoreGameplay.End(true, false, false);
+                        MyLog.Debug("*** 最高連擊[{0:#,0}] 最高攻擊[{1:#,0}] ***", RestoreGameplay.maxCombo, RestoreGameplay.maxPlayerAttack);
 
-                    Game.ClearCurrentFloor(() =>
-                    {
-                        MyLog.Debug("結束關卡 [#{0}{1}]", candidate.floorId, candidate.name);
-                        SendFriendRequest(next);
-                    });
+                        Game.ClearCurrentFloor(() =>
+                        {
+                            MyLog.Debug("結束關卡 [#{0}{1}]", candidate.floorId, candidate.name);
+                            SendFriendRequest(next);
+                        });
+                    },
+                        false);
                 },
-                    false);
-            };
-
-            if (candidate.floorId == 1)
-            {
-                enterFloor(null);
-            }
-            else
-            {
-                Game.GetHelperList(
-                    candidate.floorId,
-                    helpers => enterFloor(helpers),
-                    null);
-            }
+            null);
         }
 
         private void SendFriendRequest(Action next)

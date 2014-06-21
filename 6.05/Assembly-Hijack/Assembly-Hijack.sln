@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0B669603-305B-488B-B275-76B0189C9381}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-Hijack", "src\Assembly-Hijack\Assembly-Hijack.csproj", "{7F470302-7D30-46AE-809A-3E56C93C9F6F}"
