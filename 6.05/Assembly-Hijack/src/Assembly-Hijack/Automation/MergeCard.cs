@@ -20,6 +20,10 @@ namespace AssemblyHijack.Automation
                 return false;
             }
 
+            var sarcrificers = Game.runtimeData.user.inventory.cards.Values
+                .Where(c => !c.inUse && !c.bookmark && MyGameConfig.merge.sacrificer.Contains(c.monsterId))
+                .OrderBy(c => c.predictedMergeExp).ToArray();
+
             foreach (var teamCardId in Game.runtimeData.teamCardIds)
             {
                 var candidate = Game.runtimeData.user.inventory.GetCard(teamCardId);
@@ -29,7 +33,7 @@ namespace AssemblyHijack.Automation
                 }
                 else
                 {
-                    if (Estimate(candidate))
+                    if (Estimate(candidate, sarcrificers))
                         return true;
                 }
             }
@@ -55,16 +59,12 @@ namespace AssemblyHijack.Automation
             Game.UpgradeMonster(next);
         }
 
-        private bool Estimate(Card candidate)
+        private bool Estimate(Card candidate, IEnumerable<Card> sarcrificers)
         {
+            children.Clear();
             StringBuilder cardNames = new StringBuilder();
 
-            var sarcrificers = Game.runtimeData.user.inventory.cards.Values
-                .Where(c => !c.inUse && !c.bookmark && MyGameConfig.merge.sacrificer.Contains(c.monsterId))
-                .OrderBy(c => c.predictedMergeExp);
-
-            children.Clear();
-            int requiredExp = candidate.accumulativeLevelMaxExp - candidate.accumulativeLevelExp;
+            int requiredExp = candidate.LevelToExp(candidate.maxLevel + 1) - candidate.accumulativeLevelExp;
             int expectedExp = 0;
             int childrenBonus = 0;
             foreach (var card in sarcrificers)
@@ -87,7 +87,7 @@ namespace AssemblyHijack.Automation
 
             if (children.Count < 1)
             {
-                MyLog.Debug("升級[{0}]所需經驗值只有[{1:#,0}], 沒有適合的卡片", candidate.name, requiredExp);
+                MyLog.Debug("升級[#{0}{1}]所需經驗值只有[{2:#,0}], 沒有適合的卡片", candidate.monsterId, candidate.name, requiredExp);
                 return false;
             }
 
@@ -97,14 +97,14 @@ namespace AssemblyHijack.Automation
 
                 if (Game.runtimeData.user.coin >= expectedCoin)
                 {
-                    MyLog.Debug("判定升級[{0}], 預估經驗值[{1:#,0}], 預估花費[{2:#,0} ], EP[{3:0.00}], 餵食{3}", candidate.name, expectedExp, expectedCoin, expectedExp / expectedCoin, cardNames);
+                    MyLog.Debug("判定升級[#{0}{1}], 預估經驗值[{2:#,0}], 預估花費[{3:#,0} ], EP[{4:0.00}], 餵食{5}", candidate.monsterId, candidate.name, expectedExp, expectedCoin, expectedExp / expectedCoin, cardNames);
 
                     target = candidate;
                     return true;
                 }
                 else
                 {
-                    MyLog.Debug("升級[{0}]預估需要[{1:#,0}], 資產不足", candidate.name, expectedCoin);
+                    MyLog.Debug("升級[#{0}{1}]預估需要[{2:#,0}], 資產不足", candidate.monsterId, candidate.name, expectedCoin);
                     return false;
                 }
             }

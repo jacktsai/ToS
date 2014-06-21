@@ -97,18 +97,6 @@ namespace AssemblyHijack.Automation
                     MyLog.Debug("進入關卡 [#{0}-{1}]", candidate.floorId, candidate.name);
                     RestoreGameplay.StartGame();
 
-                    int maxHp = UnityEngine.Random.Range(12234, 135899);
-                    RestoreGameplay.maxCombo = UnityEngine.Random.Range(5, 25);
-                    RestoreGameplay.maxPlayerAttack = UnityEngine.Random.Range(69589, 1899999);
-
-                    RestoreGameplay.maxDamageTaken = (int)UnityEngine.Random.Range(maxHp * 0.5f, maxHp - 10);
-                    RestoreGameplay.minHP = maxHp - RestoreGameplay.maxDamageTaken;
-                    RestoreGameplay.minDamageTaken = (int)UnityEngine.Random.Range(maxHp * 0.05f, RestoreGameplay.maxDamageTaken * 0.8f);
-                    RestoreGameplay.totalDamageTaken = (int)((RestoreGameplay.maxDamageTaken + RestoreGameplay.minDamageTaken) * 0.5f * RestoreGameplay.monsterAttackTime);
-                    RestoreGameplay.minRecoverHP = UnityEngine.Random.Range(maxHp * 0.1f, maxHp * 0.5f);
-                    RestoreGameplay.maxRecoverHP = UnityEngine.Random.Range(RestoreGameplay.minRecoverHP + 100, maxHp * 0.8f);
-                    RestoreGameplay.totalRecoverHP = (int)((RestoreGameplay.minRecoverHP + RestoreGameplay.maxRecoverHP) * 0.5f * RestoreGameplay.eatGemRound * 0.8f);
-
                     while (Game.instance.MoveToNextWave())
                     {
                         int waveIndex = Game.runtimeData.currentWaveIndex - 1;
@@ -132,35 +120,11 @@ namespace AssemblyHijack.Automation
                             {
                                 MyLog.Debug("不帶東西的敵人 [#{0}-{1}] 出現了！", enemy.monsterId, enemy.name);
                             }
-                        }
-
-                        int eatGemRound = UnityEngine.Random.Range(1, 30);
-                        for (int i = 0; i < eatGemRound; i++)
-                        {
-                            // 我方攻擊
-                            RestoreGameplay.eatGemRound++;
-                            RestoreGameplay.randomSeed++;
-                            RestoreGameplay.moveGemRound++;
-
-                            if (UnityEngine.Random.Range(0, 3) == 0)
-                            {
-                                // 敵方反擊
-                                RestoreGameplay.monsterAttackTime++;
-                                RestoreGameplay.enemyAttackRoundPerWave[waveIndex]++;
-                            }
-                        }
-
-                        if (waveIndex == waveCount - 1)
-                            RestoreGameplay.maxUserAttackSumPerWave[waveIndex] = RestoreGameplay.maxPlayerAttack;
-                        else
-                            RestoreGameplay.maxUserAttackSumPerWave[waveIndex] = (int)UnityEngine.Random.Range(RestoreGameplay.maxPlayerAttack * 0.1f, RestoreGameplay.maxPlayerAttack + 1f);
-                        RestoreGameplay.waveMovedTime++;
+                        }                        
                     }
 
-                    RestoreGameplay.gameplayTime = UnityEngine.Random.Range(999999, 999999999);
-                    MyLog.Debug("*** 最高連擊[{0:#,0}] 最高攻擊[{1:#,0}] ***", RestoreGameplay.maxCombo, RestoreGameplay.maxPlayerAttack);
-
                     RestoreGameplay.End(true, false, false);
+                    MyLog.Debug("*** 最高連擊[{0:#,0}] 最高攻擊[{1:#,0}] ***", RestoreGameplay.maxCombo, RestoreGameplay.maxPlayerAttack);
 
                     Game.ClearCurrentFloor(() =>
                     {
