@@ -1,7 +1,7 @@
 ﻿namespace AssemblyHijack.Automation.FloorStrategy
 {
     /// <summary>
-    /// 闖關模式，除了過關，其餘免談。
+    /// 闖關模式, 除了過關, 其餘免談。
     /// </summary>
     internal class ClearOnly : Strategy
     {
@@ -9,6 +9,7 @@
 
         public override Floor NextFloor()
         {
+            lastResult = null;
             Floor candidate = null;
 
             if (lastResult != null && lastResult.isCleared)
@@ -50,9 +51,12 @@
             PatrolGuide guide = JudgePatro(candidate);
 
             if (guide == PatrolGuide.NONE)
+            {
+                lastResult = candidate;
                 return candidate;
-            else
-                return null;
+            }
+
+            return null;
         }
     }
 }

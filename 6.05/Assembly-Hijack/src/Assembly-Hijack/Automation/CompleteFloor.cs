@@ -15,6 +15,7 @@ namespace AssemblyHijack.Automation
         private readonly IStrategy dailyFloors = new Daily();
         private readonly IStrategy normalFloors;
         private Floor candidate = null;
+        private Action afterComplete = null;
 
         public CompleteFloor()
         {
@@ -32,33 +33,42 @@ namespace AssemblyHijack.Automation
         {
             if (Game.runtimeData.user.inventory.isFull)
             {
-                MyDebug.Log("包包滿了哦！為了蒐集更多的卡片，請趕快去整理一下包包吧！");
-                MyDialog.ShowConfirm("包包滿了哦！\n為了蒐集更多的卡片，請趕快去整理一下包包吧！");
+                MyLog.Debug("背包已滿");
+                MyDialog.ShowConfirm("包包滿了哦！\n為了蒐集更多的卡片, 請趕快去整理一下包包吧！");
                 return false;
             }
 
             candidate = null;
 
-            if (MyGameConfig.floor.daily)
+            if (!Game.tutorialMode && MyGameConfig.floor.daily)
             {
-                MyDebug.Log("嚐試取得每日關卡...");
+                MyLog.Debug("嚐試取得每日關卡...");
                 candidate = dailyFloors.NextFloor();
             }
 
             if (candidate == null)
             {
-                MyDebug.Log("嚐試取得普通關卡...");
+                MyLog.Debug("嚐試取得普通關卡...");
                 candidate = normalFloors.NextFloor();
             }
 
             if (candidate != null)
             {
-                MyDebug.Log("FLOOR [#{0}{1}] ready to go, required stamina {2}, current {3}.", candidate.floorId, candidate.name, candidate.stamina, Game.runtimeData.user.currentStamina);
+                MyLog.Debug("關卡判定[#{0}{1}], 所需體力[{2}], 目前體力[{3}]", candidate.floorId, candidate.name, candidate.stamina, Game.runtimeData.user.currentStamina);
+
+                if (Game.tutorialMode && candidate.stage.type != Stage.Type.TUTORIAL)
+                {
+                    MyLog.Debug("新手導覽關卡已完成, 跳越導覽進度");
+                    // 自動升格到一般模式
+                    while (TutorialController.isTutorialMode)
+                        TutorialController.Continue();
+                }
+
                 return true;
             }
             else
             {
-                MyDebug.Log("已經沒有下一個適合的關卡進行戰鬥！");
+                MyLog.Debug("已經沒有下一個適合的關卡進行戰鬥！");
                 MyDialog.ShowConfirm("已經沒有下一個適合的關卡進行戰鬥！");
                 return false;
             }
@@ -71,46 +81,34 @@ namespace AssemblyHijack.Automation
             Game.SetCurrentStage(candidate.stage);
             Game.SetCurrentFloor(candidate);
 
-            StringBuilder cardNames = new StringBuilder();
-            foreach (var pair in Game.runtimeData.currentTeam.cards)
+            Action<List<Helper>> enterFloor = (helpers) =>
             {
-                if (pair.Value == null)
-                    break;
+                Helper helper = null;
 
-                if (cardNames.Length > 0)
-                    cardNames.Append("\n");
-
-                cardNames.AppendFormat("{0}", pair.Value.name);
-            }
-
-            Action nextFromHere = () =>
+                if (helpers != null)
                 {
-                    next();
-                };
+                    // 隨機從中挑選一位助攻
+                    helper = helpers[UnityEngine.Random.Range(0, helpers.Count)];
+                }
 
+                Game.SetCurrentSelectedHelper(helper);
+                Game.EnterCurrentFloor(() =>
+                {
+                    CompleteCurrentFloor(next);
+                });
+            };
+
+            MyLog.Debug("進入關卡 [#{0}{1}]", candidate.floorId, candidate.name);
             if (candidate.floorId == 1)
             {
-                Game.SetCurrentSelectedHelper(null);
-                Game.EnterCurrentFloor(() =>
-                    {
-                        CompleteCurrentFloor(nextFromHere);
-                    });
+                enterFloor(null);
             }
             else
             {
                 Game.GetHelperList(
                     candidate.floorId,
-                    helpers =>
-                    {
-                        Game.SetCurrentSelectedHelper(helpers[0]);
-                        Game.EnterCurrentFloor(() =>
-                        {
-                            CompleteCurrentFloor(nextFromHere);
-                        });
-                    },
-                    () =>
-                    {
-                    });
+                    helpers => enterFloor(helpers),
+                    null);
             }
         }
 
@@ -123,6 +121,7 @@ namespace AssemblyHijack.Automation
             Game.runtimeData.maxAttack = (int)((team.attackWater + team.attackFire + team.attackGrass + team.attackLight + team.attackDark) * (1 + maxCombo * 0.25));
             Game.runtimeData.currentWaveIndex = candidate.waveCount - 1;
 
+            MyLog.Debug("結束關卡 [#{0}{1}]", candidate.floorId, candidate.name);
             Game.ClearCurrentFloor(() =>
                 {
                     SendFriendRequest(next);
@@ -141,6 +140,7 @@ namespace AssemblyHijack.Automation
                 Helper helper = Game.runtimeData.currentSelectedHelper;
                 if (helper != null && !Game.runtimeData.user.isFriendsFull)
                 {
+                    MyLog.Debug("對 [{0}] 發送好友邀請", helper.name);
                     Game.SendFriendRequest(
                         helper.uid,
                         newNext,
@@ -165,7 +165,7 @@ namespace AssemblyHijack.Automation
 
                         if (reward.rewardType == Reward.Type.RECOVERY)
                         {
-                            MyDebug.Log("領取體力回覆 [{0}]", reward.message);
+                            MyLog.Debug("從 [{0}] 回覆體力", reward.message);
                             Game.ClaimReward(
                                 reward.rewardId,
                                 (diamondCompensated, cardIds) =>
@@ -183,6 +183,7 @@ namespace AssemblyHijack.Automation
                 {
                     if (Game.runtimeData.user.diamond > 0)
                     {
+                        MyLog.Debug("從 [魔法石] 回覆體力");
                         Game.RecoverStamina(next, null);
                         return;
                     }

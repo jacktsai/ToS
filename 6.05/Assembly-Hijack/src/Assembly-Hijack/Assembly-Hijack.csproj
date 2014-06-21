@@ -49,7 +49,7 @@
     <Compile Include="MyDialog.cs" />
     <Compile Include="MyGameConfig.cs" />
     <Compile Include="MyGameManager.cs" />
-    <Compile Include="MyDebug.cs" />
+    <Compile Include="MyLog.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

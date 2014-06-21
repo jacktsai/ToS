@@ -7,7 +7,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
         protected enum PatrolGuide
         {
             /// <summary>
-            /// 沒意見，由各實作者自行另外判斷
+            /// 沒意見, 由各實作者自行另外判斷
             /// </summary>
             NONE,
 
@@ -17,7 +17,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
             SKIP,
 
             /// <summary>
-            /// 告訴巡覽者，可以停止巡覽，再往下只是浪費運算
+            /// 告訴巡覽者, 可以停止巡覽, 再往下只是浪費運算
             /// </summary>
             STOP
         }
@@ -30,37 +30,31 @@ namespace AssemblyHijack.Automation.FloorStrategy
 
             if ((stage.type == Stage.Type.TUTORIAL || stage.type == Stage.Type.ONEOFF) && target.isCleared)
             {
-                MyDebug.Log("[#{0}{1}] HAS BEEN CLEARED, SKIP", target.floorId, target.name);
-                return PatrolGuide.SKIP;
-            }
-
-            if (stage.type != Stage.Type.NORMAL && target.isPlayed)
-            {
-                MyDebug.Log("[#{0}{1}] HAS BEEN PLAYED, SKIP", target.floorId, target.name);
+                MyLog.Debug("[#{0}{1}]-[#{2}{3}] HAS BEEN CLEARED, SKIP", stage.stageId, stage.name, target.floorId, target.name);
                 return PatrolGuide.SKIP;
             }
 
             if (target.unlockByItem && !target.isItemCollected)
             {
-                MyDebug.Log("[#{0}{1}] IS NOT ENOUGH ITEM, SKIP", target.floorId, target.name);
+                MyLog.Debug("[#{0}{1}]-[#{2}{3}] IS NOT ENOUGH ITEM, SKIP", stage.stageId, stage.name, target.floorId, target.name);
                 return PatrolGuide.SKIP;
             }
 
             if (!target.isAvailable)
             {
-                MyDebug.Log("[#{0}{1}] IS NOT AVAILABLE, STOP", target.floorId, target.name);
+                MyLog.Debug("[#{0}{1}]-[#{2}{3}] IS NOT AVAILABLE, STOP", stage.stageId, stage.name, target.floorId, target.name);
                 return PatrolGuide.STOP;
             }
 
             if (target.isLocked)
             {
-                MyDebug.Log("[#{0}{1}] IS LOCKED, STOP", target.floorId, target.name);
+                MyLog.Debug("[#{0}{1}]-[#{2}{3}] IS LOCKED, STOP", stage.stageId, stage.name, target.floorId, target.name);
                 return PatrolGuide.STOP;
             }
 
             if (target.stamina > Game.runtimeData.user.currentStamina)
             {
-                MyDebug.Log("[#{0}{1}] STAMINA REQUIRED {2} , CURRENT {3}, STOP", target.floorId, target.name, target.stamina, Game.runtimeData.user.currentStamina);
+                MyLog.Debug("[#{0}{1}]-[#{2}{3}] STAMINA REQUIRED {4} , CURRENT {5}, STOP", stage.stageId, stage.name, target.floorId, target.name, target.stamina, Game.runtimeData.user.currentStamina);
                 return PatrolGuide.STOP;
             }
 

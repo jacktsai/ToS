@@ -20,6 +20,7 @@ namespace AssemblyHijack.Automation
 
                     if (Game.runtimeData.friendRequests.Count > 0 && !Game.runtimeData.user.isFriendsFull)
                     {
+                        MyLog.Debug("接受所有好友邀請");
                         Game.AcceptAllFriendRequest(next, null);
                     }
                     else

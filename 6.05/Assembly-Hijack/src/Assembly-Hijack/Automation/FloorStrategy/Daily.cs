@@ -7,8 +7,16 @@ namespace AssemblyHijack.Automation.FloorStrategy
     /// </summary>
     internal class Daily : Strategy
     {
+        private bool allCleared = false;
+
         public override Floor NextFloor()
         {
+            if (allCleared)
+            {
+                MyLog.Debug("每日關卡已全部完成");
+                return null;
+            }
+
             foreach (var stage in Game.database.stages.Values)
             {
                 if (stage.type == Stage.Type.URGENT || stage.type == Stage.Type.DAILY || stage.type == Stage.Type.UNLIMITED)
@@ -25,6 +33,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
                 }
             }
 
+            allCleared = true;
             return null;
         }
     }

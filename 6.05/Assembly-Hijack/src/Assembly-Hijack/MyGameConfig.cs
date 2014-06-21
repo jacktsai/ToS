@@ -34,22 +34,22 @@ public class MyGameConfig
     public class Floor
     {
         /// <summary>
-        /// 極限模式，目的是把體力作最佳運用。
+        /// 極限模式, 目的是把體力作最佳運用。
         /// </summary>
         public const string MODE_EXTREME = "extreme";
 
         /// <summary>
-        /// 獎勵模式，一切講求「省」。
+        /// 獎勵模式, 一切講求「省」。
         /// </summary>
         public const string MODE_BONUS_ONLY = "bonusOnly";
 
         /// <summary>
-        /// 闖關模式，除了過關，其餘免談。
+        /// 闖關模式, 除了過關, 其餘免談。
         /// </summary>
         public const string MODE_CLEAR_ONLY = "clearOnly";
 
         /// <summary>
-        /// 隨選模式，應設定關卡進行。
+        /// 隨選模式, 應設定關卡進行。
         /// </summary>
         public const string MODE_DEDICATED = "dedicated";
 
@@ -126,9 +126,9 @@ public class MyGameConfig
 
     static MyGameConfig()
     {
-        MyDebug.Log("Loading game_config.json ...");
+        MyLog.Debug("Loading game_config.json ...");
         LoadConfig();
-        MyDebug.Log("game_config.json loaded !!");
+        MyLog.Debug("game_config.json loaded !!");
     }
 
     private static void LoadConfig()

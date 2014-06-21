@@ -7,7 +7,6 @@ namespace AssemblyHijack.Automation
     {
         public bool CanRun()
         {
-            MyDebug.Log("Before - {0}.Check", this.GetType().Name);
             bool checkResult = false;
             try
             {
@@ -17,14 +16,15 @@ namespace AssemblyHijack.Automation
             {
                 Debug.LogError(exception.ToString());
             }
-            MyDebug.Log("After - {0}.Check, Result = {1}", this.GetType().Name, checkResult);
+
+            if (!checkResult)
+                MyLog.Debug("{0}.Check, Result = {1}", this.GetType().Name, checkResult);
 
             return checkResult;
         }
 
         public void Run(Action next)
         {
-            MyDebug.Log("Before - {0}.Execute", this.GetType().Name);
             try
             {
                 this.Execute(next);
@@ -33,7 +33,6 @@ namespace AssemblyHijack.Automation
             {
                 Debug.LogError(exception.ToString());
             }
-            MyDebug.Log("After - {0}.Execute", this.GetType().Name);
         }
 
         protected abstract bool Check();

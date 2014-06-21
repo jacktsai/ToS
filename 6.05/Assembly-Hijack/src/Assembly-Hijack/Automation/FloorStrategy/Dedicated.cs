@@ -3,7 +3,7 @@
 namespace AssemblyHijack.Automation.FloorStrategy
 {
     /// <summary>
-    /// 隨選模式，應設定關卡進行。
+    /// 隨選模式, 應設定關卡進行。
     /// </summary>
     internal class Dedicated : Strategy
     {

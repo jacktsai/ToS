@@ -16,7 +16,7 @@ public class MyGame
 
     static MyGame()
     {
-        MyDebug.Log("Loading RUNNERs ...");
+        MyLog.Debug("Loading RUNNERs ...");
 
         if (MyGameConfig.sell.enabled)
             RUNNER.Add(new SellCard());
@@ -35,7 +35,7 @@ public class MyGame
             RUNNER.Add(new CompleteFloor());
         }
 
-        MyDebug.Log("{0} RUNNER(s) has been loaded !!", RUNNER.Count);
+        MyLog.Debug("{0} RUNNER(s) has been loaded !!", RUNNER.Count);
     }
 
     private static void NextAction()
@@ -120,7 +120,7 @@ public class MyGame
 
     public static void SetConfig(Config config, bool restore = false)
     {
-        MyDebug.Log(">> - {0}.SetConfig", typeof(MyGame).Name);
+        MyLog.Debug(">> - {0}.SetConfig", typeof(MyGame).Name);
         Game.SetConfig(config, restore);
         Core.Config.AdMob_PublisherId = string.Empty;
 
@@ -129,32 +129,30 @@ public class MyGame
             PromptRegister();
         }
 
-        MyDebug.Log("<< - {0}.SetConfig", typeof(MyGame).Name);
+        MyLog.Debug("<< - {0}.SetConfig", typeof(MyGame).Name);
     }
 
     public static void Login(Action onSuccess)
     {
-        MyDebug.Log(">> - {0}.Login", typeof(MyGame).Name);
+        MyLog.Debug(">> - {0}.Login", typeof(MyGame).Name);
         Action successHook = () =>
         {
             onSuccess();
             PromptAutomation();
         };
         Game.Login(successHook);
-        MyDebug.Log("<< - {0}.Login", typeof(MyGame).Name);
+        MyLog.Debug("<< - {0}.Login", typeof(MyGame).Name);
     }
 
     public static void SetData(Login.Data data, bool restore = false)
     {
-        MyDebug.Log(">> - {0}.SetData", typeof(MyGame).Name);
+        MyLog.Debug(">> - {0}.SetData", typeof(MyGame).Name);
         Game.SetData(data, restore);
-        MyDebug.Log("<< - {0}.SetData", typeof(MyGame).Name);
+        MyLog.Debug("<< - {0}.SetData", typeof(MyGame).Name);
     }
 
     public static void SetUser(BaseJson userInfo, bool restore = false)
     {
-        MyDebug.Log(">> - {0}.SetUser", typeof(MyGame).Name);
         Game.SetUser(userInfo, restore);
-        MyDebug.Log("<< - {0}.SetUser", typeof(MyGame).Name);
     }
 }

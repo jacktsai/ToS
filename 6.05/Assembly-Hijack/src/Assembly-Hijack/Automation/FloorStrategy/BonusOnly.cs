@@ -3,7 +3,7 @@
 namespace AssemblyHijack.Automation.FloorStrategy
 {
     /// <summary>
-    /// 獎勵模式，一切講求「省」。
+    /// 獎勵模式, 一切講求「省」。
     /// </summary>
     internal class BonusOnly : Strategy
     {
