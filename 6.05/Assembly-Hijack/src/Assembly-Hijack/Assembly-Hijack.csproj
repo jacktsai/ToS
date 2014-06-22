@@ -33,6 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Automation\AcceptFriend.cs" />
+    <Compile Include="Automation\AcceptMember.cs" />
     <Compile Include="Automation\ClaimReword.cs" />
     <Compile Include="Automation\FloorStrategy\BasicFloorProvider.cs" />
     <Compile Include="Automation\FloorStrategy\BonusOnly.cs" />

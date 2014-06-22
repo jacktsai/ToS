@@ -20,6 +20,7 @@ public class MyGame
     private static IRunnable mergeCard = new MergeCard();
     private static IRunnable acceptFriend = new AcceptFriend();
     private static IRunnable requestGuild = new RequestGuild();
+    private static IRunnable acceptMember = new AcceptMember();
     private static DateTime BeginTime;
     private static DateTime EndTime;
 
@@ -31,6 +32,8 @@ public class MyGame
         {
             MyLog.Verbose("Add {0}", requestGuild.GetType().FullName);
             RUNNER.Add(requestGuild);
+            MyLog.Verbose("Add {0}", acceptMember.GetType().FullName);
+            RUNNER.Add(acceptMember);
         }
 
         if (MyGameConfig.reward.enabled)
@@ -149,6 +152,7 @@ public class MyGame
         sellCard.AppendReport(reportBuilder);
         mergeCard.AppendReport(reportBuilder);
         acceptFriend.AppendReport(reportBuilder);
+        acceptMember.AppendReport(reportBuilder);
 
         string reportContent = reportBuilder.ToString();
         MyLog.Info(reportContent);
@@ -224,7 +228,7 @@ public class MyGame
 
         if (MyGameConfig.user.enabled)
         {
-            if (MyGameConfig.user.teamSize > 0)
+            if (MyGameConfig.user.teamSize > 0 && userInfo.user != null)
             {
                 MyLog.Verbose("隊伍空間 [{0}] 改成 [{1}]", userInfo.user.teamSize, MyGameConfig.user.teamSize);
                 userInfo.user.teamSize = MyGameConfig.user.teamSize;

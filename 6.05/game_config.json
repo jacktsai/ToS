@@ -17,7 +17,8 @@
 "guild" :
 {
 	"enabled" : true,
-	"request" : 81917
+	"request" : 81917,
+	"accept" : true
 },
 
 "card" :

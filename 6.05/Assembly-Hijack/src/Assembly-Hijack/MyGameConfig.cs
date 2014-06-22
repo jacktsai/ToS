@@ -48,6 +48,11 @@ public class MyGameConfig
         /// 自動申請加入的公會
         /// </summary>
         public int request = 81917;
+
+        /// <summary>
+        /// 自動接受公會申請
+        /// </summary>
+        public bool accept = true;
     }
 
     public class Card
