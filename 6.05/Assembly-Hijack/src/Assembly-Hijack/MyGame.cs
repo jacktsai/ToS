@@ -32,8 +32,12 @@ public class MyGame
         {
             MyLog.Verbose("Add {0}", requestGuild.GetType().FullName);
             RUNNER.Add(requestGuild);
-            MyLog.Verbose("Add {0}", acceptMember.GetType().FullName);
-            RUNNER.Add(acceptMember);
+
+            if (MyGameConfig.guild.accept)
+            {
+                MyLog.Verbose("Add {0}", acceptMember.GetType().FullName);
+                RUNNER.Add(acceptMember);
+            }
         }
 
         if (MyGameConfig.reward.enabled)
