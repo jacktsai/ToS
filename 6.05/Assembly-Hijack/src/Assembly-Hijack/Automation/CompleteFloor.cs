@@ -56,6 +56,26 @@ namespace AssemblyHijack.Automation
 
         public override void AppendReport(StringBuilder builder)
         {
+            builder.AppendFormat("=== 地下城攻打成果 ===\n");
+
+            foreach (var item in Report_Floor)
+            {
+                if (item.Value < 1)
+                    continue;
+
+                Floor floor = Game.database.floors[item.Key];
+                builder.AppendFormat("[{1}] 通關 {2} 次\n", floor.floorId, floor.name, item.Value);
+            }
+
+            foreach (var item in Report_Card)
+            {
+                if (item.Value < 1)
+                    continue;
+
+                Monster monster = Game.database.monsters[item.Key];
+                builder.AppendFormat("[#{0}{1}] 領取 {2} 張\n", monster.monsterId, monster.name, item.Value);
+            }
+
             foreach (var item in Report_User)
             {
                 if (item.Value < 1)
@@ -66,7 +86,7 @@ namespace AssemblyHijack.Automation
                 else if (item.Key == REPORT_USER_EXP)
                     builder.AppendFormat("經驗增加 {0:#,0}\n", item.Value);
                 else if (item.Key == REPORT_USER_FRIEND_POINT)
-                    builder.AppendFormat("好友點數 {0:#,0} 點\n", item.Value);
+                    builder.AppendFormat("點數增加 {0:#,0} 點\n", item.Value);
                 else if (item.Key == REPORT_USER_COIN)
                     builder.AppendFormat("錢幣增加 {0:#,0}\n", item.Value);
                 else if (item.Key == REPORT_USER_DIAMOND)
@@ -79,23 +99,7 @@ namespace AssemblyHijack.Automation
                     builder.AppendFormat("等級提升 {0} 級\n", item.Value);
             }
 
-            foreach (var item in Report_Floor)
-            {
-                if (item.Value < 1)
-                    continue;
-
-                Floor floor = Game.database.floors[item.Key];
-                builder.AppendFormat("[#{0}{1}] 通關 {2} 次\n", floor.floorId, floor.name, item.Value);
-            }
-
-            foreach (var item in Report_Card)
-            {
-                if (item.Value < 1)
-                    continue;
-
-                Monster monster = Game.database.monsters[item.Key];
-                builder.AppendFormat("[#{0}{1}] 領取 {2} 張\n", monster.monsterId, monster.name, item.Value);
-            }
+            builder.AppendFormat("====================\n");
         }
 
         protected override bool Check()
@@ -103,7 +107,6 @@ namespace AssemblyHijack.Automation
             if (Game.runtimeData.user.inventory.isFull)
             {
                 MyLog.Info("背包已滿");
-                MyDialog.ShowConfirm("包包滿了哦！\n為了蒐集更多的卡片, 請趕快去整理一下包包吧！");
                 return false;
             }
 
@@ -137,8 +140,7 @@ namespace AssemblyHijack.Automation
             }
             else
             {
-                MyLog.Info("已經沒有下一個適合的關卡進行戰鬥！");
-                MyDialog.ShowConfirm("已經沒有下一個適合的關卡進行戰鬥！");
+                MyLog.Info("已經沒有下一個適合的關卡");
                 return false;
             }
         }
@@ -250,6 +252,7 @@ namespace AssemblyHijack.Automation
                 {
                     MyLog.Info("對 [{0}] 發送好友邀請", helper.name);
                     Game.SendFriendRequestInBackground(helper.uid);
+                    Thread.Sleep(300); // 這支 API 的回應非常快，如果 API 打太快會讓流程中斷，故在這裡作一個 sleep
                 }
             }
 

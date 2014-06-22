@@ -65,37 +65,32 @@ public class MyGame
     {
         if (!Game.localUserExists && MyGameConfig.register.enabled)
         {
-            Game.NetworkCompleted();
-
-            ViewController.SwitchView(delegate
+            Timer.Create(1000, delegate(bool timeout)
             {
-                DialogBuilder builder = MyDialog.Create();
-                builder.SetMessage("是否要自動註冊新帳號？\n" + SystemInformation.LocalKey);
-                builder.AddButton(Locale.t("LABEL_OK"), delegate
-                {
-                    var name = String.Format("#{0:000}", UnityEngine.Random.Range(1, 10000));
-                    var partner = MyGameConfig.register.partner;
-                    var type = "device";
+                MyDialog.Confirm(
+                    "是否要自動註冊新帳號？\n" + SystemInformation.LocalKey,
+                    delegate
+                    {
+                        var name = String.Format("#{0:000}", UnityEngine.Random.Range(1, 10000));
+                        var partner = MyGameConfig.register.partner;
+                        var type = "device";
 
-                    Game.UniqueKey = SystemInformation.LocalKey;
-                    Game.runtimeData.registerName = name;
-                    Game.runtimeData.selectedPartner = partner;
-                    Game.runtimeData.registrationType = type;
+                        Game.UniqueKey = SystemInformation.LocalKey;
+                        Game.runtimeData.registerName = name;
+                        Game.runtimeData.selectedPartner = partner;
+                        Game.runtimeData.registrationType = type;
 
-                    Game.Register(name, partner, type,
-                        Game.runtimeData.registrationSocialUID,
-                        Game.runtimeData.registrationSocialToken,
-                        PromptAutomation,
-                        null
-                    );
-                });
-                builder.AddButton(Locale.t("LABEL_CANCEL"), delegate
-                {
-                    ViewController.SwitchView(ViewIndex.REGISTER_TYPESELECTION);
-                });
-
-                builder.Show();
-            });
+                        Game.Register(name, partner, type,
+                            Game.runtimeData.registrationSocialUID,
+                            Game.runtimeData.registrationSocialToken,
+                            PromptAutomation,
+                            null);
+                    },
+                    delegate
+                    {
+                        ViewController.SwitchView(ViewIndex.REGISTER_TYPESELECTION);
+                    });
+            }).Run();
         }
     }
 
@@ -103,25 +98,21 @@ public class MyGame
     {
         if (RUNNER.Count > 0)
         {
-            Game.NetworkCompleted();
-
-            ViewController.SwitchView(delegate
+            Timer.Create(1000, delegate(bool timeout)
             {
-                DialogBuilder builder = MyDialog.Create();
-                builder.SetMessage("是否要啟動自動化程序？");
-                builder.AddButton(Locale.t("LABEL_OK"), delegate
-                {
-                    ViewController.SwitchView(ViewIndex.WORLDMAP_WORLD_MAP);
-                    BeginTime = DateTime.Now;
-                    NextAction();
-                });
-                builder.AddButton(Locale.t("LABEL_CANCEL"), delegate
-                {
-                    ViewController.SwitchView(ViewIndex.WORLDMAP_WORLD_MAP);
-                });
-
-                builder.Show();
-            });
+                MyDialog.Confirm(
+                    "是否要啟動自動化程序？",
+                    delegate
+                    {
+                        ViewController.SwitchView(ViewIndex.WORLDMAP_WORLD_MAP);
+                        BeginTime = DateTime.Now;
+                        NextAction();
+                    },
+                    delegate
+                    {
+                        ViewController.SwitchView(ViewIndex.WORLDMAP_WORLD_MAP);
+                    });
+            }).Run();
         }
     }
 
@@ -144,7 +135,10 @@ public class MyGame
 
         ViewController.SwitchView(delegate
         {
-            DialogBuilder builder = MyDialog.Create();
+            AudioController.bgm.Play(TOS.BgmId.GAMEPLAY_RESULT);
+
+            DialogBuilder builder = new DialogBuilder();
+            builder.SetTitle("好累哦，換手！下面是我的成果~");
             builder.SetScrollText(reportContent);
             builder.AddButton(Locale.t("LABEL_OK"), delegate
             {

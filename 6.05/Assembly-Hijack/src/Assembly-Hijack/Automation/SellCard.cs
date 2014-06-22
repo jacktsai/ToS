@@ -21,10 +21,13 @@ namespace AssemblyHijack.Automation
 
         public override void AppendReport(StringBuilder builder)
         {
+            if (TotalPrice < 1)
+                return;
+
             foreach (var item in SellInfoPerMonster)
             {
                 var monster = Game.database.monsters[item.Key];
-                builder.AppendFormat("共售出 [#{0}{1}] {2:#,0} 張\n價格 {3:#,0}\n", monster.monsterId, monster.name, item.Value.count, item.Value.price);
+                builder.AppendFormat("售 [#{0}{1}] {2:#,0} 張共 {3:#,0} 錢\n", monster.monsterId, monster.name, item.Value.count, item.Value.price);
             }
 
             builder.AppendFormat("銷售總收入 {0:#,0}\n", TotalPrice);

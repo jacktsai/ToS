@@ -24,9 +24,12 @@ namespace AssemblyHijack.Automation
 
         public override void AppendReport(StringBuilder builder)
         {
+            if (TotalCost < 1)
+                return;
+
             foreach (var item in UpgradeInfoPerCard)
             {
-                builder.AppendFormat("升級 {0} {1:#,0} 次\n經驗值 {2:#,0}\n花費 {3:#,0}\n", item.Key, item.Value.count, item.Value.exp, item.Value.cost);
+                builder.AppendFormat("升級 {0} {1:#,0} 次 {3:#,0} 錢\n經驗值 {2:#,0}\n", item.Key, item.Value.count, item.Value.exp, item.Value.cost);
             }
 
             builder.AppendFormat("升級總支出 {0:#,0}\n", TotalCost);
