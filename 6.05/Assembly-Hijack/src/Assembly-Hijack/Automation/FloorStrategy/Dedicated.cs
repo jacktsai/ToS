@@ -7,24 +7,24 @@ namespace AssemblyHijack.Automation.FloorStrategy
     /// </summary>
     internal class Dedicated : Strategy
     {
+        private readonly int[] floorIds;
+
+        public Dedicated(int[] floorIds)
+        {
+            this.floorIds = floorIds;
+        }
+
         public override Floor NextFloor()
         {
-            Floor candidate = null;
-
-            foreach (var floor in MyGameConfig.floor.floors.Select(id => Game.database.floors[id]))
+            foreach (var floor in floorIds.Select(id => Game.database.floors[id]))
             {
                 PatrolGuide guide = JudgePatro(floor);
 
-                if (guide == PatrolGuide.SKIP)
-                    continue;
-
-                if (guide == PatrolGuide.STOP)
-                    break;
-
-                candidate = floor;
+                if (guide == PatrolGuide.NONE)
+                    return floor;
             }
 
-            return candidate;
+            return null;
         }
     }
 }

@@ -25,7 +25,7 @@ namespace AssemblyHijack.Automation
             Game.GetFriendRequests(
                 () =>
                 {
-                    nextTime = DateTime.Now.AddSeconds(120);
+                    nextTime = DateTime.Now.AddSeconds(600);
 
                     if (Game.runtimeData.friendRequests.Count > 0 && !Game.runtimeData.user.isFriendsFull)
                     {

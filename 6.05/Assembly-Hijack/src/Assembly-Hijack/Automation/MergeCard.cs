@@ -87,7 +87,7 @@ namespace AssemblyHijack.Automation
             {
                 var upgradedCard = Game.runtimeData.user.inventory.GetCard(target.cardId);
                 var actualExp = upgradedCard.exp - expBefore;
-                var actualCost = Game.runtimeData.user.coin - coinBefore;
+                var actualCost = coinBefore - Game.runtimeData.user.coin;
                 MyLog.Info("[#{0}{1}]升級成功, 經驗值增加[{2:#,0}], 實際花費[{3:#,0}]", upgradedCard.monsterId, upgradedCard.name, actualExp, actualCost);
 
                 var cardKey = String.Format("#{0}[{1:0000}{2}]", target.cardId, target.monsterId, target.name);

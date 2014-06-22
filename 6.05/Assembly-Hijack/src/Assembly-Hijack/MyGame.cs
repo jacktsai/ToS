@@ -26,22 +26,20 @@ public class MyGame
     {
         MyLog.Verbose("Loading RUNNERs ...");
 
-        if (MyGameConfig.sell.enabled)
-            RUNNER.Add(sellCard);
-
         if (MyGameConfig.reward.enabled)
             RUNNER.Add(claimReword);
+
+        if (MyGameConfig.user.acceptFriend)
+            RUNNER.Add(acceptFriend);
+
+        if (MyGameConfig.sell.enabled)
+            RUNNER.Add(sellCard);
 
         if (MyGameConfig.merge.enabled)
             RUNNER.Add(mergeCard);
 
         if (MyGameConfig.floor.enabled)
-        {
-            if (MyGameConfig.floor.requestFriend)
-                RUNNER.Add(acceptFriend);
-
             RUNNER.Add(completeFloor);
-        }
 
         MyLog.Verbose("{0} RUNNER(s) has been loaded !!", RUNNER.Count);
     }
@@ -138,7 +136,16 @@ public class MyGame
             AudioController.bgm.Play(TOS.BgmId.GAMEPLAY_RESULT);
 
             DialogBuilder builder = new DialogBuilder();
-            builder.SetTitle("好累哦，換手！下面是我的成果~");
+
+            if (duration.TotalMinutes < 1)
+                builder.SetTitle("喔喔~ 沒什麼成果耶！");
+            else if (duration.TotalMinutes < 5)
+                builder.SetTitle("看起來小有成果哦~");
+            else if (duration.TotalMinutes < 10)
+                builder.SetTitle("大豐收！！！好累哦，換你了！");
+            else
+                builder.SetTitle("天啊~~~ 你是要操死我哦？！");
+
             builder.SetScrollText(reportContent);
             builder.AddButton(Locale.t("LABEL_OK"), delegate
             {

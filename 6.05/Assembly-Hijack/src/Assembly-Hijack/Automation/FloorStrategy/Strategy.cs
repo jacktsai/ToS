@@ -28,6 +28,20 @@ namespace AssemblyHijack.Automation.FloorStrategy
         {
             Stage stage = target.stage;
 
+            MyLog.Verbose("開始判定關卡 [#{0}{1}]-[#{2}{3}]", stage.stageId, stage.name, target.floorId, target.name);
+
+            if (target.stamina > Game.runtimeData.user.currentStamina)
+            {
+                MyLog.Verbose("[#{0}{1}]-[#{2}{3}] STAMINA REQUIRED {4} , CURRENT {5}, STOP", stage.stageId, stage.name, target.floorId, target.name, target.stamina, Game.runtimeData.user.currentStamina);
+                return PatrolGuide.STOP;
+            }
+
+            if (!target.isAvailable)
+            {
+                MyLog.Verbose("[#{0}{1}]-[#{2}{3}] IS NOT AVAILABLE, STOP", stage.stageId, stage.name, target.floorId, target.name);
+                return PatrolGuide.STOP;
+            }
+
             if ((stage.type == Stage.Type.TUTORIAL || stage.type == Stage.Type.ONEOFF) && target.isCleared)
             {
                 MyLog.Verbose("[#{0}{1}]-[#{2}{3}] HAS BEEN CLEARED, SKIP", stage.stageId, stage.name, target.floorId, target.name);
@@ -37,12 +51,6 @@ namespace AssemblyHijack.Automation.FloorStrategy
             if (target.unlockByItem && !target.isItemCollected)
             {
                 MyLog.Verbose("[#{0}{1}]-[#{2}{3}] IS NOT ENOUGH ITEM, SKIP", stage.stageId, stage.name, target.floorId, target.name);
-                return PatrolGuide.SKIP;
-            }
-
-            if (target.isRankingAvailable)
-            {
-                MyLog.Verbose("[#{0}{1}]-[#{2}{3}] DO NOT TOUCH RANKING FLOOR, SKIP", stage.stageId, stage.name, target.floorId, target.name);
                 return PatrolGuide.SKIP;
             }
 
@@ -58,17 +66,11 @@ namespace AssemblyHijack.Automation.FloorStrategy
                 return PatrolGuide.SKIP;
             }
 
-            if (!target.isAvailable)
-            {
-                MyLog.Verbose("[#{0}{1}]-[#{2}{3}] IS NOT AVAILABLE, STOP", stage.stageId, stage.name, target.floorId, target.name);
-                return PatrolGuide.STOP;
-            }
-
-            if (target.stamina > Game.runtimeData.user.currentStamina)
-            {
-                MyLog.Verbose("[#{0}{1}]-[#{2}{3}] STAMINA REQUIRED {4} , CURRENT {5}, STOP", stage.stageId, stage.name, target.floorId, target.name, target.stamina, Game.runtimeData.user.currentStamina);
-                return PatrolGuide.STOP;
-            }
+            //if (target.isRankingAvailable)
+            //{
+            //    MyLog.Verbose("[#{0}{1}]-[#{2}{3}] DO NOT TOUCH RANKING FLOOR, SKIP", stage.stageId, stage.name, target.floorId, target.name);
+            //    return PatrolGuide.SKIP;
+            //}
 
             return PatrolGuide.NONE;
         }

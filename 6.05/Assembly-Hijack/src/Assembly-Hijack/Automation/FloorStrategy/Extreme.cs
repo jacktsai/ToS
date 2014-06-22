@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AssemblyHijack.Automation.FloorStrategy
 {
@@ -12,10 +13,23 @@ namespace AssemblyHijack.Automation.FloorStrategy
 
         public override Floor NextFloor()
         {
-            lastResult = null;
+            lastResult = TryGetNextOfPreviousFloor();
 
+            if (lastResult == null)
+                lastResult = FindSuitableNormalFloor();
+
+            return lastResult;
+        }
+
+        private Floor TryGetNextOfPreviousFloor()
+        {
+            if (lastResult == null)
+                return null;
+
+            MyLog.Verbose("正在嚐試尋找 [#{0}{1}] 的下一關", lastResult.floorId, lastResult.name);
             Floor candidate = null;
-            if (lastResult != null && lastResult.isCleared)
+
+            if (lastResult.isCleared)
             {
                 var nextFloor = lastResult.nextFloor;
                 if (nextFloor != null)
@@ -34,59 +48,68 @@ namespace AssemblyHijack.Automation.FloorStrategy
 
             if (candidate != null)
             {
-                PatrolGuide guide = JudgePatro(candidate);
-
-                if (guide == PatrolGuide.NONE)
+                // 很明顯上一回合沒有衝破關卡上限，所以直接繼續上次的獎勵關卡
+                if (candidate.isCleared && lastResult.stage.isBonus)
                 {
-                    lastResult = candidate;
-                    return candidate;
+                    MyLog.Verbose("下一關 [#{0}{1}] 已經通關，嚐試繼續上一個關卡", lastResult.floorId, lastResult.name);
+                    candidate = lastResult;
                 }
+
+                PatrolGuide guide = JudgePatro(candidate);
+                if (guide == PatrolGuide.NONE)
+                    return candidate;
             }
 
-            Floor bonus_candidate = null;
-            foreach (var floor in Game.database.floors.Values)
+            return null;
+        }
+
+        private Floor FindSuitableNormalFloor()
+        {
+            Floor candidate = null;
+            Floor bonus = null;
+
+            MyLog.Verbose("開始從頭尋找關卡...");
+            foreach (var stage in Game.database.stages.Values.Where(s => s.type == Stage.Type.NORMAL))
             {
-                // 預防跳關問題，目前跳關會導致 stage not cleared，領不到寶石
-                if (candidate != null && !candidate.isCleared)
+                foreach (var floor in stage.availableFloors)
                 {
-                    if (JudgePatro(candidate) == PatrolGuide.NONE)
+                    PatrolGuide guide = JudgePatro(floor);
+
+                    if (guide == PatrolGuide.SKIP)
+                        continue;
+
+                    if (guide == PatrolGuide.STOP)
+                        goto end;
+
+                    candidate = floor;
+
+                    if (!candidate.isCleared)
                     {
                         MyLog.Verbose("[#{0}{1}] IS NOT CLEARED, CLEAR IT FIRST, STOP", candidate.floorId, candidate.name);
                         break;
                     }
-                }
 
-                PatrolGuide guide = JudgePatro(floor);
-
-                if (guide == PatrolGuide.SKIP)
-                    continue;
-
-                if (guide == PatrolGuide.STOP)
-                    break;
-
-                candidate = floor;
-
-                Stage stage = floor.stage;
-                if (stage.isBonus && (stage.bonusType == Stage.BonusType.STAMINA || stage.bonusType == Stage.BonusType.EXP))
-                {
-                    if (bonus_candidate != null)
+                    if (stage.isBonus && (stage.bonusType == Stage.BonusType.STAMINA || stage.bonusType == Stage.BonusType.EXP))
                     {
-                        // 以 EXP 的優先較高, 否則取關卡等級高者
-                        if (stage.bonusType == Stage.BonusType.EXP || bonus_candidate.stage.bonusType == Stage.BonusType.STAMINA)
-                            bonus_candidate = floor;
+                        if (bonus != null)
+                        {
+                            // 以 EXP 的優先較高, 否則取關卡等級高者
+                            if (stage.bonusType == Stage.BonusType.EXP || bonus.stage.bonusType == Stage.BonusType.STAMINA)
+                                bonus = floor;
+                        }
+                        else
+                            bonus = floor;
                     }
-                    else
-                        bonus_candidate = floor;
                 }
             }
 
-            if (candidate != null && bonus_candidate != null)
+        end:
+            if (candidate != null && bonus != null)
             {
                 if (candidate.isCleared)
-                    candidate = bonus_candidate;
+                    candidate = bonus;
             }
 
-            lastResult = candidate;
             return candidate;
         }
     }

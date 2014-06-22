@@ -1,12 +1,8 @@
 ﻿using AssemblyHijack.Automation.FloorStrategy;
-using JsonFx.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
-using UnityEngine;
 
 namespace AssemblyHijack.Automation
 {
@@ -21,8 +17,12 @@ namespace AssemblyHijack.Automation
         private const string REPORT_USER_RECOVERY_DIAMOND = "recovery_diamond";
         private const string REPORT_USER_STAMINA = "stamina";
 
-        private readonly IStrategy dailyFloors = new Daily();
-        private readonly IStrategy normalFloors;
+        private readonly IList<IStrategy> floorProviders = new List<IStrategy>(new IStrategy[]
+        {
+            new BasicFloorProvider(Stage.Type.TUTORIAL, false),
+            new BasicFloorProvider(Stage.Type.UNLIMITED, false),
+        });
+
         private Floor candidate = null;
 
         private bool reportInited = false;
@@ -44,14 +44,14 @@ namespace AssemblyHijack.Automation
 
         public CompleteFloor()
         {
-            if (MyGameConfig.floor.mode.Equals(MyGameConfig.Floor.MODE_EXTREME))
-                normalFloors = new Extreme();
-            else if (MyGameConfig.floor.mode.Equals(MyGameConfig.Floor.MODE_BONUS_ONLY))
-                normalFloors = new BonusOnly();
-            else if (MyGameConfig.floor.mode.Equals(MyGameConfig.Floor.MODE_CLEAR_ONLY))
-                normalFloors = new ClearOnly();
-            else if (MyGameConfig.floor.mode.Equals(MyGameConfig.Floor.MODE_DEDICATED))
-                normalFloors = new Dedicated();
+            if (MyGameConfig.floor.floors.Length > 0)
+            {
+                floorProviders.Add(new Dedicated(MyGameConfig.floor.floors));
+            }
+            else
+            {
+                floorProviders.Add(new Extreme()); // optimized of normal
+            }
         }
 
         public override void AppendReport(StringBuilder builder)
@@ -99,7 +99,7 @@ namespace AssemblyHijack.Automation
                     builder.AppendFormat("等級提升 {0} 級\n", item.Value);
             }
 
-            builder.AppendFormat("====================\n");
+            builder.AppendFormat("================\n");
         }
 
         protected override bool Check()
@@ -110,32 +110,14 @@ namespace AssemblyHijack.Automation
                 return false;
             }
 
-            candidate = null;
-
-            if (!Game.tutorialMode && MyGameConfig.floor.daily)
-            {
-                MyLog.Verbose("嚐試取得每日關卡...");
-                candidate = dailyFloors.NextFloor();
-            }
-
-            if (candidate == null)
-            {
-                MyLog.Verbose("嚐試取得普通關卡...");
-                candidate = normalFloors.NextFloor();
-            }
+            candidate = FindNextFloor();
 
             if (candidate != null)
             {
-                MyLog.Verbose("關卡判定[#{0}{1}], 所需體力[{2}], 目前體力[{3}]", candidate.floorId, candidate.name, candidate.stamina, Game.runtimeData.user.currentStamina);
-
-                if (Game.tutorialMode && candidate.stage.type != Stage.Type.TUTORIAL)
-                {
-                    MyLog.Verbose("新手導覽關卡已完成, 跳越導覽進度");
-                    // 自動升格到一般模式
-                    while (TutorialController.isTutorialMode)
-                        TutorialController.Continue();
-                }
-
+                Stage stage = candidate.stage;
+                MyLog.Debug("關卡已判定[#{0}{1}]-[#{2}{3}], 所需體力[{4}], 目前體力[{5}]",
+                    stage.stageId, stage.name, candidate.floorId, candidate.name,
+                    candidate.stamina, Game.runtimeData.user.currentStamina);
                 return true;
             }
             else
@@ -218,6 +200,18 @@ namespace AssemblyHijack.Automation
                         false);
                 },
             null);
+        }
+
+        private Floor FindNextFloor()
+        {
+            foreach (var provider in floorProviders)
+            {
+                var candidate = provider.NextFloor();
+                if (candidate != null)
+                    return candidate;
+            }
+
+            return null;
         }
 
         private void InitReport()

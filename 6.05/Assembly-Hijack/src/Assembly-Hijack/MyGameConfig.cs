@@ -36,6 +36,7 @@ public class MyGameConfig
         public bool tutorial = false;
         public int teamSize = 120;
         public bool reveal = false;
+        public bool acceptFriend = false;
     }
 
     public class Card
@@ -83,36 +84,10 @@ public class MyGameConfig
 
     public class Floor
     {
-        /// <summary>
-        /// 極限模式, 目的是把體力作最佳運用。
-        /// </summary>
-        public const string MODE_EXTREME = "extreme";
-
-        /// <summary>
-        /// 獎勵模式, 一切講求「省」。
-        /// </summary>
-        public const string MODE_BONUS_ONLY = "bonusOnly";
-
-        /// <summary>
-        /// 闖關模式, 除了過關, 其餘免談。
-        /// </summary>
-        public const string MODE_CLEAR_ONLY = "clearOnly";
-
-        /// <summary>
-        /// 隨選模式, 應設定關卡進行。
-        /// </summary>
-        public const string MODE_DEDICATED = "dedicated";
-
         public bool enabled = false;
-        public string mode = MODE_EXTREME;
         public int[] floors = new int[0];
-
-        /// <summary>
-        /// 是否優先進行每日關卡
-        /// </summary>
-        public bool daily = false;
-
         public bool requestFriend = false;
+
         public Recovery recovery = new Recovery();
 
         /// <summary>
@@ -155,7 +130,7 @@ public class MyGameConfig
         /// <summary>
         /// 每n秒更新一次清單
         /// </summary>
-        public int period = 30;
+        public int period = 120;
 
         /// <summary>
         /// 自動領取獎賞別
