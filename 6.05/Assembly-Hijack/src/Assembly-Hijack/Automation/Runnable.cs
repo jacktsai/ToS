@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using UnityEngine;
 
 namespace AssemblyHijack.Automation
@@ -18,7 +19,7 @@ namespace AssemblyHijack.Automation
             }
 
             if (!checkResult)
-                MyLog.Debug("{0}.Check, Result = {1}", this.GetType().Name, checkResult);
+                MyLog.Verbose("{0}.Check, Result = {1}", this.GetType().Name, checkResult);
 
             return checkResult;
         }
@@ -33,6 +34,10 @@ namespace AssemblyHijack.Automation
             {
                 Debug.LogError(exception.ToString());
             }
+        }
+
+        public virtual void AppendReport(StringBuilder builder)
+        {
         }
 
         protected abstract bool Check();

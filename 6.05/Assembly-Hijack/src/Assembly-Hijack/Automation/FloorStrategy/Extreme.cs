@@ -51,7 +51,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
                 {
                     if (JudgePatro(candidate) == PatrolGuide.NONE)
                     {
-                        MyLog.Debug("[#{0}{1}] IS NOT CLEARED, CLEAR IT FIRST, STOP", candidate.floorId, candidate.name);
+                        MyLog.Verbose("[#{0}{1}] IS NOT CLEARED, CLEAR IT FIRST, STOP", candidate.floorId, candidate.name);
                         break;
                     }
                 }

@@ -1,4 +1,5 @@
 **/tos-decoded/**
+**/tos-building/**
 *.dll
 *.pdb
 *.trx

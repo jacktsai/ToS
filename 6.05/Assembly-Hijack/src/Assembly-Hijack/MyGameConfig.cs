@@ -11,7 +11,10 @@ public class MyGameConfig
 
     public class JsonFormat
     {
+        public Log log = new Log();
         public User user = new User();
+        public Card card = new Card();
+        public Labyrinth labyrinth = new Labyrinth();
         public Puzzle puzzle = new Puzzle();
 
         public Register register = new Register();
@@ -21,21 +24,39 @@ public class MyGameConfig
         public Reward reward = new Reward();
     }
 
+    public class Log
+    {
+        public bool enabled = false;
+        public string level = "Verbose";
+    }
+
     public class User
     {
         public bool enabled = false;
         public bool tutorial = false;
         public int teamSize = 120;
         public bool reveal = false;
-        public Card[] desires = new Card[0];
-        public Card[] helpers = new Card[0];
+    }
 
-        public class Card
+    public class Card
+    {
+        public bool enabled = false;
+        public CardItem[] desires = new CardItem[0];
+        public CardItem[] helpers = new CardItem[0];
+        public CardItem[] replace = new CardItem[0];
+
+        public class CardItem
         {
             public int monsterId = 0;
             public int monsterLv = 0;
             public int skillLv = 0;
         }
+    }
+
+    public class Labyrinth
+    {
+        public bool enabled = false;
+        public bool alwaysWin = true;
     }
 
     public class Puzzle
@@ -139,22 +160,23 @@ public class MyGameConfig
         /// <summary>
         /// 自動領取獎賞別
         /// </summary>
-        public int[] types = new int[] { 1, 2, 14 };
+        public int[] types = new int[] { 1, 2, 4, 13, 14 };
     }
 
+    public static Log log;
     public static User user;
+    public static Card card;
+    public static Labyrinth labyrinth;
+    public static Puzzle puzzle;
     public static Register register;
     public static Floor floor;
     public static Merge merge;
     public static Sell sell;
     public static Reward reward;
-    public static Puzzle puzzle;
 
     static MyGameConfig()
     {
-        MyLog.Debug("Loading game_config.json ...");
         LoadConfig();
-        MyLog.Debug("game_config.json loaded !!");
     }
 
     private static void LoadConfig()
@@ -168,13 +190,16 @@ public class MyGameConfig
                     string allContent = configFile.ReadToEnd();
                     JsonFormat config = JsonFx.Json.JsonReader.Deserialize<JsonFormat>(allContent);
 
+                    log = config.log;
                     user = config.user;
+                    card = config.card;
+                    labyrinth = config.labyrinth;
+                    puzzle = config.puzzle;
                     register = config.register;
                     floor = config.floor;
                     merge = config.merge;
                     sell = config.sell;
                     reward = config.reward;
-                    puzzle = config.puzzle;
                 }
             }
             catch (Exception ex)

@@ -8,7 +8,27 @@ namespace AssemblyHijack.Automation
 {
     internal class SellCard : Runnable
     {
+        private class SellInfo
+        {
+            public int count = 0;
+            public int price = 0;
+        }
+
+        private IDictionary<int, SellInfo> SellInfoPerMonster = new Dictionary<int, SellInfo>();
+        private int TotalPrice = 0;
+
         private IList<Card> cards = new List<Card>();
+
+        public override void AppendReport(StringBuilder builder)
+        {
+            foreach (var item in SellInfoPerMonster)
+            {
+                var monster = Game.database.monsters[item.Key];
+                builder.AppendFormat("共售出 [#{0}{1}] {2:#,0} 張\n價格 {3:#,0}\n", monster.monsterId, monster.name, item.Value.count, item.Value.price);
+            }
+
+            builder.AppendFormat("銷售總收入 {0:#,0}\n", TotalPrice);
+        }
 
         protected override bool Check()
         {
@@ -35,19 +55,36 @@ namespace AssemblyHijack.Automation
 
             if (cards.Count < 1)
             {
-                MyLog.Debug("沒有卡片可供出售！");
+                MyLog.Info("沒有卡片可供出售！");
                 return false;
             }
             else
             {
-                MyLog.Debug("判定出售{0}", cardNames);
+                MyLog.Info("判定出售{0}", cardNames);
                 return true;
             }
         }
 
         protected override void Execute(Action next)
         {
-            Game.SellCards(cards.ToArray(), next);
+            Game.SellCards(cards.ToArray(), delegate
+            {
+                foreach (var card in cards)
+                {
+                    SellInfo soldInfo;
+                    if (!SellInfoPerMonster.TryGetValue(card.monsterId, out soldInfo))
+                    {
+                        soldInfo = new SellInfo();
+                        SellInfoPerMonster.Add(card.monsterId, soldInfo);
+                    }
+
+                    soldInfo.count++;
+                    soldInfo.price += card.sellCoin;
+                    TotalPrice += card.sellCoin;
+                }
+
+                next();
+            });
         }
     }
 }

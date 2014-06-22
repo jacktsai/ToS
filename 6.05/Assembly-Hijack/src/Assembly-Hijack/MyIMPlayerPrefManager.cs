@@ -13,7 +13,7 @@ public class MyIMPlayerPrefManager
         {
             if (key.Equals("MH_GAME_TUTORIAL_CURRENT_STEP") && result <= 45 && !MyGameConfig.user.tutorial)
             {
-                MyLog.Debug("跳過導覽模式");
+                MyLog.Verbose("跳過導覽模式");
                 result = 46;
             }
         }

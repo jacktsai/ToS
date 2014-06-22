@@ -14,6 +14,7 @@ public class MyPuzzle
         if (MyGameConfig.puzzle.enabled)
         {
             Puzzle.protectedData.canOnlyHaveThisElement.Set(MyGameConfig.puzzle.elements);
+            MyLog.Info("已設定限定珠");
         }
 
         MyLog.Debug("<< - {0}.ActivateChangeDropChanceSkill", typeof(MyPuzzle).Name);
@@ -30,6 +31,7 @@ public class MyPuzzle
         if (MyGameConfig.puzzle.enabled)
         {
             Puzzle.protectedData.canOnlyHaveThisElement.Set(MyGameConfig.puzzle.elements);
+            MyLog.Info("已設定限定珠");
         }
 
         MyLog.Debug("<< - {0}.DeActivateChangeDropChanceSkill", typeof(MyPuzzle).Name);

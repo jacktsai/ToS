@@ -10,5 +10,7 @@ namespace AssemblyHijack.Automation
         bool CanRun();
 
         void Run(Action next);
+
+        void AppendReport(StringBuilder builder);
     }
 }

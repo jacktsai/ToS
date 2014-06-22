@@ -13,7 +13,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
         {
             if (allCleared)
             {
-                MyLog.Debug("每日關卡已全部完成");
+                MyLog.Verbose("每日關卡已全部完成");
                 return null;
             }
 

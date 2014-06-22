@@ -1,12 +1,8 @@
 ﻿using GameJSON;
 using JsonFx.Json;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using JsonFx.Json;
-using System.IO;
 
 namespace AssemblyHijack.Automation
 {
@@ -26,12 +22,12 @@ namespace AssemblyHijack.Automation
             Game.SetData(login.data);
 
             Card card = login.cards
-                .Select((s)=>
+                .Select((s) =>
                 {
                     GameJSON.Card c = ObjectParser.ParseCard(s);
                     return new Card(c);
                 })
-                .First(o=>o.cardId == 434);
+                .First(o => o.cardId == 434);
         }
     }
 }

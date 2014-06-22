@@ -1,21 +1,46 @@
-﻿using System;
+﻿using AssemblyHijack.Automation.FloorStrategy;
+using JsonFx.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using AssemblyHijack.Automation.FloorStrategy;
-using JsonFx.Json;
 using UnityEngine;
 
 namespace AssemblyHijack.Automation
 {
     internal class CompleteFloor : Runnable
     {
+        private const string REPORT_USER_LEVEL = "level";
+        private const string REPORT_USER_EXP = "exp";
+        private const string REPORT_USER_FRIEND_POINT = "friend_point";
+        private const string REPORT_USER_COIN = "coin";
+        private const string REPORT_USER_DIAMOND = "diamond";
+        private const string REPORT_USER_RECOVERY_REWARD = "recovery_reward";
+        private const string REPORT_USER_RECOVERY_DIAMOND = "recovery_diamond";
+        private const string REPORT_USER_STAMINA = "stamina";
+
         private readonly IStrategy dailyFloors = new Daily();
         private readonly IStrategy normalFloors;
         private Floor candidate = null;
-        private Action afterComplete = null;
+
+        private bool reportInited = false;
+
+        private IDictionary<string, int> Report_User = new Dictionary<string, int>
+        {
+            { REPORT_USER_LEVEL, 0 },
+            { REPORT_USER_EXP, 0 },
+            { REPORT_USER_FRIEND_POINT, 0 },
+            { REPORT_USER_COIN, 0 },
+            { REPORT_USER_DIAMOND, 0 },
+            { REPORT_USER_RECOVERY_REWARD, 0 },
+            { REPORT_USER_RECOVERY_DIAMOND, 0 },
+            { REPORT_USER_STAMINA, 0 },
+        };
+
+        private IDictionary<int, int> Report_Floor = new Dictionary<int, int>();
+        private IDictionary<int, int> Report_Card = new Dictionary<int, int>();
 
         public CompleteFloor()
         {
@@ -29,11 +54,55 @@ namespace AssemblyHijack.Automation
                 normalFloors = new Dedicated();
         }
 
+        public override void AppendReport(StringBuilder builder)
+        {
+            foreach (var item in Report_User)
+            {
+                if (item.Value < 1)
+                    continue;
+
+                if (item.Key == REPORT_USER_STAMINA)
+                    builder.AppendFormat("共花費體力 {0:#,0} 點\n", item.Value);
+                else if (item.Key == REPORT_USER_EXP)
+                    builder.AppendFormat("經驗增加 {0:#,0}\n", item.Value);
+                else if (item.Key == REPORT_USER_FRIEND_POINT)
+                    builder.AppendFormat("好友點數 {0:#,0} 點\n", item.Value);
+                else if (item.Key == REPORT_USER_COIN)
+                    builder.AppendFormat("錢幣增加 {0:#,0}\n", item.Value);
+                else if (item.Key == REPORT_USER_DIAMOND)
+                    builder.AppendFormat("取得魔法石 {0} 顆\n", item.Value);
+                else if (item.Key == REPORT_USER_RECOVERY_REWARD)
+                    builder.AppendFormat("使用 {0} 次體力回復獎勵\n", item.Value);
+                else if (item.Key == REPORT_USER_RECOVERY_DIAMOND)
+                    builder.AppendFormat("使用 {0} 次魔法石回復體力\n", item.Value);
+                else if (item.Key == REPORT_USER_LEVEL)
+                    builder.AppendFormat("等級提升 {0} 級\n", item.Value);
+            }
+
+            foreach (var item in Report_Floor)
+            {
+                if (item.Value < 1)
+                    continue;
+
+                Floor floor = Game.database.floors[item.Key];
+                builder.AppendFormat("[#{0}{1}] 通關 {2} 次\n", floor.floorId, floor.name, item.Value);
+            }
+
+            foreach (var item in Report_Card)
+            {
+                if (item.Value < 1)
+                    continue;
+
+                Monster monster = Game.database.monsters[item.Key];
+                builder.AppendFormat("[#{0}{1}] 領取 {2} 張\n", monster.monsterId, monster.name, item.Value);
+            }
+        }
+
         protected override bool Check()
         {
             if (Game.runtimeData.user.inventory.isFull)
             {
-                MyLog.Debug("背包已滿");
+                MyLog.Info("背包已滿");
                 MyDialog.ShowConfirm("包包滿了哦！\n為了蒐集更多的卡片, 請趕快去整理一下包包吧！");
                 return false;
             }
@@ -42,23 +111,23 @@ namespace AssemblyHijack.Automation
 
             if (!Game.tutorialMode && MyGameConfig.floor.daily)
             {
-                MyLog.Debug("嚐試取得每日關卡...");
+                MyLog.Verbose("嚐試取得每日關卡...");
                 candidate = dailyFloors.NextFloor();
             }
 
             if (candidate == null)
             {
-                MyLog.Debug("嚐試取得普通關卡...");
+                MyLog.Verbose("嚐試取得普通關卡...");
                 candidate = normalFloors.NextFloor();
             }
 
             if (candidate != null)
             {
-                MyLog.Debug("關卡判定[#{0}{1}], 所需體力[{2}], 目前體力[{3}]", candidate.floorId, candidate.name, candidate.stamina, Game.runtimeData.user.currentStamina);
+                MyLog.Verbose("關卡判定[#{0}{1}], 所需體力[{2}], 目前體力[{3}]", candidate.floorId, candidate.name, candidate.stamina, Game.runtimeData.user.currentStamina);
 
                 if (Game.tutorialMode && candidate.stage.type != Stage.Type.TUTORIAL)
                 {
-                    MyLog.Debug("新手導覽關卡已完成, 跳越導覽進度");
+                    MyLog.Verbose("新手導覽關卡已完成, 跳越導覽進度");
                     // 自動升格到一般模式
                     while (TutorialController.isTutorialMode)
                         TutorialController.Continue();
@@ -68,7 +137,7 @@ namespace AssemblyHijack.Automation
             }
             else
             {
-                MyLog.Debug("已經沒有下一個適合的關卡進行戰鬥！");
+                MyLog.Info("已經沒有下一個適合的關卡進行戰鬥！");
                 MyDialog.ShowConfirm("已經沒有下一個適合的關卡進行戰鬥！");
                 return false;
             }
@@ -76,10 +145,14 @@ namespace AssemblyHijack.Automation
 
         protected override void Execute(Action next)
         {
+            InitReport();
+
             Game.SetCurrentTeamIndex(1);
             Game.SetCurrentZone(candidate.stage.zoneId);
             Game.SetCurrentStage(candidate.stage);
             Game.SetCurrentFloor(candidate);
+
+            var userBefore = Game.runtimeData.user.Clone();
 
             Game.GetHelperList(
                 candidate.floorId,
@@ -87,18 +160,17 @@ namespace AssemblyHijack.Automation
                 {
                     // 隨機從中挑選一位助攻
                     Helper helper = helpers[UnityEngine.Random.Range(0, helpers.Count)];
-
                     Game.SetCurrentSelectedHelper(helper);
                     Game.EnterCurrentFloor(() =>
                     {
-                        MyLog.Debug("進入關卡 [#{0}-{1}]", candidate.floorId, candidate.name);
+                        MyLog.Info("進入關卡 [#{0}-{1}]", candidate.floorId, candidate.name);
                         RestoreGameplay.StartGame();
 
                         while (Game.instance.MoveToNextWave())
                         {
                             int waveIndex = Game.runtimeData.currentWaveIndex - 1;
                             int waveCount = Game.runtimeData.currentFloor.waves.Count;
-                            MyLog.Debug("慘烈廝殺中... {0} / {1}", waveIndex + 1, waveCount);
+                            MyLog.Verbose("慘烈廝殺中... {0} / {1}", waveIndex + 1, waveCount);
                             Wave wave = Game.runtimeData.currentFloor.waves[waveIndex];
 
                             foreach (var enemy in wave.enemies)
@@ -107,31 +179,61 @@ namespace AssemblyHijack.Automation
                                 {
                                     Loot loot = enemy.lootItem;
                                     if (loot.type == Loot.Type.COIN)
-                                        MyLog.Debug("敵人 [#{0}-{1}] 帶了 {2:#,0} 金幣來孝敬！", enemy.monsterId, enemy.name, loot.amount);
+                                        MyLog.Verbose("敵人 [#{0}-{1}] 帶了 {2:#,0} 金幣來孝敬！", enemy.monsterId, enemy.name, loot.amount);
                                     else if (loot.type == Loot.Type.MONSTER)
-                                        MyLog.Debug("敵人 [#{0}-{1}] 帶了 [#{2}-{3}] 孝敬！", enemy.monsterId, enemy.name, loot.card.monsterId, loot.card.name);
+                                    {
+                                        MyLog.Verbose("敵人 [#{0}-{1}] 帶了 [#{2}-{3}] 來孝敬！", enemy.monsterId, enemy.name, loot.card.monsterId, loot.card.name);
+                                        Report_Card[loot.card.monsterId]++;
+                                    }
+                                    else if (loot.type == Loot.Type.ITEM)
+                                        MyLog.Verbose("敵人 [#{0}-{1}] 帶了 [{2}] 塊 [{3}] 碎片來孝敬！", enemy.monsterId, enemy.name, loot.itemId, loot.amount);
                                     else
-                                        MyLog.Debug("敵人 [#{0}-{1}] 帶了不明物品 [{2}]！", enemy.monsterId, enemy.name, loot.type);
+                                        MyLog.Verbose("敵人 [#{0}-{1}] 帶了不明物品 [{2}]！", enemy.monsterId, enemy.name, loot.type);
                                 }
                                 else
                                 {
-                                    MyLog.Debug("不帶東西的敵人 [#{0}-{1}] 出現了！", enemy.monsterId, enemy.name);
+                                    MyLog.Verbose("不帶東西的敵人 [#{0}-{1}] 出現了！", enemy.monsterId, enemy.name);
                                 }
                             }
                         }
 
                         RestoreGameplay.End(true, false, false);
-                        MyLog.Debug("*** 最高連擊[{0:#,0}] 最高攻擊[{1:#,0}] ***", RestoreGameplay.maxCombo, RestoreGameplay.maxPlayerAttack);
+                        MyLog.Verbose("*** 最高連擊[{0:#,0}] 最高攻擊[{1:#,0}] ***", RestoreGameplay.maxCombo, RestoreGameplay.maxPlayerAttack);
 
                         Game.ClearCurrentFloor(() =>
                         {
-                            MyLog.Debug("結束關卡 [#{0}{1}]", candidate.floorId, candidate.name);
+                            MyLog.Info("結束關卡 [#{0}{1}]", candidate.floorId, candidate.name);
+                            Report_User[REPORT_USER_LEVEL] += Game.runtimeData.user.level - userBefore.level;
+                            Report_User[REPORT_USER_EXP] += Game.runtimeData.user.accumulativeLevelExp - userBefore.accumulativeLevelExp;
+                            Report_User[REPORT_USER_FRIEND_POINT] += Game.runtimeData.user.friendPoint - userBefore.friendPoint;
+                            Report_User[REPORT_USER_COIN] += Game.runtimeData.user.coin - userBefore.coin;
+                            Report_User[REPORT_USER_DIAMOND] += Game.runtimeData.user.diamond - userBefore.diamond;
+                            Report_User[REPORT_USER_STAMINA] += Game.runtimeData.user.currentStamina - userBefore.currentStamina;
+                            Report_Floor[Game.runtimeData.currentFloor.floorId]++;
                             SendFriendRequest(next);
                         });
                     },
                         false);
                 },
             null);
+        }
+
+        private void InitReport()
+        {
+            if (reportInited)
+                return;
+
+            foreach (var floor in Game.database.floors)
+            {
+                Report_Floor.Add(floor.Key, 0);
+            }
+
+            foreach (var monster in Game.database.monsters)
+            {
+                Report_Card.Add(monster.Key, 0);
+            }
+
+            reportInited = true;
         }
 
         private void SendFriendRequest(Action next)
@@ -146,12 +248,8 @@ namespace AssemblyHijack.Automation
                 Helper helper = Game.runtimeData.currentSelectedHelper;
                 if (helper != null && !Game.runtimeData.user.isFriendsFull)
                 {
-                    MyLog.Debug("對 [{0}] 發送好友邀請", helper.name);
-                    Game.SendFriendRequest(
-                        helper.uid,
-                        newNext,
-                        i => { });
-                    return;
+                    MyLog.Info("對 [{0}] 發送好友邀請", helper.name);
+                    Game.SendFriendRequestInBackground(helper.uid);
                 }
             }
 
@@ -171,12 +269,13 @@ namespace AssemblyHijack.Automation
 
                         if (reward.rewardType == Reward.Type.RECOVERY)
                         {
-                            MyLog.Debug("從 [{0}] 回覆體力", reward.message);
+                            MyLog.Info("從 [{0}] 回覆體力", reward.message);
                             Game.ClaimReward(
                                 reward.rewardId,
                                 (diamondCompensated, cardIds) =>
                                 {
                                     reward.claimed = true;
+                                    Report_User[REPORT_USER_RECOVERY_REWARD] += 1;
                                     next();
                                 },
                                 null);
@@ -189,8 +288,12 @@ namespace AssemblyHijack.Automation
                 {
                     if (Game.runtimeData.user.diamond > 0)
                     {
-                        MyLog.Debug("從 [魔法石] 回覆體力");
-                        Game.RecoverStamina(next, null);
+                        MyLog.Info("從 [魔法石] 回覆體力");
+                        Game.RecoverStamina(() =>
+                            {
+                                Report_User[REPORT_USER_RECOVERY_DIAMOND] += 1;
+                                next();
+                            }, null);
                         return;
                     }
                 }

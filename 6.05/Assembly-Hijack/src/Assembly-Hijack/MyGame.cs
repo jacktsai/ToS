@@ -1,41 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using AssemblyHijack;
+﻿using AssemblyHijack;
 using AssemblyHijack.Automation;
 using GameJSON;
 using JsonFx.Json;
 using Native;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading;
 using UnityEngine;
 
 public class MyGame
 {
     private static readonly IList<IRunnable> RUNNER = new List<IRunnable>();
+    private static IRunnable completeFloor = new CompleteFloor();
+    private static IRunnable claimReword = new ClaimReword();
+    private static IRunnable sellCard = new SellCard();
+    private static IRunnable mergeCard = new MergeCard();
+    private static IRunnable acceptFriend = new AcceptFriend();
+    private static DateTime BeginTime;
+    private static DateTime EndTime;
 
     static MyGame()
     {
-        MyLog.Debug("Loading RUNNERs ...");
+        MyLog.Verbose("Loading RUNNERs ...");
 
         if (MyGameConfig.sell.enabled)
-            RUNNER.Add(new SellCard());
+            RUNNER.Add(sellCard);
 
         if (MyGameConfig.reward.enabled)
-            RUNNER.Add(new ClaimReword());
+            RUNNER.Add(claimReword);
 
         if (MyGameConfig.merge.enabled)
-            RUNNER.Add(new MergeCard());
+            RUNNER.Add(mergeCard);
 
         if (MyGameConfig.floor.enabled)
         {
             if (MyGameConfig.floor.requestFriend)
-                RUNNER.Add(new AcceptFriend());
+                RUNNER.Add(acceptFriend);
 
-            RUNNER.Add(new CompleteFloor());
+            RUNNER.Add(completeFloor);
         }
 
-        MyLog.Debug("{0} RUNNER(s) has been loaded !!", RUNNER.Count);
+        MyLog.Verbose("{0} RUNNER(s) has been loaded !!", RUNNER.Count);
     }
 
     private static void NextAction()
@@ -48,6 +56,9 @@ public class MyGame
                 return;
             }
         }
+
+        EndTime = DateTime.Now;
+        ShowReport();
     }
 
     private static void PromptRegister()
@@ -101,6 +112,7 @@ public class MyGame
                 builder.AddButton(Locale.t("LABEL_OK"), delegate
                 {
                     ViewController.SwitchView(ViewIndex.WORLDMAP_WORLD_MAP);
+                    BeginTime = DateTime.Now;
                     NextAction();
                 });
                 builder.AddButton(Locale.t("LABEL_CANCEL"), delegate
@@ -111,6 +123,35 @@ public class MyGame
                 builder.Show();
             });
         }
+    }
+
+    private static void ShowReport()
+    {
+        StringBuilder reportBuilder = new StringBuilder();
+        reportBuilder.AppendFormat("開始 {0:yyyy-MM-dd HH:mm:ss}\n", BeginTime);
+        reportBuilder.AppendFormat("結束 {0:yyyy-MM-dd HH:mm:ss}\n", EndTime);
+        TimeSpan duration = EndTime - BeginTime;
+        reportBuilder.AppendFormat("費時 {0}天{1}時{2}分{3}秒\n", duration.Days, duration.Hours, duration.Minutes, duration.Seconds);
+
+        completeFloor.AppendReport(reportBuilder);
+        claimReword.AppendReport(reportBuilder);
+        sellCard.AppendReport(reportBuilder);
+        mergeCard.AppendReport(reportBuilder);
+        acceptFriend.AppendReport(reportBuilder);
+
+        string reportContent = reportBuilder.ToString();
+        MyLog.Info(reportContent);
+
+        ViewController.SwitchView(delegate
+        {
+            DialogBuilder builder = MyDialog.Create();
+            builder.SetScrollText(reportContent);
+            builder.AddButton(Locale.t("LABEL_OK"), delegate
+            {
+                ViewController.SwitchView(ViewIndex.WORLDMAP_WORLD_MAP);
+            });
+            builder.Show();
+        });
     }
 
     public static void GetConfig(Action onSuccess)
@@ -162,7 +203,7 @@ public class MyGame
         {
             if (MyGameConfig.user.teamSize > 0)
             {
-                MyLog.Debug("隊伍空間 [{0}] 改成 [{1}]", userInfo.user.teamSize, MyGameConfig.user.teamSize);
+                MyLog.Verbose("隊伍空間 [{0}] 改成 [{1}]", userInfo.user.teamSize, MyGameConfig.user.teamSize);
                 userInfo.user.teamSize = MyGameConfig.user.teamSize;
             }
 
@@ -170,28 +211,39 @@ public class MyGame
             {
                 userInfo.user.completedFloorIds = Game.database.floors.Keys.ToArray();
                 userInfo.user.completedStageIds = Game.database.stages.Keys.ToArray();
-                MyLog.Debug("玩家視野已全部打開");
+                MyLog.Verbose("玩家視野已全部打開");
             }
+        }
 
-            if (userInfo.cards != null && MyGameConfig.user.desires.Length > 0)
+        if (MyGameConfig.card.enabled && userInfo.cards != null)
+        {
+            if (MyGameConfig.card.desires.Length > 0)
             {
                 var newCardList = new List<GameJSON.Card>();
+                var desireSettings = (MyGameConfig.Card.CardItem[])MyGameConfig.card.desires.Clone();
                 var replaceIndex = 0;
                 foreach (var cardString in userInfo.cards)
                 {
-                    if (replaceIndex >= MyGameConfig.user.desires.Length)
+                    if (replaceIndex >= desireSettings.Length)
                         break;
 
                     var cardJson = ObjectParser.ParseCard(cardString);
                     var currentCard = Game.database.monsters[cardJson.monsterId];
 
                     //if (targets.Contains(currentCard.monsterId))
-                    if (racialTypes.Contains(currentCard.type))
+                    if (replaceIndex < desireSettings.Length && racialTypes.Contains(currentCard.type))
                     {
-                        var desireSetting = MyGameConfig.user.desires[replaceIndex];
+                        var desireSetting = desireSettings[replaceIndex];
                         var desireCard = Game.database.monsters[desireSetting.monsterId];
 
-                        MyLog.Debug("背包卡片抽換：[#{0}{1}] > [#{2}{3}], 卡片等級 [{4}] > [{5}], 技能等級 [{6}] > [{7}]",
+                        if (desireSetting.monsterId < 1)
+                            desireSetting.monsterId = cardJson.monsterId;
+                        if (desireSetting.monsterLv < 1)
+                            desireSetting.monsterLv = cardJson.level;
+                        if (desireSetting.skillLv < 1)
+                            desireSetting.skillLv = cardJson.skillLevel;
+
+                        MyLog.Verbose("背包卡片抽換：[#{0}{1}] > [#{2}{3}], 卡片等級 [{4}] > [{5}], 技能等級 [{6}] > [{7}]",
                             cardJson.monsterId, currentCard.name,
                             desireSetting.monsterId, desireCard.name,
                             cardJson.level, desireSetting.monsterLv,
@@ -200,7 +252,7 @@ public class MyGame
                         cardJson.monsterId = desireSetting.monsterId;
                         cardJson.level = desireSetting.monsterLv;
                         cardJson.skillLevel = desireSetting.skillLv;
-                        cardJson.exp += new Card(cardJson).LevelToExp(desireSetting.monsterLv);
+                        cardJson.exp = new Card(cardJson).LevelToExp(desireSetting.monsterLv);
 
                         replaceIndex++;
                     }
@@ -221,7 +273,7 @@ public class MyGame
                 while (Game.tutorialMode)
                     TutorialController.Continue();
 
-                MyLog.Debug("已跳過新手導覽");
+                MyLog.Verbose("已跳過新手導覽");
             }
         }
 
@@ -232,17 +284,17 @@ public class MyGame
     {
         List<Helper> result = Game.GetHelperList(helpers);
 
-        if (MyGameConfig.user.enabled)
+        if (MyGameConfig.card.enabled)
         {
-            for (int i = 0; i < result.Count && i < MyGameConfig.user.helpers.Length; i++)
+            for (int i = 0; i < result.Count && i < MyGameConfig.card.helpers.Length; i++)
             {
                 var x = result[i].helperCard;
-                var desireInfo = MyGameConfig.user.helpers[i];
+                var desireInfo = MyGameConfig.card.helpers[i];
                 var y = new Card(desireInfo.monsterId, desireInfo.monsterLv, desireInfo.skillLv);
 
                 result[i].helperCard = y;
 
-                MyLog.Debug("好友卡片抽換：[#{0}{1}] > [#{2}{3}], 卡片等級 [{4}] > [{5}], 技能等級 [{6}] > [{7}]", x.monsterId, x.name, y.monsterId, y.name, x.level, y.level, x.skillLevel, y.skillLevel);
+                MyLog.Verbose("好友卡片抽換：[#{0}{1}] > [#{2}{3}], 卡片等級 [{4}] > [{5}], 技能等級 [{6}] > [{7}]", x.monsterId, x.name, y.monsterId, y.name, x.level, y.level, x.skillLevel, y.skillLevel);
             }
         }
 

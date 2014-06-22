@@ -8,15 +8,35 @@ namespace AssemblyHijack.Automation
 {
     internal class MergeCard : Runnable
     {
+        private class UpgradeInfo
+        {
+            public int count = 0;
+            public int exp = 0;
+            public int cost = 0;
+        }
+
+        private IDictionary<string, UpgradeInfo> UpgradeInfoPerCard = new Dictionary<string, UpgradeInfo>();
+        private int TotalCost;
+
         private Card target = null;
         private IList<Card> children = new List<Card>();
-        private int expectedCoin = 0;
+        private int expectedCost = 0;
+
+        public override void AppendReport(StringBuilder builder)
+        {
+            foreach (var item in UpgradeInfoPerCard)
+            {
+                builder.AppendFormat("升級 {0} {1:#,0} 次\n經驗值 {2:#,0}\n花費 {3:#,0}\n", item.Key, item.Value.count, item.Value.exp, item.Value.cost);
+            }
+
+            builder.AppendFormat("升級總支出 {0:#,0}\n", TotalCost);
+        }
 
         protected override bool Check()
         {
             if (!Game.runtimeData.user.inventory.isFull)
             {
-                MyLog.Debug("背包未滿, 暫不判定需要升級的卡片");
+                MyLog.Info("背包未滿, 暫不判定需要升級的卡片");
                 return false;
             }
 
@@ -29,7 +49,7 @@ namespace AssemblyHijack.Automation
                 var candidate = Game.runtimeData.user.inventory.GetCard(teamCardId);
                 if (candidate.isLevelMax)
                 {
-                    MyLog.Debug("[{0}]已經到達最高級別[{1}], 不需要再升級", candidate.name, candidate.level);
+                    MyLog.Verbose("[{0}]已經到達最高級別[{1}], 不需要再升級", candidate.name, candidate.level);
                 }
                 else
                 {
@@ -38,7 +58,7 @@ namespace AssemblyHijack.Automation
                 }
             }
 
-            MyLog.Debug("找不到合適的卡片進行升級！");
+            MyLog.Info("找不到合適的卡片進行升級！");
 
             return false;
         }
@@ -56,7 +76,32 @@ namespace AssemblyHijack.Automation
 
             Game.SetMonsterUpgradeTarget(target);
             Game.SetMonsterUpgradeChildren(children.ToArray());
-            Game.UpgradeMonster(next);
+
+            var expBefore = target.exp;
+            var coinBefore = Game.runtimeData.user.coin;
+
+            Game.UpgradeMonster(delegate
+            {
+                var upgradedCard = Game.runtimeData.user.inventory.GetCard(target.cardId);
+                var actualExp = upgradedCard.exp - expBefore;
+                var actualCost = Game.runtimeData.user.coin - coinBefore;
+                MyLog.Info("[#{0}{1}]升級成功, 經驗值增加[{2:#,0}], 實際花費[{3:#,0}]", upgradedCard.monsterId, upgradedCard.name, actualExp, actualCost);
+
+                var cardKey = String.Format("#{0}[{1:0000}{2}]", target.cardId, target.monsterId, target.name);
+                UpgradeInfo upgradeInfo;
+                if (!UpgradeInfoPerCard.TryGetValue(cardKey, out upgradeInfo))
+                {
+                    upgradeInfo = new UpgradeInfo();
+                    UpgradeInfoPerCard.Add(cardKey, upgradeInfo);
+                }
+
+                upgradeInfo.count++;
+                upgradeInfo.exp += actualExp;
+                upgradeInfo.cost += actualCost;
+                TotalCost += actualCost;
+
+                next();
+            });
         }
 
         private bool Estimate(Card candidate, IEnumerable<Card> sarcrificers)
@@ -87,24 +132,24 @@ namespace AssemblyHijack.Automation
 
             if (children.Count < 1)
             {
-                MyLog.Debug("升級[#{0}{1}]所需經驗值只有[{2:#,0}], 沒有適合的卡片", candidate.monsterId, candidate.name, requiredExp);
+                MyLog.Info("升級[#{0}{1}]所需經驗值只有[{2:#,0}], 沒有適合的卡片", candidate.monsterId, candidate.name, requiredExp);
                 return false;
             }
 
             if (children.Count == 5 || Game.runtimeData.user.inventory.isFull)
             {
-                expectedCoin = candidate.mergeCoin * children.Count + (candidate.bonus + childrenBonus) * Core.Config.UPGRADE_CARDBOUNS_COST;
+                expectedCost = candidate.mergeCoin * children.Count + (candidate.bonus + childrenBonus) * Core.Config.UPGRADE_CARDBOUNS_COST;
 
-                if (Game.runtimeData.user.coin >= expectedCoin)
+                if (Game.runtimeData.user.coin >= expectedCost)
                 {
-                    MyLog.Debug("判定升級[#{0}{1}], 預估經驗值[{2:#,0}], 預估花費[{3:#,0} ], EP[{4:0.00}], 餵食{5}", candidate.monsterId, candidate.name, expectedExp, expectedCoin, expectedExp / expectedCoin, cardNames);
+                    MyLog.Info("判定升級[#{0}{1}], 預估經驗值[{2:#,0}], 預估花費[{3:#,0} ], EP[{4:0.00}], 餵食{5}", candidate.monsterId, candidate.name, expectedExp, expectedCost, expectedExp / expectedCost, cardNames);
 
                     target = candidate;
                     return true;
                 }
                 else
                 {
-                    MyLog.Debug("升級[#{0}{1}]預估需要[{2:#,0}], 資產不足", candidate.monsterId, candidate.name, expectedCoin);
+                    MyLog.Info("升級[#{0}{1}]預估需要[{2:#,0}], 資產不足", candidate.monsterId, candidate.name, expectedCost);
                     return false;
                 }
             }

@@ -30,31 +30,43 @@ namespace AssemblyHijack.Automation.FloorStrategy
 
             if ((stage.type == Stage.Type.TUTORIAL || stage.type == Stage.Type.ONEOFF) && target.isCleared)
             {
-                MyLog.Debug("[#{0}{1}]-[#{2}{3}] HAS BEEN CLEARED, SKIP", stage.stageId, stage.name, target.floorId, target.name);
+                MyLog.Verbose("[#{0}{1}]-[#{2}{3}] HAS BEEN CLEARED, SKIP", stage.stageId, stage.name, target.floorId, target.name);
                 return PatrolGuide.SKIP;
             }
 
             if (target.unlockByItem && !target.isItemCollected)
             {
-                MyLog.Debug("[#{0}{1}]-[#{2}{3}] IS NOT ENOUGH ITEM, SKIP", stage.stageId, stage.name, target.floorId, target.name);
+                MyLog.Verbose("[#{0}{1}]-[#{2}{3}] IS NOT ENOUGH ITEM, SKIP", stage.stageId, stage.name, target.floorId, target.name);
+                return PatrolGuide.SKIP;
+            }
+
+            if (target.isRankingAvailable)
+            {
+                MyLog.Verbose("[#{0}{1}]-[#{2}{3}] DO NOT TOUCH RANKING FLOOR, SKIP", stage.stageId, stage.name, target.floorId, target.name);
+                return PatrolGuide.SKIP;
+            }
+
+            if (target.haveLimitation)
+            {
+                MyLog.Verbose("[#{0}{1}]-[#{2}{3}] HAS LIMITATION, SKIP", stage.stageId, stage.name, target.floorId, target.name);
+                return PatrolGuide.SKIP;
+            }
+
+            if (target.isLocked)
+            {
+                MyLog.Verbose("[#{0}{1}]-[#{2}{3}] IS LOCKED, SKIP", stage.stageId, stage.name, target.floorId, target.name);
                 return PatrolGuide.SKIP;
             }
 
             if (!target.isAvailable)
             {
-                MyLog.Debug("[#{0}{1}]-[#{2}{3}] IS NOT AVAILABLE, STOP", stage.stageId, stage.name, target.floorId, target.name);
-                return PatrolGuide.STOP;
-            }
-
-            if (target.isLocked)
-            {
-                MyLog.Debug("[#{0}{1}]-[#{2}{3}] IS LOCKED, STOP", stage.stageId, stage.name, target.floorId, target.name);
+                MyLog.Verbose("[#{0}{1}]-[#{2}{3}] IS NOT AVAILABLE, STOP", stage.stageId, stage.name, target.floorId, target.name);
                 return PatrolGuide.STOP;
             }
 
             if (target.stamina > Game.runtimeData.user.currentStamina)
             {
-                MyLog.Debug("[#{0}{1}]-[#{2}{3}] STAMINA REQUIRED {4} , CURRENT {5}, STOP", stage.stageId, stage.name, target.floorId, target.name, target.stamina, Game.runtimeData.user.currentStamina);
+                MyLog.Verbose("[#{0}{1}]-[#{2}{3}] STAMINA REQUIRED {4} , CURRENT {5}, STOP", stage.stageId, stage.name, target.floorId, target.name, target.stamina, Game.runtimeData.user.currentStamina);
                 return PatrolGuide.STOP;
             }
 
