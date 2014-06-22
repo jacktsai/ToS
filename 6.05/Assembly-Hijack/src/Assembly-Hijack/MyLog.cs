@@ -26,32 +26,38 @@ internal class MyLog
 
     public static void Verbose(string format, params object[] args)
     {
+        if (level > Level.Verbose)
+            return;
+
         string message = format;
         if (args.Length > 0)
             message = String.Format(format, args);
 
-        if (Level.Verbose >= level)
-            UnityEngine.Debug.Log(message);
+        UnityEngine.Debug.Log(message);
     }
 
     public static void Debug(string format, params object[] args)
     {
+        if (level > Level.Debug)
+            return;
+
         string message = format;
         if (args.Length > 0)
             message = String.Format(format, args);
 
-        if (Level.Debug >= level)
-            UnityEngine.Debug.Log(message);
+        UnityEngine.Debug.Log(message);
     }
 
     public static void Info(string format, params object[] args)
     {
+        if (level > Level.Info)
+            return;
+
         string message = format;
         if (args.Length > 0)
             message = String.Format(format, args);
 
-        if (Level.Info >= level)
-            UnityEngine.Debug.Log(message);
+        UnityEngine.Debug.Log(message);
     }
 
     /// <summary>
@@ -60,7 +66,7 @@ internal class MyLog
     /// <param name="o"></param>
     public static void Debug(object o)
     {
-        if (Level.Debug < level)
+        if (level > Level.Debug)
             return;
 
         string json = JsonWriter.Serialize(o);

@@ -1,5 +1,9 @@
 {
-"logLevel" : "info",
+"log" :
+{
+	"enabled" : true,
+	"level" : "verbose"
+},
 
 "user" :
 {
@@ -8,6 +12,12 @@
 	"teamSize" : 120,
 	"reveal" : false,
 	"acceptFriend" : true
+},
+
+"guild" :
+{
+	"enabled" : true,
+	"request" : 81917
 },
 
 "card" :
@@ -51,7 +61,7 @@
 	"recovery" :
 	{
 		"enabled" : true,
-		"threshold" : 5,
+		"threshold" : 6,
 		"reward" : true,
 		"diamond" : false
 	}

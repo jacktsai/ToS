@@ -39,7 +39,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
             if (!target.isAvailable)
             {
                 MyLog.Verbose("[#{0}{1}]-[#{2}{3}] IS NOT AVAILABLE, STOP", stage.stageId, stage.name, target.floorId, target.name);
-                return PatrolGuide.STOP;
+                return PatrolGuide.SKIP;
             }
 
             if ((stage.type == Stage.Type.TUTORIAL || stage.type == Stage.Type.ONEOFF) && target.isCleared)

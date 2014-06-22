@@ -245,8 +245,10 @@ namespace AssemblyHijack.Automation
                 if (helper != null && !Game.runtimeData.user.isFriendsFull)
                 {
                     MyLog.Info("對 [{0}] 發送好友邀請", helper.name);
-                    Game.SendFriendRequestInBackground(helper.uid);
-                    Thread.Sleep(300); // 這支 API 的回應非常快，如果 API 打太快會讓流程中斷，故在這裡作一個 sleep
+                    //Game.SendFriendRequestInBackground(helper.uid);
+                    //Thread.Sleep(300); // 這支 API 的回應非常快，如果 API 打太快會讓流程中斷，故在這裡作一個 sleep
+                    Game.SendFriendRequest(helper.uid, newNext, null);
+                    return;
                 }
             }
 
@@ -255,7 +257,7 @@ namespace AssemblyHijack.Automation
 
         private void CheckStamina(Action next)
         {
-            if (MyGameConfig.floor.recovery.enabled)
+            if (MyGameConfig.floor.recovery.enabled && Game.runtimeData.user.currentStamina < MyGameConfig.floor.recovery.threshold)
             {
                 if (MyGameConfig.floor.recovery.reward)
                 {
@@ -266,7 +268,7 @@ namespace AssemblyHijack.Automation
 
                         if (reward.rewardType == Reward.Type.RECOVERY)
                         {
-                            MyLog.Info("從 [{0}] 回覆體力", reward.message);
+                            MyLog.Info("使用獎勵 [{0}] 回復體力", reward.message);
                             Game.ClaimReward(
                                 reward.rewardId,
                                 (diamondCompensated, cardIds) =>
@@ -279,13 +281,19 @@ namespace AssemblyHijack.Automation
                             return;
                         }
                     }
+
+                    MyLog.Verbose("獎勵不足，無法回復體力");
+                }
+                else
+                {
+                    MyLog.Verbose("未允許使用獎勵回復體力");
                 }
 
                 if (MyGameConfig.floor.recovery.diamond)
                 {
                     if (Game.runtimeData.user.diamond > 0)
                     {
-                        MyLog.Info("從 [魔法石] 回覆體力");
+                        MyLog.Info("使用 [魔法石] 回復體力");
                         Game.RecoverStamina(() =>
                             {
                                 Report_User[REPORT_USER_RECOVERY_DIAMOND] += 1;
@@ -293,7 +301,17 @@ namespace AssemblyHijack.Automation
                             }, null);
                         return;
                     }
+
+                    MyLog.Verbose("魔法石不足，無法回復體力");
                 }
+                else
+                {
+                    MyLog.Verbose("未允許使用魔法石回復體力");
+                }
+            }
+            else
+            {
+                MyLog.Verbose("未允許自動回復體力，或目前體力 [{0}] 未小於設定值 [{1}]", Game.runtimeData.user.currentStamina, MyGameConfig.floor.recovery.threshold);
             }
 
             next();

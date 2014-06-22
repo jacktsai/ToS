@@ -43,6 +43,7 @@
     <Compile Include="Automation\FloorStrategy\Strategy.cs" />
     <Compile Include="Automation\IRunnable.cs" />
     <Compile Include="Automation\MergeCard.cs" />
+    <Compile Include="Automation\RequestGuild.cs" />
     <Compile Include="Automation\Runnable.cs" />
     <Compile Include="Automation\CompleteFloor.cs" />
     <Compile Include="Automation\SellCard.cs" />

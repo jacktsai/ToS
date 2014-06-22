@@ -15,7 +15,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
             {
                 if (stage.isBonus && (stage.bonusType == Stage.BonusType.STAMINA || stage.bonusType == Stage.BonusType.EXP))
                 {
-                    foreach (var floor in stage.availableFloors)
+                    foreach (var floor in stage.floors.Values)
                     {
                         PatrolGuide guide = JudgePatro(floor);
 

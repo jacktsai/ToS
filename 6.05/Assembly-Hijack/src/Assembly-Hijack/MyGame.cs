@@ -19,29 +19,51 @@ public class MyGame
     private static IRunnable sellCard = new SellCard();
     private static IRunnable mergeCard = new MergeCard();
     private static IRunnable acceptFriend = new AcceptFriend();
+    private static IRunnable requestGuild = new RequestGuild();
     private static DateTime BeginTime;
     private static DateTime EndTime;
 
     static MyGame()
     {
-        MyLog.Verbose("Loading RUNNERs ...");
+        MyLog.Info("Loading RUNNERs ...");
+
+        if (MyGameConfig.guild.enabled)
+        {
+            MyLog.Verbose("Add {0}", requestGuild.GetType().FullName);
+            RUNNER.Add(requestGuild);
+        }
 
         if (MyGameConfig.reward.enabled)
+        {
+            MyLog.Verbose("Add {0}", claimReword.GetType().FullName);
             RUNNER.Add(claimReword);
+        }
 
         if (MyGameConfig.user.acceptFriend)
+        {
+            MyLog.Verbose("Add {0}", acceptFriend.GetType().FullName);
             RUNNER.Add(acceptFriend);
+        }
 
         if (MyGameConfig.sell.enabled)
+        {
+            MyLog.Verbose("Add {0}", sellCard.GetType().FullName);
             RUNNER.Add(sellCard);
+        }
 
         if (MyGameConfig.merge.enabled)
+        {
+            MyLog.Verbose("Add {0}", mergeCard.GetType().FullName);
             RUNNER.Add(mergeCard);
+        }
 
         if (MyGameConfig.floor.enabled)
+        {
+            MyLog.Verbose("Add {0}", completeFloor.GetType().FullName);
             RUNNER.Add(completeFloor);
+        }
 
-        MyLog.Verbose("{0} RUNNER(s) has been loaded !!", RUNNER.Count);
+        MyLog.Info("{0} RUNNER(s) has been loaded !!", RUNNER.Count);
     }
 
     private static void NextAction()
@@ -208,7 +230,7 @@ public class MyGame
                 userInfo.user.teamSize = MyGameConfig.user.teamSize;
             }
 
-            if (MyGameConfig.user.reveal)
+            if (MyGameConfig.user.reveal && userInfo.user != null)
             {
                 userInfo.user.completedFloorIds = Game.database.floors.Keys.ToArray();
                 userInfo.user.completedStageIds = Game.database.stages.Keys.ToArray();

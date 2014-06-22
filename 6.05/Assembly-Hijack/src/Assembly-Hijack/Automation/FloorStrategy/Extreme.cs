@@ -71,7 +71,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
             MyLog.Verbose("開始從頭尋找關卡...");
             foreach (var stage in Game.database.stages.Values.Where(s => s.type == Stage.Type.NORMAL))
             {
-                foreach (var floor in stage.availableFloors)
+                foreach (var floor in stage.floors.Values)
                 {
                     PatrolGuide guide = JudgePatro(floor);
 
@@ -86,7 +86,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
                     if (!candidate.isCleared)
                     {
                         MyLog.Verbose("[#{0}{1}] IS NOT CLEARED, CLEAR IT FIRST, STOP", candidate.floorId, candidate.name);
-                        break;
+                        goto end;
                     }
 
                     if (stage.isBonus && (stage.bonusType == Stage.BonusType.STAMINA || stage.bonusType == Stage.BonusType.EXP))

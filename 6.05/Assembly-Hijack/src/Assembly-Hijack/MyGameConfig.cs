@@ -13,6 +13,7 @@ public class MyGameConfig
     {
         public Log log = new Log();
         public User user = new User();
+        public Guild guild = new Guild();
         public Card card = new Card();
         public Labyrinth labyrinth = new Labyrinth();
         public Puzzle puzzle = new Puzzle();
@@ -37,6 +38,16 @@ public class MyGameConfig
         public int teamSize = 120;
         public bool reveal = false;
         public bool acceptFriend = false;
+    }
+
+    public class Guild
+    {
+        public bool enabled = false;
+
+        /// <summary>
+        /// 自動申請加入的公會
+        /// </summary>
+        public int request = 81917;
     }
 
     public class Card
@@ -148,6 +159,7 @@ public class MyGameConfig
     public static Merge merge;
     public static Sell sell;
     public static Reward reward;
+    public static Guild guild;
 
     static MyGameConfig()
     {
@@ -167,6 +179,7 @@ public class MyGameConfig
 
                     log = config.log;
                     user = config.user;
+                    guild = config.guild;
                     card = config.card;
                     labyrinth = config.labyrinth;
                     puzzle = config.puzzle;

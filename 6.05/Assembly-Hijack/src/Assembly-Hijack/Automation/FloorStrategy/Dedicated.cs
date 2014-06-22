@@ -16,15 +16,22 @@ namespace AssemblyHijack.Automation.FloorStrategy
 
         public override Floor NextFloor()
         {
+            Floor candidate = null;
+
             foreach (var floor in floorIds.Select(id => Game.database.floors[id]))
             {
-                PatrolGuide guide = JudgePatro(floor);
+                PatrolGuide patro = JudgePatro(floor);
 
-                if (guide == PatrolGuide.NONE)
-                    return floor;
+                if (patro == PatrolGuide.SKIP)
+                    continue;
+
+                if (patro == PatrolGuide.STOP)
+                    break;
+
+                candidate = floor;
             }
 
-            return null;
+            return candidate;
         }
     }
 }
