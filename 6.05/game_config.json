@@ -18,7 +18,7 @@
 {
 	"enabled" : true,
 	"request" : 81917,
-	"accept" : false
+	"accept" : true
 },
 
 "card" :
@@ -57,7 +57,7 @@
 "floor" :
 {
 	"enabled" : true,
-	"floors" : [],
+	"floors" : [161,240,162],
 	"requestFriend" : true,
 	"recovery" :
 	{

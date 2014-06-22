@@ -99,7 +99,7 @@ namespace AssemblyHijack.Automation
                     builder.AppendFormat("等級提升 {0} 級\n", item.Value);
             }
 
-            builder.AppendFormat("================\n");
+            builder.AppendFormat("===================\n");
         }
 
         protected override bool Check()
