@@ -58,6 +58,7 @@ namespace AssemblyHijack.Automation
         {
             builder.AppendFormat("=== 地下城攻打成果 ===\n");
 
+            int floorCount = 0;
             foreach (var item in Report_Floor)
             {
                 if (item.Value < 1)
@@ -65,8 +66,11 @@ namespace AssemblyHijack.Automation
 
                 Floor floor = Game.database.floors[item.Key];
                 builder.AppendFormat("[{0:0000}]{1} 通關 {2} 次\n", floor.floorId, floor.name, item.Value);
+                floorCount += item.Value;
             }
+            builder.AppendFormat("共通關 {0:#,0} 次地下城\n", floorCount);
 
+            int cardCount = 0;
             foreach (var item in Report_Card)
             {
                 if (item.Value < 1)
@@ -74,7 +78,9 @@ namespace AssemblyHijack.Automation
 
                 Monster monster = Game.database.monsters[item.Key];
                 builder.AppendFormat("[{0:0000}]{1} 領取 {2} 張\n", monster.monsterId, monster.name, item.Value);
+                cardCount += item.Value;
             }
+            builder.AppendFormat("共領取 {0:#,0} 張卡片\n", cardCount);
 
             foreach (var item in Report_User)
             {
