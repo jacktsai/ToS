@@ -4,7 +4,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
 {
     internal abstract class Strategy : IStrategy
     {
-        protected enum PatrolGuide
+        public enum PatrolGuide
         {
             /// <summary>
             /// 沒意見, 由各實作者自行另外判斷
@@ -24,7 +24,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
 
         public abstract Floor NextFloor();
 
-        protected PatrolGuide JudgePatro(Floor target)
+        public static PatrolGuide JudgePatro(Floor target)
         {
             Stage stage = target.stage;
 

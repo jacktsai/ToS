@@ -1,8 +1,8 @@
-﻿using System;
+﻿using AssemblyHijack.Automation.FloorStrategy;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
-using AssemblyHijack.Automation.FloorStrategy;
 
 namespace AssemblyHijack.Automation
 {
@@ -121,7 +121,7 @@ namespace AssemblyHijack.Automation
             if (candidate != null)
             {
                 Stage stage = candidate.stage;
-                MyLog.Debug("關卡已判定 [{0}]{1}-[{2}{3}, 所需體力[{4}] 目前體力[{5}]",
+                MyLog.Info("關卡已判定 [{0}]{1}-[{2}]{3}, 所需體力[{4}] 目前體力[{5}]",
                     stage.stageId, stage.name, candidate.floorId, candidate.name,
                     candidate.stamina, Game.runtimeData.user.currentStamina);
                 return true;
@@ -137,75 +137,29 @@ namespace AssemblyHijack.Automation
         {
             InitReport();
 
-            Game.SetCurrentTeamIndex(1);
-            Game.SetCurrentZone(candidate.stage.zoneId);
-            Game.SetCurrentStage(candidate.stage);
-            Game.SetCurrentFloor(candidate);
-
             var userBefore = Game.runtimeData.user.Clone();
-
-            Game.GetHelperList(
-                candidate.floorId,
-                (helpers) =>
+            FloorHelper.EnterAndComplete(
+                1,
+                candidate,
+                false,
+                (loot) =>
                 {
-                    // 隨機從中挑選一位助攻
-                    Helper helper = helpers[UnityEngine.Random.Range(0, helpers.Count)];
-                    Game.SetCurrentSelectedHelper(helper);
-                    Game.EnterCurrentFloor(() =>
-                    {
-                        MyLog.Info("進入關卡 [{0}]{1}", candidate.floorId, candidate.name);
-                        RestoreGameplay.StartGame();
-
-                        while (Game.instance.MoveToNextWave())
-                        {
-                            int waveIndex = Game.runtimeData.currentWaveIndex - 1;
-                            int waveCount = Game.runtimeData.currentFloor.waves.Count;
-                            MyLog.Verbose("慘烈廝殺中... {0} / {1}", waveIndex + 1, waveCount);
-                            Wave wave = Game.runtimeData.currentFloor.waves[waveIndex];
-
-                            foreach (var enemy in wave.enemies)
-                            {
-                                if (enemy.lootItem != null)
-                                {
-                                    Loot loot = enemy.lootItem;
-                                    if (loot.type == Loot.Type.COIN)
-                                        MyLog.Verbose("敵人 [{0:0000}]{1} 帶了 {2:#,0} 錢來孝敬！", enemy.monsterId, enemy.name, loot.amount);
-                                    else if (loot.type == Loot.Type.MONSTER)
-                                    {
-                                        MyLog.Verbose("敵人 [{0:0000}]{1} 帶了 [{2:0000}]{3} 來孝敬！", enemy.monsterId, enemy.name, loot.card.monsterId, loot.card.name);
-                                        Report_Card[loot.card.monsterId]++;
-                                    }
-                                    else if (loot.type == Loot.Type.ITEM)
-                                        MyLog.Verbose("敵人 [{0:0000}]{1} 帶了 [{2}] 塊 [{3}] 碎片來孝敬！", enemy.monsterId, enemy.name, loot.itemId, loot.amount);
-                                    else
-                                        MyLog.Verbose("敵人 [{0:0000}]{1} 帶了不明物品 [{2}]！", enemy.monsterId, enemy.name, loot.type);
-                                }
-                                else
-                                {
-                                    MyLog.Verbose("不帶東西的敵人 [{0:0000}]{1} 出現了！", enemy.monsterId, enemy.name);
-                                }
-                            }
-                        }
-
-                        RestoreGameplay.End(true, false, false);
-                        MyLog.Debug("*** 最高連擊 [{0:#,0}] 最高攻擊 [{1:#,0}] ***", RestoreGameplay.maxCombo, RestoreGameplay.maxPlayerAttack);
-
-                        Game.ClearCurrentFloor(() =>
-                        {
-                            MyLog.Info("結束關卡 [{0}]{1}", candidate.floorId, candidate.name);
-                            Report_User[REPORT_USER_LEVEL] += Game.runtimeData.user.level - userBefore.level;
-                            Report_User[REPORT_USER_EXP] += Game.runtimeData.user.accumulativeLevelExp - userBefore.accumulativeLevelExp;
-                            Report_User[REPORT_USER_FRIEND_POINT] += Game.runtimeData.user.friendPoint - userBefore.friendPoint;
-                            Report_User[REPORT_USER_COIN] += Game.runtimeData.user.coin - userBefore.coin;
-                            Report_User[REPORT_USER_DIAMOND] += Game.runtimeData.user.diamond - userBefore.diamond;
-                            Report_User[REPORT_USER_STAMINA] += Game.runtimeData.user.currentStamina - userBefore.currentStamina;
-                            Report_Floor[Game.runtimeData.currentFloor.floorId]++;
-                            SendFriendRequest(next);
-                        });
-                    },
-                        false);
+                    if (loot.type == Loot.Type.MONSTER)
+                        Report_Card[loot.card.monsterId]++;
                 },
-            null);
+                () =>
+                {
+                    Stage stage = candidate.stage;
+                    MyLog.Info("已完成關卡 [{0}]{1}-[{2}]{3}", stage.stageId, stage.name, candidate.floorId, candidate.name);
+                    Report_User[REPORT_USER_LEVEL] += Game.runtimeData.user.level - userBefore.level;
+                    Report_User[REPORT_USER_EXP] += Game.runtimeData.user.accumulativeLevelExp - userBefore.accumulativeLevelExp;
+                    Report_User[REPORT_USER_FRIEND_POINT] += Game.runtimeData.user.friendPoint - userBefore.friendPoint;
+                    Report_User[REPORT_USER_COIN] += Game.runtimeData.user.coin - userBefore.coin;
+                    Report_User[REPORT_USER_DIAMOND] += Game.runtimeData.user.diamond - userBefore.diamond;
+                    Report_User[REPORT_USER_STAMINA] += Game.runtimeData.user.currentStamina - userBefore.currentStamina;
+                    Report_Floor[Game.runtimeData.currentFloor.floorId]++;
+                    SendFriendRequest(next);
+                });
         }
 
         private Floor FindNextFloor()

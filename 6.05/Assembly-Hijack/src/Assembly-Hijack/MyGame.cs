@@ -1,15 +1,15 @@
-﻿using System;
+﻿using AssemblyHijack;
+using AssemblyHijack.Automation;
+using GameJSON;
+using JsonFx.Json;
+using Native;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using AssemblyHijack;
-using AssemblyHijack.Automation;
-using GameJSON;
-using JsonFx.Json;
-using Native;
 using UnityEngine;
 
 public class MyGame
@@ -26,7 +26,7 @@ public class MyGame
     private static IRunnable acceptFriend = new AcceptFriend();
     private static IRunnable requestGuild = new RequestGuild();
     private static IRunnable acceptMember = new AcceptMember();
-    private static IRunnable achieveMission = new AchieveMission();
+    private static IRunnable achieveMission = new AchieveMissions();
     private static IRunnable expandInventory = new ExpandInventory();
     private static DateTime beginTime;
     private static DateTime endTime;
@@ -41,11 +41,11 @@ public class MyGame
             runners.Add(expandInventory);
         }
 
-        //if (config.user.guild.achieveMissions)
-        //{
-        //    MyLog.Debug("Add {0}", achieveMission.GetType().FullName);
-        //    runners.Add(achieveMission);
-        //}
+        if (config.user.guild.achieveMissions)
+        {
+            MyLog.Debug("Add {0}", achieveMission.GetType().FullName);
+            runners.Add(achieveMission);
+        }
 
         if (config.user.guild.requestGuild > 0)
         {
@@ -265,6 +265,73 @@ public class MyGame
     public static void SetData(Login.Data data, bool restore = false)
     {
         MyLog.Debug(">> - {0}.SetData", typeof(MyGame).Name);
+
+        var stageStringList = new List<string>();
+        foreach (var stageString in data.stageList)
+        {
+            GameJSON.Stage stage = ObjectParser.ParseStage(stageString);
+            var stageStringNew = String.Join(
+                "|",
+                new string[]
+                {
+	                stage.stageId .ToString(),
+	                stage.previousStageId.ToString(),
+	                stage.nextStageId.ToString(),
+	                stage.zone.ToString(),
+	                stage.typeEnum.ToString(),
+	                stage.typeValue.ToString(),
+	                stage.stoneType.ToString(),
+	                stage.startTime.ToString(),
+	                stage.endTime.ToString(),
+	                String.Format("[{0}]{1}", stage.stageId, stage.title),
+	                stage.sceneId.ToString(),
+	                stage.storyId.ToString(),
+	                stage.requiredItemId.ToString(),
+	                stage.requiredItemCollectLimit.ToString(),
+	                stage.showAllFloors.ToString(),
+                });
+            stageStringList.Add(stageStringNew);
+        }
+        data.stageList = stageStringList.ToArray();
+
+        var floorStringList = new List<string>();
+        foreach (var floorString in data.floorList)
+        {
+            GameJSON.Floor floor = ObjectParser.ParseFloor(floorString);
+            var floorStringNew = String.Join(
+                "|",
+                new string[]
+                {
+		            floor.floorId.ToString(),
+		            floor.stageId.ToString(),
+		            floor.floorIndex.ToString(),
+		            floor.monsterId.ToString(),
+		            floor.stamina.ToString(),
+		            floor.waveCount.ToString(),
+		            floor.tutorialStep.ToString(),
+		            String.Format("[{0}]{1}", floor.floorId, floor.title),
+		            floor.maxTeamCost.ToString(),
+		            floor.isChallengeFloor.ToString(),
+		            floor.unlockByItem.ToString(),
+		            floor.limitedTurns.ToString(),
+		            floor.bossScript.ToString(),
+		            floor.startScript.ToString(),
+		            floor.requiredItemAmount.ToString(),
+		            floor.isNoRetry.ToString(),
+		            floor.relatedFloorId.ToString(),
+		            floor.endScript.ToString(),
+		            floor.isRankingAvailable.ToString(),
+		            floor.startTime.ToString(),
+		            floor.endTime.ToString(),
+		            floor.teamMinMember.ToString(),
+		            floor.teamMaxMember.ToString(),
+		            floor.teamRacialTypes.ToString(),
+		            floor.teamAttributes.ToString(),
+                });
+            floorStringList.Add(floorStringNew);
+        }
+        data.floorList = floorStringList.ToArray();
+
         Game.SetData(data, restore);
         MyLog.Debug("<< - {0}.SetData", typeof(MyGame).Name);
     }

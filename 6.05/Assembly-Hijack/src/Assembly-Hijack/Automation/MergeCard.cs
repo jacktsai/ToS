@@ -43,9 +43,9 @@ namespace AssemblyHijack.Automation
                 return false;
             }
 
-            var sarcrificers = Game.runtimeData.user.inventory.cards.Values
+            var sacrificers = Game.runtimeData.user.inventory.cards.Values
                 .Where(c => !c.inUse && !c.bookmark && MyGame.config.merge.sacrificer.Contains(c.monsterId))
-                .OrderBy(c => c.predictedMergeExp).ToArray();
+                .OrderBy(c => c.mergeExp).ToArray();
 
             foreach (var teamCardId in Game.runtimeData.teamCardIds)
             {
@@ -56,7 +56,7 @@ namespace AssemblyHijack.Automation
                 }
                 else
                 {
-                    if (Estimate(candidate, sarcrificers))
+                    if (Estimate(candidate, sacrificers))
                         return true;
                 }
             }
