@@ -1,39 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 public class MyPuzzle
 {
-    public static ChangeDropChanceObject ActivateChangeDropChanceSkill(VoidDelegateRefIntArrayInt activateDelegate, VoidDelegateRefIntArrayInt deactivateDelegate, int priority)
+    public static void GetCanOnlyDropElement()
     {
-        MyLog.Debug(">> - {0}.ActivateChangeDropChanceSkill", typeof(MyPuzzle).Name);
-
-        var result = Puzzle.ActivateChangeDropChanceSkill(activateDelegate, deactivateDelegate, priority);
+        MyLog.Debug(">> - {0}.GetCanOnlyDropElement", typeof(MyPuzzle).Name);
 
         if (MyGame.config.puzzle.elements.Length > 0)
         {
             Puzzle.protectedData.canOnlyHaveThisElement.Set(MyGame.config.puzzle.elements);
-            MyLog.Info("已設定限定珠");
+
+            var s = String.Join(",", MyGame.config.puzzle.elements.Select(e => e.ToString()).ToArray());
+            MyLog.Info("已設定限定珠為 [{0}]", s);
         }
-
-        MyLog.Debug("<< - {0}.ActivateChangeDropChanceSkill", typeof(MyPuzzle).Name);
-
-        return result;
-    }
-
-    public static void DeActivateChangeDropChanceSkill(ChangeDropChanceObject changeDropChanceObject_in)
-    {
-        MyLog.Debug(">> - {0}.DeActivateChangeDropChanceSkill", typeof(MyPuzzle).Name);
-
-        Puzzle.DeActivateChangeDropChanceSkill(changeDropChanceObject_in);
-
-        if (MyGame.config.puzzle.elements.Length > 0)
+        else
         {
-            Puzzle.protectedData.canOnlyHaveThisElement.Set(MyGame.config.puzzle.elements);
-            MyLog.Info("已設定限定珠");
+            Puzzle.GetCanOnlyDropElement();
         }
 
-        MyLog.Debug("<< - {0}.DeActivateChangeDropChanceSkill", typeof(MyPuzzle).Name);
+        MyLog.Debug("<< - {0}.GetCanOnlyDropElement", typeof(MyPuzzle).Name);
     }
 }

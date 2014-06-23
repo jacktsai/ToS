@@ -84,7 +84,7 @@ public class GameConfig
 
     public class Puzzle
     {
-        public float countDown = 0;
+        public float time = 0;
 
         /// <summary>
         /// 1 = 水
@@ -95,6 +95,8 @@ public class GameConfig
         /// 6 = 心
         /// </summary>
         public int[] elements = new int[0];
+
+        public int comboMultiplier = 0;
     }
 
     public class Floor

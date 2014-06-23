@@ -55,6 +55,7 @@
     <Compile Include="MyLog.cs" />
     <Compile Include="MyPuzzle.cs" />
     <Compile Include="MyRestoreGameplay.cs" />
+    <Compile Include="MySkillInstance.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

@@ -41,11 +41,11 @@ public class MyGame
             runners.Add(expandInventory);
         }
 
-        if (config.user.guild.achieveMissions)
-        {
-            MyLog.Debug("Add {0}", achieveMission.GetType().FullName);
-            runners.Add(achieveMission);
-        }
+        //if (config.user.guild.achieveMissions)
+        //{
+        //    MyLog.Debug("Add {0}", achieveMission.GetType().FullName);
+        //    runners.Add(achieveMission);
+        //}
 
         if (config.user.guild.requestGuild > 0)
         {
@@ -276,63 +276,68 @@ public class MyGame
     {
         MyLog.Debug(">> - {0}.SetUser", typeof(MyGame).Name);
 
-        if (config.user.teamSize > 0 && userInfo.user != null)
+        if (userInfo.user != null)
         {
-            MyLog.Debug("隊伍空間 [{0}] 改成 [{1}]", userInfo.user.teamSize, config.user.teamSize);
-            userInfo.user.teamSize = config.user.teamSize;
+            if (config.user.teamSize > 0)
+            {
+                MyLog.Info("隊伍空間 [{0}] 改成 [{1}]", userInfo.user.teamSize, config.user.teamSize);
+                userInfo.user.teamSize = config.user.teamSize;
+            }
+
+            if (config.user.reveal)
+            {
+                userInfo.user.completedFloorIds = Game.database.floors.Keys.ToArray();
+                userInfo.user.completedStageIds = Game.database.stages.Keys.ToArray();
+                MyLog.Info("玩家視野已全部打開");
+            }
         }
 
-        if (config.user.reveal && userInfo.user != null)
+        if (userInfo.cards != null && config.user.inventory.desires.Length > 0)
         {
-            userInfo.user.completedFloorIds = Game.database.floors.Keys.ToArray();
-            userInfo.user.completedStageIds = Game.database.stages.Keys.ToArray();
-            MyLog.Debug("玩家視野已全部打開");
-        }
-
-        if (config.user.inventory.desires.Length > 0 && userInfo.cards != null)
-        {
-            var newCardList = new List<GameJSON.Card>();
+            var newCardList = new List<string>();
             var desireSettings = (GameConfig.Card[])config.user.inventory.desires.Clone();
             var replaceIndex = 0;
+
             foreach (var cardString in userInfo.cards)
             {
-                if (replaceIndex >= desireSettings.Length)
-                    break;
+                var cardString_new = cardString;
 
                 var cardJson = ObjectParser.ParseCard(cardString);
                 var currentCard = Game.database.monsters[cardJson.monsterId];
 
-                //if (targets.Contains(currentCard.monsterId))
                 if (replaceIndex < desireSettings.Length && racialTypes.Contains(currentCard.type))
                 {
                     var desireSetting = desireSettings[replaceIndex];
-                    var desireCard = Game.database.monsters[desireSetting.monsterId];
 
                     if (desireSetting.monsterId < 1)
                         desireSetting.monsterId = cardJson.monsterId;
-                    if (desireSetting.monsterLv < 1)
-                        desireSetting.monsterLv = cardJson.level;
                     if (desireSetting.skillLv < 1)
                         desireSetting.skillLv = cardJson.skillLevel;
 
-                    MyLog.Debug("背包卡片抽換：[#{0}{1}] > [#{2}{3}], 卡片等級 [{4}] > [{5}], 技能等級 [{6}] > [{7}]",
-                        cardJson.monsterId, currentCard.name,
-                        desireSetting.monsterId, desireCard.name,
-                        cardJson.level, desireSetting.monsterLv,
-                        cardJson.skillLevel, desireSetting.skillLv);
+                    var desireCard = new Card(desireSetting.monsterId, desireSetting.monsterLv, desireSetting.skillLv);
+                    // 調整到相對等級
+                    if (desireSetting.monsterLv < 1)
+                        desireCard.exp = cardJson.exp;
 
-                    cardJson.monsterId = desireSetting.monsterId;
-                    cardJson.level = desireSetting.monsterLv;
-                    cardJson.skillLevel = desireSetting.skillLv;
-                    cardJson.exp = new Card(cardJson).LevelToExp(desireSetting.monsterLv);
+                    cardJson.monsterId = desireCard.monsterId;
+                    cardJson.level = desireCard.level;
+                    cardJson.skillLevel = desireCard.skillLevel;
+                    cardJson.exp = desireCard.exp;
 
+                    cardString_new = String.Format("{0}#{1}#{2}#{3}#{4}#{5}#{6}#{7}#{8}", cardJson.cardId, cardJson.monsterId, cardJson.exp, cardJson.level, cardJson.skillLevel, cardJson.created, cardJson.extractableSoul, cardJson.refineExp, cardJson.refineLevel);
                     replaceIndex++;
+
+                    MyLog.Info("背包卡片抽換：[{0:0000}]{1} > [{2:0000}]{3}, 卡片等級 [{4}] > [{5}], 技能等級 [{6}] > [{7}]",
+                        currentCard.monsterId, currentCard.name,
+                        desireCard.monsterId, desireCard.name,
+                        cardJson.level, desireCard.level,
+                        cardJson.skillLevel, desireCard.skillLevel);
                 }
 
-                newCardList.Add(cardJson);
+                newCardList.Add(cardString_new);
             }
 
-            userInfo.cards = newCardList.Select(c => String.Format("{0}#{1}#{2}#{3}#{4}#{5}#{6}#{7}#{8}", c.cardId, c.monsterId, c.exp, c.level, c.skillLevel, c.created, c.extractableSoul, c.refineExp, c.refineLevel)).ToArray();
+            userInfo.cards = newCardList.ToArray();
         }
 
         Game.SetUser(userInfo, restore);
@@ -342,7 +347,7 @@ public class MyGame
             while (Game.tutorialMode)
                 TutorialController.Continue();
 
-            MyLog.Debug("已跳過新手導覽");
+            MyLog.Info("已跳過新手導覽");
         }
 
         MyLog.Debug("<< - {0}.SetUser", typeof(MyGame).Name);
@@ -350,24 +355,41 @@ public class MyGame
 
     public static List<Helper> GetHelperList(string[] helpers)
     {
+        MyLog.Debug(">> - {0}.GetHelperList", typeof(MyGame).Name);
+
         List<Helper> result = Game.GetHelperList(helpers);
 
         if (config.helper.desires.Length > 0)
         {
+            var desireSettings = (GameConfig.Card[])config.helper.desires.Clone();
+
             for (int i = 0; i < result.Count && i < config.helper.desires.Length; i++)
             {
                 var x = result[i].helperCard;
-                var desire = config.helper.desires[i];
-                var y = new Card(desire.monsterId, desire.monsterLv, desire.skillLv);
+                var desireSetting = config.helper.desires[i];
+
+                if (desireSetting.monsterId < 1)
+                    desireSetting.monsterId = x.monsterId;
+                if (desireSetting.skillLv < 1)
+                    desireSetting.skillLv = x.skillLevel;
+
+                var y = new Card(desireSetting.monsterId, desireSetting.monsterLv, desireSetting.skillLv);
+
+                // 調整到相對等級
+                if (desireSetting.monsterLv < 1)
+                    y.exp = x.exp;
+
                 y.cardId = x.cardId;
-                y.exp = x.exp;
                 y.refineLevel = x.refineLevel;
 
                 result[i].helperCard = y;
 
-                MyLog.Debug("好友卡片抽換：[{0:0000}]{1} > [{2:0000}]{3}, 卡片等級 [{4}] > [{5}], 技能等級 [{6}] > [{7}]", x.monsterId, x.name, y.monsterId, y.name, x.level, y.level, x.skillLevel, y.skillLevel);
+                MyLog.Info("好友卡片抽換：[{0:0000}]{1} > [{2:0000}]{3}, 卡片等級 [{4}] > [{5}], 技能等級 [{6}] > [{7}]",
+                    x.monsterId, x.name, y.monsterId, y.name, x.level, y.level, x.skillLevel, y.skillLevel);
             }
         }
+
+        MyLog.Debug("<< - {0}.GetHelperList", typeof(MyGame).Name);
 
         return result;
     }

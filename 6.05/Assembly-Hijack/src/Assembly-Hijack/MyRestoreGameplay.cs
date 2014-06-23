@@ -10,7 +10,20 @@ public class MyRestoreGameplay
         MyLog.Debug(">> - {0}.StartGame", typeof(MyRestoreGameplay).Name);
 
         RestoreGameplay.StartGame();
-        Puzzle.AddChangePuzzleTimeFunc(ChangePuzzleTimeFunc, int.MinValue);
+
+        if (MyGame.config.puzzle.time > 0)
+        {
+            Puzzle.protectedData.timeBarCountDownTime = MyGame.config.puzzle.time;
+            MyLog.Info("已設定轉珠時間為 [{0}] 秒", MyGame.config.puzzle.time);
+        }
+
+        if (MyGame.config.puzzle.comboMultiplier > 0)
+        {
+            Puzzle.protectedData.comboDamageMultiplier = MyGame.config.puzzle.comboMultiplier;
+            MyLog.Info("已設定 COMBO 傷害為 [{0}] 倍", MyGame.config.puzzle.comboMultiplier);
+        }
+
+        Puzzle.protectedData.comboDamageMultiplier = 1;
 
         MyLog.Debug("<< - {0}.StartGame", typeof(MyRestoreGameplay).Name);
     }
@@ -34,26 +47,11 @@ public class MyRestoreGameplay
 
             isWin = true;
             isGiveUp = false;
+            MyLog.Info("已強制將輸局轉成贏局");
         }
 
         RestoreGameplay.End(isWin, isGiveUp, callGameMenu);
-        Puzzle.RemoveChangePuzzleTimeFunc(ChangePuzzleTimeFunc);
 
         MyLog.Debug("<< - {0}.End", typeof(MyRestoreGameplay).Name);
-    }
-
-    private static void ChangePuzzleTimeFunc()
-    {
-        if (MyGame.config.puzzle.countDown > 0)
-        {
-            Puzzle.protectedData.timeBarCountDownTime = MyGame.config.puzzle.countDown;
-            MyLog.Info("已設定轉珠時間為 {0:#,0} 秒", MyGame.config.puzzle.countDown);
-        }
-
-        if (MyGame.config.puzzle.elements.Length > 0)
-        {
-            Puzzle.protectedData.canOnlyHaveThisElement.Set(MyGame.config.puzzle.elements);
-            MyLog.Info("已設定珠色的機率");
-        }
     }
 }

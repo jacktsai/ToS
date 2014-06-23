@@ -29,7 +29,7 @@ namespace AssemblyHijack.Automation
 
             foreach (var item in UpgradeInfoPerCard)
             {
-                builder.AppendFormat("強化 {0} {1:#,0} 次 {3:#,0} 錢\n經驗值 {2:#,0}\n", item.Key, item.Value.count, item.Value.exp, item.Value.cost);
+                builder.AppendFormat("強化 {0} {1:#,0} 次\n", item.Key, item.Value.count);
             }
 
             builder.AppendFormat("強化總支出 {0:#,0}\n", TotalCost);
@@ -52,7 +52,7 @@ namespace AssemblyHijack.Automation
                 var candidate = Game.runtimeData.user.inventory.GetCard(teamCardId);
                 if (candidate.isLevelMax)
                 {
-                    MyLog.Debug("[{0}]{1} 已經到達最高級別[{2}], 不需要再強化", candidate.monsterId, candidate.name, candidate.level);
+                    MyLog.Debug("[{0:0000}]{1} 已經到達最高級別[{2}], 不需要再強化", candidate.monsterId, candidate.name, candidate.level);
                 }
                 else
                 {
@@ -88,9 +88,9 @@ namespace AssemblyHijack.Automation
                 var upgradedCard = Game.runtimeData.user.inventory.GetCard(target.cardId);
                 var actualExp = upgradedCard.exp - expBefore;
                 var actualCost = coinBefore - Game.runtimeData.user.coin;
-                MyLog.Info("[{0}]{1} 強化成功, 經驗值增加[{2:#,0}], 實際花費[{3:#,0}]", upgradedCard.monsterId, upgradedCard.name, actualExp, actualCost);
+                MyLog.Info("[{0:0000}]{1} 強化成功, 經驗值增加[{2:#,0}], 實際花費[{3:#,0}]", upgradedCard.monsterId, upgradedCard.name, actualExp, actualCost);
 
-                var cardKey = String.Format("#{0}[{1:0000}]{2}", target.cardId, target.monsterId, target.name);
+                var cardKey = String.Format("[{0:0000}]{1}", target.monsterId, target.name);
                 UpgradeInfo upgradeInfo;
                 if (!UpgradeInfoPerCard.TryGetValue(cardKey, out upgradeInfo))
                 {
@@ -135,7 +135,7 @@ namespace AssemblyHijack.Automation
 
             if (children.Count < 1)
             {
-                MyLog.Info("強化[#{0}{1}]所需經驗值只有[{2:#,0}], 沒有適合的卡片", candidate.monsterId, candidate.name, requiredExp);
+                MyLog.Info("強化 [{0:0000}]{1} 所需經驗值只有 [{2:#,0}] 沒有適合的卡片", candidate.monsterId, candidate.name, requiredExp);
                 return false;
             }
 
@@ -152,7 +152,7 @@ namespace AssemblyHijack.Automation
                 }
                 else
                 {
-                    MyLog.Info("強化[#{0}{1}]預估需要[{2:#,0}], 資產不足", candidate.monsterId, candidate.name, expectedCost);
+                    MyLog.Info("強化 [{0:0000}]{1} 預估需要 [{2:#,0}] 資產不足", candidate.monsterId, candidate.name, expectedCost);
                     return false;
                 }
             }
