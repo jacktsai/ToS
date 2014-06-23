@@ -1,4 +1,10 @@
+*** This project is ONLY for study purpose ***
+
 0. install XposedMod of com.jack.xposed.tos.
+
+
+
+
 
 1. decode tos.apk with apktool  to tos-decoded folder.
 2. copy tos.apk to tos-hijacked.zip
