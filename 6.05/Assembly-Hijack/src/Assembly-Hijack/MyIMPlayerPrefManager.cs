@@ -9,9 +9,9 @@ public class MyIMPlayerPrefManager
     {
         int result = IMPlayerPrefManager.GetInt(key, defaultValue);
 
-        if (MyGameConfig.user.enabled)
+        if (MyGame.Config.user.enabled)
         {
-            if (key.Equals("MH_GAME_TUTORIAL_CURRENT_STEP") && result <= 45 && !MyGameConfig.user.tutorial)
+            if (key.Equals("MH_GAME_TUTORIAL_CURRENT_STEP") && result <= 45 && !MyGame.Config.user.tutorial)
             {
                 MyLog.Verbose("跳過導覽模式");
                 result = 46;

@@ -30,18 +30,23 @@ namespace AssemblyHijack.Automation
                     case Reward.Type.COIN:
                         builder.AppendFormat("共接受 {0:#,0} 金錢獎勵\n", item.Value);
                         break;
+
                     case Reward.Type.DIAMOND:
                         builder.AppendFormat("共接受 {0:#,0} 顆魔法石獎勵\n", item.Value);
                         break;
+
                     case Reward.Type.FRIENDPOINT:
                         builder.AppendFormat("共接受 {0:#,0} 點好友點數獎勵\n", item.Value);
                         break;
+
                     case Reward.Type.FRIEND_SLOT:
                         builder.AppendFormat("共接受 {0:#,0} 次好友擴充獎勵\n", item.Value);
                         break;
+
                     case Reward.Type.INVENTORY:
                         builder.AppendFormat("共接受 {0:#,0} 次背包擴充獎勵\n", item.Value);
                         break;
+
                     default:
                         break;
                 }
@@ -65,7 +70,7 @@ namespace AssemblyHijack.Automation
                 if (!reward.isAvailable || reward.claimed)
                     continue;
 
-                if (MyGameConfig.reward.types.Contains((int)reward.rewardType))
+                if (MyGame.config.reward.types.Contains((int)reward.rewardType))
                 {
                     MyLog.Info("領取獎勵 [{0}-{1}]", reward.rewardType, reward.message);
                     Game.ClaimReward(
@@ -83,6 +88,7 @@ namespace AssemblyHijack.Automation
                                 case Reward.Type.INVENTORY:
                                     Report[reward.rewardType] += reward.rewardValue;
                                     break;
+
                                 default:
                                     break;
                             }
@@ -94,7 +100,7 @@ namespace AssemblyHijack.Automation
                 }
             }
 
-            nextTime = DateTime.Now.AddSeconds(MyGameConfig.reward.period);
+            nextTime = DateTime.Now.AddSeconds(MyGame.config.reward.period);
             next();
         }
     }

@@ -21,7 +21,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
 
             Floor candidate = null;
 
-            MyLog.Verbose("嚐試取得[{0}]關卡...", stageType);
+            MyLog.Debug("嘗試取得[{0}]關卡...", stageType);
             foreach (var stage in Game.database.stages.Values.Where(s => s.type == stageType))
             {
                 foreach (var floor in stage.floors.Values)
@@ -44,7 +44,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
                 if (!repeat)
                 {
                     wholeScanned = true;
-                    MyLog.Verbose("[{0}]已經不再提供關卡", stageType);
+                    MyLog.Debug("[{0}]已經不再提供關卡", stageType);
                 }
             }
 

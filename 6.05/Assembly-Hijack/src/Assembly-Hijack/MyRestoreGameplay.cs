@@ -10,11 +10,7 @@ public class MyRestoreGameplay
         MyLog.Debug(">> - {0}.StartGame", typeof(MyRestoreGameplay).Name);
 
         RestoreGameplay.StartGame();
-
-        if (MyGameConfig.puzzle.enabled)
-        {
-            Puzzle.AddChangePuzzleTimeFunc(ChangePuzzleTimeFunc, int.MinValue);
-        }
+        Puzzle.AddChangePuzzleTimeFunc(ChangePuzzleTimeFunc, int.MinValue);
 
         MyLog.Debug("<< - {0}.StartGame", typeof(MyRestoreGameplay).Name);
     }
@@ -23,35 +19,41 @@ public class MyRestoreGameplay
     {
         MyLog.Debug(">> - {0}.End", typeof(MyRestoreGameplay).Name);
 
-        if (MyGameConfig.labyrinth.enabled)
+        if (!isWin && MyGame.config.labyrinth.alwaysWin)
         {
-            if (isWin == false)
+            MyLog.Verbose("輸了？沒關係！看我的大絕「去去閃」，所有敵人已經閃了！");
+            try
             {
-                MyLog.Verbose("輸了？沒關係！看我的大絕「去去閃」，所有敵人已經閃了！");
-                //while (Game.instance.MoveToNextWave())
-                //    ;
-
-                isWin = true;
-                isGiveUp = false;
+                while (Game.instance.MoveToNextWave())
+                    ;
             }
+            catch (Exception ex)
+            {
+                MyLog.Error(ex.ToString());
+            }
+
+            isWin = true;
+            isGiveUp = false;
         }
 
         RestoreGameplay.End(isWin, isGiveUp, callGameMenu);
-
-        if (MyGameConfig.puzzle.enabled)
-        {
-            Puzzle.RemoveChangePuzzleTimeFunc(ChangePuzzleTimeFunc);
-        }
+        Puzzle.RemoveChangePuzzleTimeFunc(ChangePuzzleTimeFunc);
 
         MyLog.Debug("<< - {0}.End", typeof(MyRestoreGameplay).Name);
     }
 
     private static void ChangePuzzleTimeFunc()
     {
-        Puzzle.protectedData.timeBarCountDownTime = MyGameConfig.puzzle.countDown;
-        MyLog.Info("已設定轉珠時間為 {0:#,0} 秒", MyGameConfig.puzzle.countDown);
+        if (MyGame.config.puzzle.countDown > 0)
+        {
+            Puzzle.protectedData.timeBarCountDownTime = MyGame.config.puzzle.countDown;
+            MyLog.Info("已設定轉珠時間為 {0:#,0} 秒", MyGame.config.puzzle.countDown);
+        }
 
-        Puzzle.protectedData.canOnlyHaveThisElement.Set(MyGameConfig.puzzle.elements);
-        MyLog.Info("已設定珠色的機率");
+        if (MyGame.config.puzzle.elements.Length > 0)
+        {
+            Puzzle.protectedData.canOnlyHaveThisElement.Set(MyGame.config.puzzle.elements);
+            MyLog.Info("已設定珠色的機率");
+        }
     }
 }

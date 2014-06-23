@@ -1,8 +1,11 @@
-﻿namespace AssemblyHijack.Automation.FloorStrategy
+﻿using System;
+
+namespace AssemblyHijack.Automation.FloorStrategy
 {
     /// <summary>
     /// 闖關模式, 除了過關, 其餘免談。
     /// </summary>
+    [Obsolete]
     internal class ClearOnly : Strategy
     {
         private Floor lastResult = null;

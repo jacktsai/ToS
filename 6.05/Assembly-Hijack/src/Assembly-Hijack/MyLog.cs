@@ -1,6 +1,6 @@
-﻿using JsonFx.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using JsonFx.Json;
 using UnityEngine;
 
 internal class MyLog
@@ -13,15 +13,14 @@ internal class MyLog
         Warn,
         Error,
         Assert,
+        NA,
     }
 
-    private static bool enabled;
     private static Level level;
 
     static MyLog()
     {
-        enabled = MyGameConfig.log.enabled;
-        level = (Level)Enum.Parse(typeof(Level), MyGameConfig.log.level, true);
+        level = (Level)Enum.Parse(typeof(Level), MyGame.config.log.level, true);
     }
 
     public static void Verbose(string format, params object[] args)
@@ -58,6 +57,18 @@ internal class MyLog
             message = String.Format(format, args);
 
         UnityEngine.Debug.Log(message);
+    }
+
+    public static void Error(string format, params object[] args)
+    {
+        if (level > Level.Error)
+            return;
+
+        string message = format;
+        if (args.Length > 0)
+            message = String.Format(format, args);
+
+        UnityEngine.Debug.LogError(message);
     }
 
     /// <summary>

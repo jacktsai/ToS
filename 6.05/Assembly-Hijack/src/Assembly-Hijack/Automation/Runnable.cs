@@ -19,7 +19,9 @@ namespace AssemblyHijack.Automation
             }
 
             if (!checkResult)
-                MyLog.Verbose("{0}.Check, Result = {1}", this.GetType().Name, checkResult);
+            {
+                MyLog.Debug("{0}.Check, Result = {1}", this.GetType().Name, checkResult);
+            }
 
             return checkResult;
         }

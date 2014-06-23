@@ -1,51 +1,7 @@
 {
 "log" :
 {
-	"enabled" : true,
-	"level" : "verbose"
-},
-
-"user" :
-{
-	"enabled" : true,
-	"tutorial" : false,
-	"teamSize" : 120,
-	"reveal" : false,
-	"acceptFriend" : true
-},
-
-"guild" :
-{
-	"enabled" : true,
-	"request" : 81917,
-	"accept" : true
-},
-
-"card" :
-{
-	"enabled" : true,
-	"desires" :
-	[
-	],
-	"helpers" :
-	[
-	],
-	"replace" :
-	[
-	]
-},
-
-"labyrinth" :
-{
-	"enabled" : true,
-	"alwaysWin" : true
-},
-
-"puzzle" :
-{
-	"enabled" : true,
-	"countDown" : 120,
-	"elements" : [1, 2, 3, 4, 5, 6]
+	"level" : "debug"
 },
 
 "register" :
@@ -54,10 +10,54 @@
 	"partner" : 3
 },
 
+"user" :
+{
+	"tutorial" : false,
+	"teamSize" : 0,
+	"reveal" : false,
+	"acceptFriend" : true,
+	
+	"guild" :
+	{
+		"requestGuild" : 81917,
+		"acceptMember" : true,
+		"achieveMissions" : true
+	},
+	
+	"inventory" :
+	{
+		"maxCapacity" : 50,
+		"desires" :
+		[
+		],
+		"replace" :
+		[
+		]
+	}
+},
+
+"helpers" :
+{
+	"desires" :
+	[
+	]
+},
+
+"labyrinth" :
+{
+	"alwaysWin" : true
+},
+
+"puzzle" :
+{
+	"countDown" : 120,
+	"elements" : [1, 2, 3, 4, 5, 6]
+},
+
 "floor" :
 {
 	"enabled" : true,
-	"floors" : [161,240,162],
+	"floors" : [],
 	"requestFriend" : true,
 	"recovery" :
 	{

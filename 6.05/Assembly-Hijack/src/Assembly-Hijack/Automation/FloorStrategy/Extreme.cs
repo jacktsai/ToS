@@ -26,7 +26,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
             if (lastResult == null)
                 return null;
 
-            MyLog.Verbose("正在嚐試尋找 [#{0}{1}] 的下一關", lastResult.floorId, lastResult.name);
+            MyLog.Debug("正在嘗試尋找 [{0}]{1} 的下一關", lastResult.floorId, lastResult.name);
             Floor candidate = null;
 
             if (lastResult.isCleared)
@@ -51,7 +51,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
                 // 很明顯上一回合沒有衝破關卡上限，所以直接繼續上次的獎勵關卡
                 if (candidate.isCleared && lastResult.stage.isBonus)
                 {
-                    MyLog.Verbose("下一關 [#{0}{1}] 已經通關，嚐試繼續上一個關卡", lastResult.floorId, lastResult.name);
+                    MyLog.Debug("下一關 [{0}]{1} 已經通關，嘗試繼續上一個關卡", lastResult.floorId, lastResult.name);
                     candidate = lastResult;
                 }
 
@@ -68,7 +68,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
             Floor candidate = null;
             Floor bonus = null;
 
-            MyLog.Verbose("開始從頭尋找關卡...");
+            MyLog.Debug("開始從頭尋找關卡...");
             foreach (var stage in Game.database.stages.Values.Where(s => s.type == Stage.Type.NORMAL))
             {
                 foreach (var floor in stage.floors.Values)
@@ -85,7 +85,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
 
                     if (!candidate.isCleared)
                     {
-                        MyLog.Verbose("[#{0}{1}] IS NOT CLEARED, CLEAR IT FIRST, STOP", candidate.floorId, candidate.name);
+                        MyLog.Debug("[{0}]{1} IS NOT CLEARED, CLEAR IT FIRST, STOP", candidate.floorId, candidate.name);
                         goto end;
                     }
 

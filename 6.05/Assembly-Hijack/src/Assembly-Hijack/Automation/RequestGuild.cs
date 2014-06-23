@@ -8,14 +8,14 @@ namespace AssemblyHijack.Automation
 
         protected override bool Check()
         {
-            return Game.runtimeData.user.guild == null && MyGameConfig.guild.request > 0 && !requestSent;
+            return !requestSent && Game.runtimeData.user.guild == null;
         }
 
         protected override void Execute(Action next)
         {
-            Game.GuildSystem.SendRequest(MyGameConfig.guild.request, delegate
+            Game.GuildSystem.SendRequest(MyGame.config.user.guild.requestGuild, delegate
             {
-                MyLog.Info("已對公會 [#{0}] 送出申請", MyGameConfig.guild.request);
+                MyLog.Info("已對公會 [{0}] 送出申請", MyGame.config.user.guild.requestGuild);
                 requestSent = true;
                 next();
             });

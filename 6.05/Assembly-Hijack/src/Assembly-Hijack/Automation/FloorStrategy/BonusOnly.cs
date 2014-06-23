@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace AssemblyHijack.Automation.FloorStrategy
 {
     /// <summary>
     /// 獎勵模式, 一切講求「省」。
     /// </summary>
+    [Obsolete]
     internal class BonusOnly : Strategy
     {
         public override Floor NextFloor()

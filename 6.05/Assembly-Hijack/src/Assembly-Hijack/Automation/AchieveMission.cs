@@ -18,11 +18,11 @@ namespace AssemblyHijack.Automation
         {
             Game.GuildSystem.GetMissions(delegate
             {
-                AchieveMission(next);
+                Achieve(next);
             }, null);
         }
 
-        private void AchieveMission(Action next)
+        private void Achieve(Action next)
         {
             ClaimReward(next);
         }

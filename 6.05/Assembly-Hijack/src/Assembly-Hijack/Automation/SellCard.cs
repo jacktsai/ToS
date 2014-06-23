@@ -17,7 +17,12 @@ namespace AssemblyHijack.Automation
         private IDictionary<int, SellInfo> SellInfoPerMonster = new Dictionary<int, SellInfo>();
         private int TotalPrice = 0;
 
-        private IList<Card> cards = new List<Card>();
+        /// <summary>
+        /// 預計售出卡片
+        /// </summary>
+        private IList<Card> candidates = new List<Card>();
+
+        private string candidateNames;
 
         public override void AppendReport(StringBuilder builder)
         {
@@ -27,7 +32,7 @@ namespace AssemblyHijack.Automation
             foreach (var item in SellInfoPerMonster)
             {
                 var monster = Game.database.monsters[item.Key];
-                builder.AppendFormat("售 [#{0}{1}] {2:#,0} 張共 {3:#,0} 錢\n", monster.monsterId, monster.name, item.Value.count, item.Value.price);
+                builder.AppendFormat("售 [{0:0000}]{1} {2:#,0} 張共 {3:#,0} 錢\n", monster.monsterId, monster.name, item.Value.count, item.Value.price);
             }
 
             builder.AppendFormat("銷售總收入 {0:#,0}\n", TotalPrice);
@@ -35,44 +40,50 @@ namespace AssemblyHijack.Automation
 
         protected override bool Check()
         {
-            cards.Clear();
+            if (!Game.runtimeData.user.inventory.isFull)
+            {
+                MyLog.Debug("背包未滿, 暫不判定需要出售的卡片");
+                return false;
+            }
+
+            candidates.Clear();
             StringBuilder cardNames = new StringBuilder();
             foreach (var card in Game.runtimeData.user.inventory.cards.Values)
             {
                 if (card.inUse || card.bookmark)
                     continue;
 
-                if (MyGameConfig.sell.cards.Contains(card.monsterId))
+                if (MyGame.config.sell.cards.Contains(card.monsterId))
                 {
-                    cards.Add(card);
+                    candidates.Add(card);
 
                     if (cardNames.Length > 0)
                         cardNames.Append(",");
 
-                    cardNames.AppendFormat("[{0}]", card.name);
+                    cardNames.AppendFormat("[{0:0000}]{1}", card.monsterId, card.name);
                 }
-
-                if (cards.Count >= 10)
-                    break;
             }
 
-            if (cards.Count < 1)
+            if (candidates.Count < 1)
             {
-                MyLog.Info("沒有卡片可供出售！");
+                MyLog.Debug("沒有卡片可供出售！");
                 return false;
             }
             else
             {
-                MyLog.Info("判定出售{0}", cardNames);
+                candidateNames = cardNames.ToString();
+                MyLog.Debug("預計售出 [{0}] 張卡片 {1}", candidates.Count, candidateNames);
                 return true;
             }
         }
 
         protected override void Execute(Action next)
         {
-            Game.SellCards(cards.ToArray(), delegate
+            Game.SellCards(candidates.ToArray(), delegate
             {
-                foreach (var card in cards)
+                MyLog.Info("已售出 [{0}] 張卡片 {1}", candidates.Count, candidateNames);
+
+                foreach (var card in candidates)
                 {
                     SellInfo soldInfo;
                     if (!SellInfoPerMonster.TryGetValue(card.monsterId, out soldInfo))

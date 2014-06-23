@@ -36,6 +36,7 @@
     <Compile Include="Automation\AcceptMember.cs" />
     <Compile Include="Automation\AchieveMission.cs" />
     <Compile Include="Automation\ClaimReword.cs" />
+    <Compile Include="Automation\ExpandInventory.cs" />
     <Compile Include="Automation\FloorStrategy\BasicFloorProvider.cs" />
     <Compile Include="Automation\FloorStrategy\BonusOnly.cs" />
     <Compile Include="Automation\FloorStrategy\ClearOnly.cs" />
@@ -50,8 +51,7 @@
     <Compile Include="Automation\CompleteFloor.cs" />
     <Compile Include="Automation\SellCard.cs" />
     <Compile Include="MyDialog.cs" />
-    <Compile Include="MyGameConfig.cs" />
-    <Compile Include="MyIMPlayerPrefManager.cs" />
+    <Compile Include="GameConfig.cs" />
     <Compile Include="MyLog.cs" />
     <Compile Include="MyPuzzle.cs" />
     <Compile Include="MyRestoreGameplay.cs" />

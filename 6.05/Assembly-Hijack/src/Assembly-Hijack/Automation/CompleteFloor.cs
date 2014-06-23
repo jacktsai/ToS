@@ -1,8 +1,8 @@
-﻿using AssemblyHijack.Automation.FloorStrategy;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using AssemblyHijack.Automation.FloorStrategy;
 
 namespace AssemblyHijack.Automation
 {
@@ -44,9 +44,9 @@ namespace AssemblyHijack.Automation
 
         public CompleteFloor()
         {
-            if (MyGameConfig.floor.floors.Length > 0)
+            if (MyGame.config.floor.floors.Length > 0)
             {
-                floorProviders.Add(new Dedicated(MyGameConfig.floor.floors));
+                floorProviders.Add(new Dedicated(MyGame.config.floor.floors));
             }
             else
             {
@@ -64,7 +64,7 @@ namespace AssemblyHijack.Automation
                     continue;
 
                 Floor floor = Game.database.floors[item.Key];
-                builder.AppendFormat("[{1}] 通關 {2} 次\n", floor.floorId, floor.name, item.Value);
+                builder.AppendFormat("[{0:0000}]{1} 通關 {2} 次\n", floor.floorId, floor.name, item.Value);
             }
 
             foreach (var item in Report_Card)
@@ -73,7 +73,7 @@ namespace AssemblyHijack.Automation
                     continue;
 
                 Monster monster = Game.database.monsters[item.Key];
-                builder.AppendFormat("[#{0}{1}] 領取 {2} 張\n", monster.monsterId, monster.name, item.Value);
+                builder.AppendFormat("[{0:0000}]{1} 領取 {2} 張\n", monster.monsterId, monster.name, item.Value);
             }
 
             foreach (var item in Report_User)
@@ -115,7 +115,7 @@ namespace AssemblyHijack.Automation
             if (candidate != null)
             {
                 Stage stage = candidate.stage;
-                MyLog.Debug("關卡已判定[#{0}{1}]-[#{2}{3}], 所需體力[{4}], 目前體力[{5}]",
+                MyLog.Debug("關卡已判定 [{0}]{1}-[{2}{3}, 所需體力[{4}] 目前體力[{5}]",
                     stage.stageId, stage.name, candidate.floorId, candidate.name,
                     candidate.stamina, Game.runtimeData.user.currentStamina);
                 return true;
@@ -147,7 +147,7 @@ namespace AssemblyHijack.Automation
                     Game.SetCurrentSelectedHelper(helper);
                     Game.EnterCurrentFloor(() =>
                     {
-                        MyLog.Info("進入關卡 [#{0}-{1}]", candidate.floorId, candidate.name);
+                        MyLog.Info("進入關卡 [{0}]{1}", candidate.floorId, candidate.name);
                         RestoreGameplay.StartGame();
 
                         while (Game.instance.MoveToNextWave())
@@ -163,30 +163,30 @@ namespace AssemblyHijack.Automation
                                 {
                                     Loot loot = enemy.lootItem;
                                     if (loot.type == Loot.Type.COIN)
-                                        MyLog.Verbose("敵人 [#{0}-{1}] 帶了 {2:#,0} 金幣來孝敬！", enemy.monsterId, enemy.name, loot.amount);
+                                        MyLog.Verbose("敵人 [{0:0000}]{1} 帶了 {2:#,0} 錢來孝敬！", enemy.monsterId, enemy.name, loot.amount);
                                     else if (loot.type == Loot.Type.MONSTER)
                                     {
-                                        MyLog.Verbose("敵人 [#{0}-{1}] 帶了 [#{2}-{3}] 來孝敬！", enemy.monsterId, enemy.name, loot.card.monsterId, loot.card.name);
+                                        MyLog.Verbose("敵人 [{0:0000}]{1} 帶了 [{2:0000}]{3} 來孝敬！", enemy.monsterId, enemy.name, loot.card.monsterId, loot.card.name);
                                         Report_Card[loot.card.monsterId]++;
                                     }
                                     else if (loot.type == Loot.Type.ITEM)
-                                        MyLog.Verbose("敵人 [#{0}-{1}] 帶了 [{2}] 塊 [{3}] 碎片來孝敬！", enemy.monsterId, enemy.name, loot.itemId, loot.amount);
+                                        MyLog.Verbose("敵人 [{0:0000}]{1} 帶了 [{2}] 塊 [{3}] 碎片來孝敬！", enemy.monsterId, enemy.name, loot.itemId, loot.amount);
                                     else
-                                        MyLog.Verbose("敵人 [#{0}-{1}] 帶了不明物品 [{2}]！", enemy.monsterId, enemy.name, loot.type);
+                                        MyLog.Verbose("敵人 [{0:0000}]{1} 帶了不明物品 [{2}]！", enemy.monsterId, enemy.name, loot.type);
                                 }
                                 else
                                 {
-                                    MyLog.Verbose("不帶東西的敵人 [#{0}-{1}] 出現了！", enemy.monsterId, enemy.name);
+                                    MyLog.Verbose("不帶東西的敵人 [{0:0000}]{1} 出現了！", enemy.monsterId, enemy.name);
                                 }
                             }
                         }
 
                         RestoreGameplay.End(true, false, false);
-                        MyLog.Verbose("*** 最高連擊[{0:#,0}] 最高攻擊[{1:#,0}] ***", RestoreGameplay.maxCombo, RestoreGameplay.maxPlayerAttack);
+                        MyLog.Debug("*** 最高連擊 [{0:#,0}] 最高攻擊 [{1:#,0}] ***", RestoreGameplay.maxCombo, RestoreGameplay.maxPlayerAttack);
 
                         Game.ClearCurrentFloor(() =>
                         {
-                            MyLog.Info("結束關卡 [#{0}{1}]", candidate.floorId, candidate.name);
+                            MyLog.Info("結束關卡 [{0}]{1}", candidate.floorId, candidate.name);
                             Report_User[REPORT_USER_LEVEL] += Game.runtimeData.user.level - userBefore.level;
                             Report_User[REPORT_USER_EXP] += Game.runtimeData.user.accumulativeLevelExp - userBefore.accumulativeLevelExp;
                             Report_User[REPORT_USER_FRIEND_POINT] += Game.runtimeData.user.friendPoint - userBefore.friendPoint;
@@ -239,15 +239,16 @@ namespace AssemblyHijack.Automation
                 CheckStamina(next);
             };
 
-            if (MyGameConfig.floor.requestFriend)
+            if (MyGame.config.floor.requestFriend)
             {
                 Helper helper = Game.runtimeData.currentSelectedHelper;
                 if (helper != null && !Game.runtimeData.user.isFriendsFull)
                 {
-                    MyLog.Info("對 [{0}] 發送好友邀請", helper.name);
-                    //Game.SendFriendRequestInBackground(helper.uid);
-                    //Thread.Sleep(300); // 這支 API 的回應非常快，如果 API 打太快會讓流程中斷，故在這裡作一個 sleep
-                    Game.SendFriendRequest(helper.uid, newNext, null);
+                    Game.SendFriendRequest(helper.uid, delegate
+                    {
+                        MyLog.Info("已對 '[#{0}]{1}' 發送好友邀請", helper.uid, helper.name);
+                        next();
+                    }, null);
                     return;
                 }
             }
@@ -257,9 +258,9 @@ namespace AssemblyHijack.Automation
 
         private void CheckStamina(Action next)
         {
-            if (MyGameConfig.floor.recovery.enabled && Game.runtimeData.user.currentStamina < MyGameConfig.floor.recovery.threshold)
+            if (MyGame.config.floor.recovery.enabled && Game.runtimeData.user.currentStamina < MyGame.config.floor.recovery.threshold)
             {
-                if (MyGameConfig.floor.recovery.reward)
+                if (MyGame.config.floor.recovery.reward)
                 {
                     foreach (var reward in Game.runtimeData.rewards)
                     {
@@ -282,14 +283,14 @@ namespace AssemblyHijack.Automation
                         }
                     }
 
-                    MyLog.Verbose("獎勵不足，無法回復體力");
+                    MyLog.Info("獎勵不足，無法回復體力");
                 }
                 else
                 {
-                    MyLog.Verbose("未允許使用獎勵回復體力");
+                    MyLog.Info("未允許使用獎勵回復體力");
                 }
 
-                if (MyGameConfig.floor.recovery.diamond)
+                if (MyGame.config.floor.recovery.diamond)
                 {
                     if (Game.runtimeData.user.diamond > 0)
                     {
@@ -302,16 +303,16 @@ namespace AssemblyHijack.Automation
                         return;
                     }
 
-                    MyLog.Verbose("魔法石不足，無法回復體力");
+                    MyLog.Info("魔法石不足，無法回復體力");
                 }
                 else
                 {
-                    MyLog.Verbose("未允許使用魔法石回復體力");
+                    MyLog.Info("未允許使用魔法石回復體力");
                 }
             }
             else
             {
-                MyLog.Verbose("未允許自動回復體力，或目前體力 [{0}] 未小於設定值 [{1}]", Game.runtimeData.user.currentStamina, MyGameConfig.floor.recovery.threshold);
+                MyLog.Info("未允許自動回復體力，或目前體力 [{0}] 未小於設定值 [{1}]", Game.runtimeData.user.currentStamina, MyGame.config.floor.recovery.threshold);
             }
 
             next();

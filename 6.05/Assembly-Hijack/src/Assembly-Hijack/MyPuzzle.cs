@@ -11,26 +11,26 @@ public class MyPuzzle
 
         var result = Puzzle.ActivateChangeDropChanceSkill(activateDelegate, deactivateDelegate, priority);
 
-        if (MyGameConfig.puzzle.enabled)
+        if (MyGame.config.puzzle.elements.Length > 0)
         {
-            Puzzle.protectedData.canOnlyHaveThisElement.Set(MyGameConfig.puzzle.elements);
+            Puzzle.protectedData.canOnlyHaveThisElement.Set(MyGame.config.puzzle.elements);
             MyLog.Info("已設定限定珠");
         }
 
         MyLog.Debug("<< - {0}.ActivateChangeDropChanceSkill", typeof(MyPuzzle).Name);
 
         return result;
-
     }
+
     public static void DeActivateChangeDropChanceSkill(ChangeDropChanceObject changeDropChanceObject_in)
     {
         MyLog.Debug(">> - {0}.DeActivateChangeDropChanceSkill", typeof(MyPuzzle).Name);
 
         Puzzle.DeActivateChangeDropChanceSkill(changeDropChanceObject_in);
 
-        if (MyGameConfig.puzzle.enabled)
+        if (MyGame.config.puzzle.elements.Length > 0)
         {
-            Puzzle.protectedData.canOnlyHaveThisElement.Set(MyGameConfig.puzzle.elements);
+            Puzzle.protectedData.canOnlyHaveThisElement.Set(MyGame.config.puzzle.elements);
             MyLog.Info("已設定限定珠");
         }
 
