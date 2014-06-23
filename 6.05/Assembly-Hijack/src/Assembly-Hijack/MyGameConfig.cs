@@ -53,6 +53,11 @@ public class MyGameConfig
         /// 自動接受公會申請
         /// </summary>
         public bool accept = true;
+
+        /// <summary>
+        /// 自動完成公會任務
+        /// </summary>
+        public bool achieveMissions = true;
     }
 
     public class Card

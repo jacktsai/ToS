@@ -21,6 +21,7 @@ public class MyGame
     private static IRunnable acceptFriend = new AcceptFriend();
     private static IRunnable requestGuild = new RequestGuild();
     private static IRunnable acceptMember = new AcceptMember();
+    private static IRunnable achieveMission = new AchieveMission();
     private static DateTime BeginTime;
     private static DateTime EndTime;
 
@@ -37,6 +38,12 @@ public class MyGame
             {
                 MyLog.Verbose("Add {0}", acceptMember.GetType().FullName);
                 RUNNER.Add(acceptMember);
+            }
+
+            if (MyGameConfig.guild.achieveMissions)
+            {
+                MyLog.Verbose("Add {0}", achieveMission.GetType().FullName);
+                RUNNER.Add(achieveMission);
             }
         }
 
