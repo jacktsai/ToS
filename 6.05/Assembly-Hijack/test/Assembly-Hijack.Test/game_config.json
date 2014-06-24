@@ -1,0 +1,102 @@
+{
+"log" :
+{
+	"level" : "debug"
+},
+
+"register" :
+{
+	"enabled" : true,
+	"partner" : "FIRE"
+},
+
+"user" :
+{
+	"tutorial" : false,
+	"teamSize" : 0,
+	"reveal" : false,
+	"acceptFriend" : true,
+	
+	"guild" :
+	{
+		"requestGuild" : 81917,
+		"acceptMember" : false,
+		"achieveMissions" : true
+	},
+	
+	"inventory" :
+	{
+		"maxCapacity" : 100,
+		"desires" :
+		[
+			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12, "refineLv" : 4},
+			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12, "refineLv" : 4},
+			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12, "refineLv" : 4},
+			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12, "refineLv" : 4},
+			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12, "refineLv" : 4}
+		],
+		"replace" :
+		[
+		]
+	}
+},
+
+"helper" :
+{
+	"desires" :
+	[
+		{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12, "refineLv" : 4}
+	]
+},
+
+"guildMission" :
+{
+	"monsterMap" : {"123":111},
+	"itemMap" : {}
+},
+
+"labyrinth" :
+{
+	"alwaysWin" : true
+},
+
+"puzzle" :
+{
+	"time" : 120,
+	"elements" : [5,1,5,2,5,3,5,4,5,6,5],
+	"comboMultiplier" : 1
+},
+
+"floor" :
+{
+	"enabled" : false,
+	"floorIds" : [],
+	"requestFriend" : true,
+	"recovery" :
+	{
+		"threshold" : 6,
+		"reward" : true,
+		"diamond" : false
+	}
+},
+
+"merge" :
+{
+	"enabled" : false,
+	"sacrificer" : [270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284]
+},
+
+"sell" :
+{
+	"enabled" : false,
+	"types" : ["HUMAN", "MONSTER", "FAIRY", "DRAGON", "GOD", "EVOLVE", "UPGRADE", "DEVIL", "BONUS"],
+	"monsterIds" : []
+},
+
+"reward" :
+{
+	"enabled" : true,
+	"period" : 120,
+	"types" : [1, 2, 4, 13, 14]
+}
+}
