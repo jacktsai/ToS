@@ -69,7 +69,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Automation\MergeCardTest.cs" />
+    <Compile Include="GameConfigTest.cs" />
     <Compile Include="MyGameTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="game_config.json" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

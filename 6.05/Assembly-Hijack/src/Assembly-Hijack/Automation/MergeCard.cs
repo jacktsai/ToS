@@ -16,7 +16,6 @@ namespace AssemblyHijack.Automation
         }
 
         private IDictionary<string, UpgradeInfo> UpgradeInfoPerCard = new Dictionary<string, UpgradeInfo>();
-        private int TotalCost;
 
         private Card target = null;
         private IList<Card> children = new List<Card>();
@@ -24,15 +23,25 @@ namespace AssemblyHijack.Automation
 
         public override void AppendReport(StringBuilder builder)
         {
-            if (TotalCost < 1)
+            if (UpgradeInfoPerCard.Count < 1)
                 return;
 
+            builder.AppendFormat("=== 卡片強化報告 ===\n");
+
+            var totalCount = 0;
+            var totalExp = 0;
+            var totalCost = 0;
             foreach (var item in UpgradeInfoPerCard)
             {
                 builder.AppendFormat("強化 {0} {1:#,0} 次\n", item.Key, item.Value.count);
+                totalCount += item.Value.count;
+                totalExp += item.Value.exp;
+                totalCost = item.Value.cost;
             }
 
-            builder.AppendFormat("強化總支出 {0:#,0}\n", TotalCost);
+            builder.AppendFormat("強化總次數 {0:#,0}\n", totalCount);
+            builder.AppendFormat("強化總經驗值 {0:#,0}\n", totalExp);
+            builder.AppendFormat("強化總支出 {0:#,0}\n", totalCost);
         }
 
         protected override bool Check()
@@ -44,7 +53,9 @@ namespace AssemblyHijack.Automation
             }
 
             var sacrificers = Game.runtimeData.user.inventory.cards.Values
-                .Where(c => !c.inUse && !c.bookmark && MyGame.config.merge.sacrificer.Contains(c.monsterId))
+                .Where(c => !c.inUse && !c.bookmark)
+                .Where(c => MyGame.config.merge.types.Length < 1 || MyGame.config.merge.types.Contains(c.type))
+                .Where(c => MyGame.config.merge.monsterIds.Length < 1 || MyGame.config.merge.monsterIds.Contains(c.monsterId))
                 .OrderBy(c => c.mergeExp).ToArray();
 
             foreach (var teamCardId in Game.runtimeData.teamCardIds)
@@ -101,8 +112,6 @@ namespace AssemblyHijack.Automation
                 upgradeInfo.count++;
                 upgradeInfo.exp += actualExp;
                 upgradeInfo.cost += actualCost;
-                TotalCost += actualCost;
-
                 next();
             });
         }

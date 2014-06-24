@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace AssemblyHijack.Automation
 {
@@ -70,7 +69,7 @@ namespace AssemblyHijack.Automation
                 if (!reward.isAvailable || reward.claimed)
                     continue;
 
-                if (MyGame.config.reward.types.Contains((int)reward.rewardType))
+                if (MyGame.config.reward.types.Contains(reward.rewardType))
                 {
                     MyLog.Info("領取獎勵 [{0}-{1}]", reward.rewardType, reward.message);
                     Game.ClaimReward(

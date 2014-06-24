@@ -1,8 +1,8 @@
-﻿using AssemblyHijack.Automation.FloorStrategy;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using AssemblyHijack.Automation.FloorStrategy;
 
 namespace AssemblyHijack.Automation
 {
@@ -44,9 +44,9 @@ namespace AssemblyHijack.Automation
 
         public CompleteFloor()
         {
-            if (MyGame.config.floor.floors.Length > 0)
+            if (MyGame.config.floor.floorIds.Length > 0)
             {
-                floorProviders.Add(new Dedicated(MyGame.config.floor.floors));
+                floorProviders.Add(new Dedicated(MyGame.config.floor.floorIds));
             }
             else
             {
@@ -54,9 +54,20 @@ namespace AssemblyHijack.Automation
             }
         }
 
-        public override void AppendReport(StringBuilder builder)
+        public override void AppendReport(StringBuilder reportBuilder)
         {
-            builder.AppendFormat("=== 地下城攻打成果 ===\n");
+            var report = CreateReport();
+
+            if (report.Length > 0)
+            {
+                reportBuilder.AppendFormat("=== 地下城攻打成果 ===\n");
+                reportBuilder.Append(report);
+            }
+        }
+
+        private StringBuilder CreateReport()
+        {
+            var reportBuilder = new StringBuilder();
 
             int floorCount = 0;
             foreach (var item in Report_Floor)
@@ -65,10 +76,9 @@ namespace AssemblyHijack.Automation
                     continue;
 
                 Floor floor = Game.database.floors[item.Key];
-                builder.AppendFormat("{0} 通關 {1} 次\n", floor.name, item.Value);
+                reportBuilder.AppendFormat("{0} 通關 {1} 次\n", floor.name, item.Value);
                 floorCount += item.Value;
             }
-            builder.AppendFormat("共通關 {0:#,0} 次地下城\n", floorCount);
 
             int cardCount = 0;
             foreach (var item in Report_Card)
@@ -77,10 +87,15 @@ namespace AssemblyHijack.Automation
                     continue;
 
                 Monster monster = Game.database.monsters[item.Key];
-                builder.AppendFormat("{0} 領取 {1} 張\n", monster.name, item.Value);
+                reportBuilder.AppendFormat("{0} 領取 {1} 張\n", monster.name, item.Value);
                 cardCount += item.Value;
             }
-            builder.AppendFormat("共領取 {0:#,0} 張卡片\n", cardCount);
+
+            if (floorCount > 0)
+                reportBuilder.AppendFormat("共通關 {0:#,0} 次地下城\n", floorCount);
+
+            if (cardCount > 0)
+                reportBuilder.AppendFormat("共領取 {0:#,0} 張卡片\n", cardCount);
 
             foreach (var item in Report_User)
             {
@@ -88,24 +103,24 @@ namespace AssemblyHijack.Automation
                     continue;
 
                 if (item.Key == REPORT_USER_STAMINA)
-                    builder.AppendFormat("共花費體力 {0:#,0} 點\n", item.Value);
+                    reportBuilder.AppendFormat("共花費體力 {0:#,0} 點\n", item.Value);
                 else if (item.Key == REPORT_USER_EXP)
-                    builder.AppendFormat("經驗增加 {0:#,0}\n", item.Value);
+                    reportBuilder.AppendFormat("經驗增加 {0:#,0}\n", item.Value);
                 else if (item.Key == REPORT_USER_FRIEND_POINT)
-                    builder.AppendFormat("點數增加 {0:#,0} 點\n", item.Value);
+                    reportBuilder.AppendFormat("點數增加 {0:#,0} 點\n", item.Value);
                 else if (item.Key == REPORT_USER_COIN)
-                    builder.AppendFormat("錢幣增加 {0:#,0}\n", item.Value);
+                    reportBuilder.AppendFormat("錢幣增加 {0:#,0}\n", item.Value);
                 else if (item.Key == REPORT_USER_DIAMOND)
-                    builder.AppendFormat("取得魔法石 {0} 顆\n", item.Value);
+                    reportBuilder.AppendFormat("取得魔法石 {0} 顆\n", item.Value);
                 else if (item.Key == REPORT_USER_RECOVERY_REWARD)
-                    builder.AppendFormat("使用 {0} 次體力回復獎勵\n", item.Value);
+                    reportBuilder.AppendFormat("使用 {0} 次體力回復獎勵\n", item.Value);
                 else if (item.Key == REPORT_USER_RECOVERY_DIAMOND)
-                    builder.AppendFormat("使用 {0} 次魔法石回復體力\n", item.Value);
+                    reportBuilder.AppendFormat("使用 {0} 次魔法石回復體力\n", item.Value);
                 else if (item.Key == REPORT_USER_LEVEL)
-                    builder.AppendFormat("等級提升 {0} 級\n", item.Value);
+                    reportBuilder.AppendFormat("等級提升 {0} 級\n", item.Value);
             }
 
-            builder.AppendFormat("===================\n");
+            return reportBuilder;
         }
 
         protected override bool Check()
@@ -200,7 +215,7 @@ namespace AssemblyHijack.Automation
             if (MyGame.config.floor.requestFriend)
             {
                 Helper helper = Game.runtimeData.currentSelectedHelper;
-                if (helper != null && !Game.runtimeData.user.isFriendsFull)
+                if (helper != null && !helper.isFriend && !helper.isFriendsFull && !Game.runtimeData.user.isFriendsFull)
                 {
                     Game.SendFriendRequest(helper.uid, delegate
                     {
@@ -216,7 +231,7 @@ namespace AssemblyHijack.Automation
 
         private void CheckStamina(Action next)
         {
-            if (MyGame.config.floor.recovery.enabled && Game.runtimeData.user.currentStamina < MyGame.config.floor.recovery.threshold)
+            if (Game.runtimeData.user.currentStamina < MyGame.config.floor.recovery.threshold)
             {
                 if (MyGame.config.floor.recovery.reward)
                 {
@@ -270,7 +285,7 @@ namespace AssemblyHijack.Automation
             }
             else
             {
-                MyLog.Info("未允許自動回復體力，或目前體力 [{0}] 未小於設定值 [{1}]", Game.runtimeData.user.currentStamina, MyGame.config.floor.recovery.threshold);
+                MyLog.Debug("未允許自動回復體力，或目前體力 [{0}] 未小於設定值 [{1}]", Game.runtimeData.user.currentStamina, MyGame.config.floor.recovery.threshold);
             }
 
             next();

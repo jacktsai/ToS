@@ -11,6 +11,7 @@ public class GameConfig
     public Register register = new Register();
     public User user = new User();
     public Helper helper = new Helper();
+    public GuildMission guildMission = new GuildMission();
     public Labyrinth labyrinth = new Labyrinth();
     public Puzzle puzzle = new Puzzle();
     public Floor floor = new Floor();
@@ -103,7 +104,7 @@ public class GameConfig
     public class Floor
     {
         public bool enabled = false;
-        public int[] floors = new int[0];
+        public int[] floorIds = new int[0];
         public bool requestFriend = false;
 
         public Recovery recovery = new Recovery();
@@ -113,9 +114,7 @@ public class GameConfig
         /// </summary>
         public class Recovery
         {
-            public bool enabled = false;
-
-            public int threshold = 5;
+            public int threshold = 0;
 
             /// <summary>
             /// 使用體力回復獎賞
@@ -132,27 +131,28 @@ public class GameConfig
     public class Merge
     {
         public bool enabled = false;
-        public int[] sacrificer = new int[] { 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284 };
+        public Monster.RacialType[] types = new Monster.RacialType[0];
+        public int[] monsterIds = new int[0];
     }
 
     public class Sell
     {
         public bool enabled = false;
-        public int[] cards = new int[] { 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115 };
+        public Monster.RacialType[] types = new Monster.RacialType[0];
+        public int[] monsterIds = new int[0];
+        public Monster.RacialType[] soldOut = new Monster.RacialType[0];
     }
 
     public class Reward
     {
-        public bool enabled = false;
-
         /// <summary>
         /// 每n秒更新一次清單
         /// </summary>
-        public int period = 120;
+        public int period = 0;
 
         /// <summary>
         /// 自動領取獎賞別
         /// </summary>
-        public int[] types = new int[] { 1, 2, 4, 13, 14 };
+        public global::Reward.Type[] types = new global::Reward.Type[0];
     }
 }

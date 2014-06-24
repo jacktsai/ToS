@@ -1,15 +1,15 @@
-﻿using AssemblyHijack;
-using AssemblyHijack.Automation;
-using GameJSON;
-using JsonFx.Json;
-using Native;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using AssemblyHijack;
+using AssemblyHijack.Automation;
+using GameJSON;
+using JsonFx.Json;
+using Native;
 using UnityEngine;
 
 public class MyGame
@@ -28,12 +28,37 @@ public class MyGame
     private static IRunnable acceptMember = new AcceptMember();
     private static IRunnable achieveMission = new AchieveMissions();
     private static IRunnable expandInventory = new ExpandInventory();
+    private static bool running = false;
     private static DateTime beginTime;
     private static DateTime endTime;
 
     static MyGame()
     {
         MyLog.Info("Loading RUNNERs ...");
+
+        if (config.user.guild.requestGuild > 0)
+        {
+            MyLog.Debug("Add {0}", requestGuild.GetType().FullName);
+            runners.Add(requestGuild);
+        }
+
+        if (config.user.acceptFriend)
+        {
+            MyLog.Debug("Add {0}", acceptFriend.GetType().FullName);
+            runners.Add(acceptFriend);
+        }
+
+        if (config.user.guild.acceptMember)
+        {
+            MyLog.Debug("Add {0}", acceptMember.GetType().FullName);
+            runners.Add(acceptMember);
+        }
+
+        if (config.reward.period > 0)
+        {
+            MyLog.Debug("Add {0}", claimReword.GetType().FullName);
+            runners.Add(claimReword);
+        }
 
         if (config.user.inventory.maxCapacity > 0)
         {
@@ -47,40 +72,16 @@ public class MyGame
             runners.Add(achieveMission);
         }
 
-        if (config.user.guild.requestGuild > 0)
-        {
-            MyLog.Debug("Add {0}", requestGuild.GetType().FullName);
-            runners.Add(requestGuild);
-        }
-
-        if (config.reward.enabled)
-        {
-            MyLog.Debug("Add {0}", claimReword.GetType().FullName);
-            runners.Add(claimReword);
-        }
-
-        if (config.sell.enabled)
-        {
-            MyLog.Debug("Add {0}", sellCard.GetType().FullName);
-            runners.Add(sellCard);
-        }
-
         if (config.merge.enabled)
         {
             MyLog.Debug("Add {0}", mergeCard.GetType().FullName);
             runners.Add(mergeCard);
         }
 
-        if (config.user.guild.acceptMember)
+        if (config.sell.enabled)
         {
-            MyLog.Debug("Add {0}", acceptMember.GetType().FullName);
-            runners.Add(acceptMember);
-        }
-
-        if (config.user.acceptFriend)
-        {
-            MyLog.Debug("Add {0}", acceptFriend.GetType().FullName);
-            runners.Add(acceptFriend);
+            MyLog.Debug("Add {0}", sellCard.GetType().FullName);
+            runners.Add(sellCard);
         }
 
         if (config.floor.enabled)
@@ -131,6 +132,7 @@ public class MyGame
         }
 
         endTime = DateTime.Now;
+        running = false;
         ShowReport();
     }
 
@@ -178,6 +180,7 @@ public class MyGame
                     delegate
                     {
                         ViewController.SwitchView(ViewIndex.WORLDMAP_WORLD_MAP);
+                        running = true;
                         beginTime = DateTime.Now;
                         NextAction();
                     },
@@ -197,12 +200,13 @@ public class MyGame
         TimeSpan duration = endTime - beginTime;
         reportBuilder.AppendFormat("費時 {0}天{1}時{2}分{3}秒\n", duration.Days, duration.Hours, duration.Minutes, duration.Seconds);
 
-        completeFloor.AppendReport(reportBuilder);
-        claimReword.AppendReport(reportBuilder);
-        sellCard.AppendReport(reportBuilder);
-        mergeCard.AppendReport(reportBuilder);
         acceptFriend.AppendReport(reportBuilder);
         acceptMember.AppendReport(reportBuilder);
+        claimReword.AppendReport(reportBuilder);
+        mergeCard.AppendReport(reportBuilder);
+        achieveMission.AppendReport(reportBuilder);
+        completeFloor.AppendReport(reportBuilder);
+        sellCard.AppendReport(reportBuilder);
 
         string reportContent = reportBuilder.ToString();
         MyLog.Info(reportContent);
@@ -269,7 +273,7 @@ public class MyGame
 
         foreach (var stage in Game.database.stages.Values)
         {
-            stage.name = String.Format("[{0}]{1}", stage.stageId, stage.name);
+            stage.name = String.Format("[{0}]{1}(I:{2})", stage.stageId, stage.name, stage.requiredItemId);
         }
 
         foreach (var floor in Game.database.floors.Values)
@@ -286,14 +290,11 @@ public class MyGame
         MyLog.Debug("<< - {0}.SetData", typeof(MyGame).Name);
     }
 
-    //private static int[] targets = new int[] { 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115 };
-    private static Monster.RacialType[] racialTypes = new[] { Monster.RacialType.HUMAN, Monster.RacialType.MONSTER, Monster.RacialType.FAIRY, Monster.RacialType.DRAGON, Monster.RacialType.GOD, Monster.RacialType.DEVIL };
-
     public static void SetUser(BaseJson userInfo, bool restore = false)
     {
         MyLog.Debug(">> - {0}.SetUser", typeof(MyGame).Name);
 
-        if (userInfo.user != null)
+        if (!running && userInfo.user != null)
         {
             if (config.user.teamSize > 0)
             {
@@ -309,7 +310,7 @@ public class MyGame
             }
         }
 
-        if (userInfo.cards != null && config.user.inventory.desires.Length > 0)
+        if (!running && userInfo.cards != null && config.user.inventory.desires.Length > 0)
         {
             var newCardList = new List<string>();
             var desireSettings = (GameConfig.Card[])config.user.inventory.desires.Clone();
@@ -322,7 +323,7 @@ public class MyGame
                 var cardJson = ObjectParser.ParseCard(cardString);
                 var currentCard = Game.database.monsters[cardJson.monsterId];
 
-                if (replaceIndex < desireSettings.Length && racialTypes.Contains(currentCard.type))
+                if (replaceIndex < desireSettings.Length)
                 {
                     var desireSetting = desireSettings[replaceIndex];
 
@@ -333,10 +334,13 @@ public class MyGame
                     if (desireSetting.refineLv < 1)
                         desireSetting.refineLv = cardJson.refineLevel;
 
-                    var desireCard = new Card(desireSetting.monsterId, 0, desireSetting.skillLv, desireSetting.refineLv);
+                    var desireCard = new Card(desireSetting.monsterId, 0, desireSetting.skillLv, 0, desireSetting.refineLv);
+
                     // 調整到相對等級
                     if (desireSetting.monsterLv < 1)
                         desireCard.exp = cardJson.exp;
+
+                    desireCard.refineLevelToExp(desireSetting.refineLv);
 
                     MyLog.Info("背包卡片抽換：{0} > {1} 等級 {2} > {3} 技能 {4} > {5} 昇華 {6} > {7}",
                          currentCard.name, desireCard.name,
@@ -362,7 +366,7 @@ public class MyGame
 
         Game.SetUser(userInfo, restore);
 
-        if (Game.tutorialMode && !config.user.tutorial)
+        if (!running && Game.tutorialMode && !config.user.tutorial)
         {
             while (Game.tutorialMode)
                 TutorialController.Continue();
@@ -379,7 +383,7 @@ public class MyGame
 
         List<Helper> result = Game.GetHelperList(helpers);
 
-        if (config.helper.desires.Length > 0)
+        if (!running && config.helper.desires.Length > 0)
         {
             var desireSettings = (GameConfig.Card[])config.helper.desires.Clone();
 
@@ -395,11 +399,14 @@ public class MyGame
                 if (desireSetting.refineLv < 1)
                     desireSetting.refineLv = x.refineLevel;
 
-                var y = new Card(desireSetting.monsterId, desireSetting.monsterLv, desireSetting.skillLv, desireSetting.refineLv);
+                var y = new Card(desireSetting.monsterId, desireSetting.monsterLv, desireSetting.skillLv, 0, desireSetting.refineLv);
 
                 // 調整到相對等級
                 if (desireSetting.monsterLv < 1)
+                {
+                    MyLog.Debug("卡片等級未設定, 套用目標經驗值 {0:#,0}", x.exp);
                     y.exp = x.exp;
+                }
 
                 y.cardId = x.cardId;
                 y.refineLevel = x.refineLevel;

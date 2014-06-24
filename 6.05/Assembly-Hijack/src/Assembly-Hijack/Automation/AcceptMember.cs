@@ -11,7 +11,7 @@ namespace AssemblyHijack.Automation
         public override void AppendReport(System.Text.StringBuilder builder)
         {
             if (TotalMember > 0)
-                builder.AppendFormat("共接受 {0:#,0} 位公會成員的邀請\n", TotalMember);
+                builder.AppendFormat("共接受 {0:#,0} 位公會成員的申請\n", TotalMember);
         }
 
         protected override bool Check()

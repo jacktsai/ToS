@@ -32,7 +32,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
 
             if (target.stamina > Game.runtimeData.user.currentStamina)
             {
-                MyLog.Debug("{0}-{1} REQUIRED STAMINA {4} , CURRENT {5}, STOP", stage.name, target.name, target.stamina, Game.runtimeData.user.currentStamina);
+                MyLog.Debug("{0}-{1} REQUIRED STAMINA {2} , CURRENT {3}, STOP", stage.name, target.name, target.stamina, Game.runtimeData.user.currentStamina);
                 return PatrolGuide.STOP;
             }
 

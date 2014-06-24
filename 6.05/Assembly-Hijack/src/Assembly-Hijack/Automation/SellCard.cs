@@ -15,27 +15,33 @@ namespace AssemblyHijack.Automation
         }
 
         private IDictionary<int, SellInfo> SellInfoPerMonster = new Dictionary<int, SellInfo>();
-        private int TotalPrice = 0;
 
         /// <summary>
         /// 預計售出卡片
         /// </summary>
-        private IList<Card> candidates = new List<Card>();
+        private IList<Card> targets = new List<Card>();
 
         private string candidateNames;
 
         public override void AppendReport(StringBuilder builder)
         {
-            if (TotalPrice < 1)
+            if (SellInfoPerMonster.Count < 1)
                 return;
+
+            builder.AppendFormat("=== 卡片銷售統計 ===\n");
+            var totalCount = 0;
+            var totalPrice = 0;
 
             foreach (var item in SellInfoPerMonster)
             {
                 var monster = Game.database.monsters[item.Key];
                 builder.AppendFormat("售 {0} {1:#,0} 張共 {2:#,0} 錢\n", monster.name, item.Value.count, item.Value.price);
+                totalCount += item.Value.count;
+                totalPrice += item.Value.price;
             }
 
-            builder.AppendFormat("銷售總收入 {0:#,0}\n", TotalPrice);
+            builder.AppendFormat("共出售 {0:#,0} 張卡片\n", totalCount);
+            builder.AppendFormat("共獲得 {0:#,0} 錢\n", totalPrice);
         }
 
         protected override bool Check()
@@ -46,16 +52,20 @@ namespace AssemblyHijack.Automation
                 return false;
             }
 
-            candidates.Clear();
-            StringBuilder cardNames = new StringBuilder();
-            foreach (var card in Game.runtimeData.user.inventory.cards.Values)
-            {
-                if (card.inUse || card.bookmark)
-                    continue;
+            targets.Clear();
 
-                if (MyGame.config.sell.cards.Contains(card.monsterId))
+            var candidates = Game.runtimeData.user.inventory.cards.Values
+                .Where(c => !c.inDeck && !c.bookmark)
+                .Where(c => MyGame.config.sell.types.Length < 1 || MyGame.config.sell.types.Contains(c.type))
+                .Where(c => MyGame.config.sell.monsterIds.Length < 1 || MyGame.config.sell.monsterIds.Contains(c.monsterId));
+
+            StringBuilder cardNames = new StringBuilder();
+            foreach (var card in candidates)
+            {
+                if (MyGame.config.sell.types.Contains(card.type) ||
+                    MyGame.config.sell.monsterIds.Contains(card.monsterId))
                 {
-                    candidates.Add(card);
+                    targets.Add(card);
 
                     if (cardNames.Length > 0)
                         cardNames.Append(",");
@@ -64,7 +74,7 @@ namespace AssemblyHijack.Automation
                 }
             }
 
-            if (candidates.Count < 1)
+            if (targets.Count < 1)
             {
                 MyLog.Debug("沒有卡片可供出售！");
                 return false;
@@ -72,18 +82,18 @@ namespace AssemblyHijack.Automation
             else
             {
                 candidateNames = cardNames.ToString();
-                MyLog.Debug("預計售出 [{0}] 張卡片 {1}", candidates.Count, candidateNames);
+                MyLog.Debug("預計售出 [{0}] 張卡片 {1}", targets.Count, candidateNames);
                 return true;
             }
         }
 
         protected override void Execute(Action next)
         {
-            Game.SellCards(candidates.ToArray(), delegate
+            Game.SellCards(targets.ToArray(), delegate
             {
-                MyLog.Info("已售出 [{0}] 張卡片 {1}", candidates.Count, candidateNames);
+                MyLog.Info("已售出 [{0}] 張卡片 {1}", targets.Count, candidateNames);
 
-                foreach (var card in candidates)
+                foreach (var card in targets)
                 {
                     SellInfo soldInfo;
                     if (!SellInfoPerMonster.TryGetValue(card.monsterId, out soldInfo))
@@ -94,7 +104,6 @@ namespace AssemblyHijack.Automation
 
                     soldInfo.count++;
                     soldInfo.price += card.sellCoin;
-                    TotalPrice += card.sellCoin;
                 }
 
                 next();

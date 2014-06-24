@@ -7,14 +7,14 @@
 "register" :
 {
 	"enabled" : true,
-	"partner" : 3
+	"partner" : "FIRE"
 },
 
 "user" :
 {
 	"tutorial" : false,
 	"teamSize" : 0,
-	"reveal" : false,
+	"reveal" : true,
 	"acceptFriend" : true,
 	
 	"guild" :
@@ -26,14 +26,9 @@
 	
 	"inventory" :
 	{
-		"maxCapacity" : 100,
+		"maxCapacity" : 50,
 		"desires" :
 		[
-			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12, "refineLv" : 4},
-			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12, "refineLv" : 4},
-			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12, "refineLv" : 4},
-			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12, "refineLv" : 4},
-			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12, "refineLv" : 4}
 		],
 		"replace" :
 		[
@@ -45,7 +40,6 @@
 {
 	"desires" :
 	[
-		{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12, "refineLv" : 4}
 	]
 },
 
@@ -63,12 +57,11 @@
 
 "floor" :
 {
-	"enabled" : false,
-	"floors" : [],
+	"enabled" : true,
+	"floorIds" : [],
 	"requestFriend" : true,
 	"recovery" :
 	{
-		"enabled" : true,
 		"threshold" : 6,
 		"reward" : true,
 		"diamond" : false
@@ -78,13 +71,16 @@
 "merge" :
 {
 	"enabled" : false,
-	"sacrificer" : [270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284]
+	"types" : ["UPGRADE"],
+	"monsterIds" : []
 },
 
 "sell" :
 {
-	"enabled" : false,
-	"cards" : [56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115]
+	"enabled" : true,
+	"types" : ["UPGRADE", "EVOLVE"],
+	"monsterIds" : [],
+	"soldOut" : ["UPGRADE", "EVOLVE"]
 },
 
 "reward" :
