@@ -54,24 +54,25 @@ namespace AssemblyHijack.Automation
 
             targets.Clear();
 
-            var candidates = Game.runtimeData.user.inventory.cards.Values
-                .Where(c => !c.inDeck && !c.bookmark)
-                .Where(c => MyGame.config.sell.types.Length < 1 || MyGame.config.sell.types.Contains(c.type))
-                .Where(c => MyGame.config.sell.monsterIds.Length < 1 || MyGame.config.sell.monsterIds.Contains(c.monsterId));
-
+            var candidates = Game.runtimeData.user.inventory.cards.Values.Where(c => !c.inDeck && !c.bookmark && !c.isHelper);
+            var keepList = new List<int>();
             StringBuilder cardNames = new StringBuilder();
             foreach (var card in candidates)
             {
-                if (MyGame.config.sell.types.Contains(card.type) ||
-                    MyGame.config.sell.monsterIds.Contains(card.monsterId))
+                if (MyGame.config.sell.reserved)
                 {
-                    targets.Add(card);
-
-                    if (cardNames.Length > 0)
-                        cardNames.Append(",");
-
-                    cardNames.AppendFormat("{0}", card.name);
+                    if (!keepList.Contains(card.monsterId))
+                    {
+                        keepList.Add(card.monsterId);
+                        continue;
+                    }
                 }
+
+                if (cardNames.Length > 0)
+                    cardNames.Append(",");
+                cardNames.AppendFormat("#{0}{1}", card.cardId, card.name);
+
+                targets.Add(card);
             }
 
             if (targets.Count < 1)

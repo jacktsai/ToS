@@ -14,19 +14,20 @@
 {
 	"tutorial" : false,
 	"teamSize" : 0,
-	"reveal" : true,
+	"reveal" : false,
 	"acceptFriend" : true,
 	
 	"guild" :
 	{
 		"requestGuild" : 81917,
 		"acceptMember" : false,
-		"achieveMissions" : true
+		"achieveMissions" : true,
+		"reservedCoin" : 1
 	},
 	
 	"inventory" :
 	{
-		"maxCapacity" : 50,
+		"capacity" : 120,
 		"desires" :
 		[
 		],
@@ -78,15 +79,12 @@
 "sell" :
 {
 	"enabled" : true,
-	"types" : ["UPGRADE", "EVOLVE"],
-	"monsterIds" : [],
-	"soldOut" : ["UPGRADE", "EVOLVE"]
+	"reserved" : true
 },
 
 "reward" :
 {
-	"enabled" : true,
 	"period" : 120,
-	"types" : [1, 2, 4, 13, 14]
+	"types" : ["DIAMOND", "COIN", "FRIENDPOINT", "FRIEND_SLOT", "INVENTORY"]
 }
 }

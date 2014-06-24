@@ -93,6 +93,8 @@ namespace AssemblyHijack.Automation
                     return;
                 }
 
+                MyLog.Info("公會任務已經完成");
+                executionReport.AppendFormat("公會任務在稍早已經完成\n");
                 next();
                 return;
             }
@@ -328,7 +330,8 @@ namespace AssemblyHijack.Automation
             MyLog.Debug("公會任務要求 - 燒卡片經驗 {0:#,0}", mission.requireExp);
 
             var candidates = Game.runtimeData.user.inventory.cards.Values
-                .Where(c => !c.inUse && !c.bookmark && c.mergeExp >= mission.requireExp)
+                .Where(c => !c.inUse && !c.bookmark && !c.isHelper)
+                .Where(c => c.mergeExp >= mission.requireExp)
                 .OrderBy(c => c.mergeExp);
 
             Card sacrificer = null;

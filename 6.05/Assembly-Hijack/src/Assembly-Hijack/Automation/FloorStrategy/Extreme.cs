@@ -13,10 +13,18 @@ namespace AssemblyHijack.Automation.FloorStrategy
 
         public override Floor NextFloor()
         {
-            lastResult = TryGetNextOfPreviousFloor();
-
-            if (lastResult == null)
+            if (Game.runtimeData.user.currentStamina == Game.runtimeData.user.maxStamina)
+            {
+                // 體力滿的時候就從頭找
                 lastResult = FindSuitableNormalFloor();
+            }
+            else
+            {
+                lastResult = TryGetNextOfPreviousFloor();
+
+                if (lastResult == null)
+                    lastResult = FindSuitableNormalFloor();
+            }
 
             return lastResult;
         }

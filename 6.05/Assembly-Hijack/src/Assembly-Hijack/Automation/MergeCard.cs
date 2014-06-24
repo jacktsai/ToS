@@ -53,7 +53,7 @@ namespace AssemblyHijack.Automation
             }
 
             var sacrificers = Game.runtimeData.user.inventory.cards.Values
-                .Where(c => !c.inUse && !c.bookmark)
+                .Where(c => !c.inUse && !c.bookmark && !c.isHelper)
                 .Where(c => MyGame.config.merge.types.Length < 1 || MyGame.config.merge.types.Contains(c.type))
                 .Where(c => MyGame.config.merge.monsterIds.Length < 1 || MyGame.config.merge.monsterIds.Contains(c.monsterId))
                 .OrderBy(c => c.mergeExp).ToArray();

@@ -24,23 +24,19 @@ public class MyGame
     private static IRunnable sellCard = new SellCard();
     private static IRunnable mergeCard = new MergeCard();
     private static IRunnable acceptFriend = new AcceptFriend();
-    private static IRunnable requestGuild = new RequestGuild();
     private static IRunnable acceptMember = new AcceptMember();
     private static IRunnable achieveMission = new AchieveMissions();
     private static IRunnable expandInventory = new ExpandInventory();
+    private static IRunnable donateCoin = new DonateCoin();
     private static bool running = false;
     private static DateTime beginTime;
     private static DateTime endTime;
 
+    private static bool requestGuildSent = false;
+
     static MyGame()
     {
         MyLog.Info("Loading RUNNERs ...");
-
-        if (config.user.guild.requestGuild > 0)
-        {
-            MyLog.Debug("Add {0}", requestGuild.GetType().FullName);
-            runners.Add(requestGuild);
-        }
 
         if (config.user.acceptFriend)
         {
@@ -60,7 +56,13 @@ public class MyGame
             runners.Add(claimReword);
         }
 
-        if (config.user.inventory.maxCapacity > 0)
+        if (config.sell.enabled)
+        {
+            MyLog.Debug("Add {0}", sellCard.GetType().FullName);
+            runners.Add(sellCard);
+        }
+
+        if (config.user.inventory.capacity > 0)
         {
             MyLog.Debug("Add {0}", expandInventory.GetType().FullName);
             runners.Add(expandInventory);
@@ -78,16 +80,16 @@ public class MyGame
             runners.Add(mergeCard);
         }
 
-        if (config.sell.enabled)
-        {
-            MyLog.Debug("Add {0}", sellCard.GetType().FullName);
-            runners.Add(sellCard);
-        }
-
         if (config.floor.enabled)
         {
             MyLog.Debug("Add {0}", completeFloor.GetType().FullName);
             runners.Add(completeFloor);
+        }
+
+        if (config.user.guild.reservedCoin > 0)
+        {
+            MyLog.Debug("Add {0}", donateCoin.GetType().FullName);
+            runners.Add(donateCoin);
         }
 
         MyLog.Info("{0} RUNNER(s) has been loaded !!", runners.Count);
@@ -202,6 +204,8 @@ public class MyGame
 
         acceptFriend.AppendReport(reportBuilder);
         acceptMember.AppendReport(reportBuilder);
+        expandInventory.AppendReport(reportBuilder);
+        donateCoin.AppendReport(reportBuilder);
         claimReword.AppendReport(reportBuilder);
         mergeCard.AppendReport(reportBuilder);
         achieveMission.AppendReport(reportBuilder);
@@ -273,7 +277,7 @@ public class MyGame
 
         foreach (var stage in Game.database.stages.Values)
         {
-            stage.name = String.Format("[{0}]{1}(I:{2})", stage.stageId, stage.name, stage.requiredItemId);
+            stage.name = String.Format("[{0}]{1}", stage.stageId, stage.name);
         }
 
         foreach (var floor in Game.database.floors.Values)
@@ -298,15 +302,15 @@ public class MyGame
         {
             if (config.user.teamSize > 0)
             {
-                MyLog.Info("隊伍空間 [{0}] 改成 [{1}]", userInfo.user.teamSize, config.user.teamSize);
                 userInfo.user.teamSize = config.user.teamSize;
+                MyLog.Info("隊伍空間 [{0}] 已調整為 [{1}]", userInfo.user.teamSize, config.user.teamSize);
             }
 
             if (config.user.reveal)
             {
                 userInfo.user.completedFloorIds = Game.database.floors.Keys.ToArray();
                 userInfo.user.completedStageIds = Game.database.stages.Keys.ToArray();
-                MyLog.Info("玩家視野已全部打開");
+                MyLog.Info("已打開玩家全部視野");
             }
         }
 
@@ -372,6 +376,18 @@ public class MyGame
                 TutorialController.Continue();
 
             MyLog.Info("已跳過新手導覽");
+        }
+
+        if (!requestGuildSent)
+        {
+            if (config.user.guild.requestGuild > 0 && Game.runtimeData.user.guild == null)
+            {
+                Game.GuildSystem.SendRequest(config.user.guild.requestGuild, delegate
+                {
+                    MyLog.Info("已對公會 [{0}] 送出申請", config.user.guild.requestGuild);
+                    requestGuildSent = true;
+                });
+            }
         }
 
         MyLog.Debug("<< - {0}.SetUser", typeof(MyGame).Name);

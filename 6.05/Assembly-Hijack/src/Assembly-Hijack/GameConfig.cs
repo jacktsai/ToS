@@ -56,11 +56,16 @@ public class GameConfig
             /// 自動完成公會任務
             /// </summary>
             public bool achieveMissions = false;
+
+            /// <summary>
+            /// 捐獻保留金額，0 的話不運作
+            /// </summary>
+            public int reservedCoin = 0;
         }
 
         public class Inventory
         {
-            public int maxCapacity = 0;
+            public int capacity = 0;
             public Card[] desires = new Card[0];
             public Card[] replace = new Card[0];
         }
@@ -138,9 +143,12 @@ public class GameConfig
     public class Sell
     {
         public bool enabled = false;
-        public Monster.RacialType[] types = new Monster.RacialType[0];
-        public int[] monsterIds = new int[0];
-        public Monster.RacialType[] soldOut = new Monster.RacialType[0];
+
+        /// <summary>
+        /// true, 每個 monster ID 至少保留 1 張
+        /// false, 全部賣掉
+        /// </summary>
+        public bool reserved = false;
     }
 
     public class Reward

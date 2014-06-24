@@ -81,9 +81,7 @@
     <None Include="user_login.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="user_register.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Include="user_register.json" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="FloorView.resx">
