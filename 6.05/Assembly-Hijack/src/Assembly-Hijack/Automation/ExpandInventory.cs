@@ -11,7 +11,7 @@ namespace AssemblyHijack.Automation
             if (count < 1)
                 return;
 
-            builder.AppendFormat("共擴充背包 {0:#,0} 次", count);
+            builder.AppendFormat("共擴充背包 {0:#,0} 次\n", count);
         }
 
         protected override bool Check()
