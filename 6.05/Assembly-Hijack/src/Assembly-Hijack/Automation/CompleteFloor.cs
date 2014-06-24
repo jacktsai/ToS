@@ -65,7 +65,7 @@ namespace AssemblyHijack.Automation
                     continue;
 
                 Floor floor = Game.database.floors[item.Key];
-                builder.AppendFormat("[{0:0000}]{1} 通關 {2} 次\n", floor.floorId, floor.name, item.Value);
+                builder.AppendFormat("{0} 通關 {1} 次\n", floor.name, item.Value);
                 floorCount += item.Value;
             }
             builder.AppendFormat("共通關 {0:#,0} 次地下城\n", floorCount);
@@ -77,7 +77,7 @@ namespace AssemblyHijack.Automation
                     continue;
 
                 Monster monster = Game.database.monsters[item.Key];
-                builder.AppendFormat("[{0:0000}]{1} 領取 {2} 張\n", monster.monsterId, monster.name, item.Value);
+                builder.AppendFormat("{0} 領取 {1} 張\n", monster.name, item.Value);
                 cardCount += item.Value;
             }
             builder.AppendFormat("共領取 {0:#,0} 張卡片\n", cardCount);
@@ -121,9 +121,7 @@ namespace AssemblyHijack.Automation
             if (candidate != null)
             {
                 Stage stage = candidate.stage;
-                MyLog.Info("關卡已判定 [{0}]{1}-[{2}]{3}, 所需體力[{4}] 目前體力[{5}]",
-                    stage.stageId, stage.name, candidate.floorId, candidate.name,
-                    candidate.stamina, Game.runtimeData.user.currentStamina);
+                MyLog.Info("關卡已判定 {0}-{1}, 所需體力[{2}] 目前體力[{3}]", stage.name, candidate.name, candidate.stamina, Game.runtimeData.user.currentStamina);
                 return true;
             }
             else
@@ -150,7 +148,7 @@ namespace AssemblyHijack.Automation
                 () =>
                 {
                     Stage stage = candidate.stage;
-                    MyLog.Info("已完成關卡 [{0}]{1}-[{2}]{3}", stage.stageId, stage.name, candidate.floorId, candidate.name);
+                    MyLog.Info("已完成關卡 {0}-{1}", stage.name, candidate.name);
                     Report_User[REPORT_USER_LEVEL] += Game.runtimeData.user.level - userBefore.level;
                     Report_User[REPORT_USER_EXP] += Game.runtimeData.user.accumulativeLevelExp - userBefore.accumulativeLevelExp;
                     Report_User[REPORT_USER_FRIEND_POINT] += Game.runtimeData.user.friendPoint - userBefore.friendPoint;

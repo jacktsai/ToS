@@ -80,7 +80,7 @@ namespace AssemblyHijack.Automation
         private void CompleteFloorCount(Action next)
         {
             var mission = new GuildMission_CompleteFloorCount(Current.json);
-            MyLog.Debug("公會任務要求 - 通關 [{0}]{1} {2:#,0} 次", mission.targetFloor.floorId, mission.targetFloor.name, mission.targetTimes);
+            MyLog.Debug("公會任務要求 - 通關 {0} {1:#,0} 次", mission.targetFloor.name, mission.targetTimes);
 
             if (mission.isCompleted)
             {
@@ -89,7 +89,7 @@ namespace AssemblyHijack.Automation
                     string.Empty,
                     delegate
                     {
-                        MyLog.Info("完成公會任務 - 通關 [{0}]{1} {2:#,0} 次", mission.targetFloor.floorId, mission.targetFloor.name, mission.targetTimes);
+                        MyLog.Info("完成公會任務 - 通關 {0} {1:#,0} 次", mission.targetFloor.name, mission.targetTimes);
                         NextMission(next);
                     },
                     null);
@@ -106,7 +106,7 @@ namespace AssemblyHijack.Automation
         private void CompleteFloorTurns(Action next)
         {
             var mission = new GuildMission_CompleteFloorTurns(Current.json);
-            MyLog.Debug("公會任務要求 - 通關 [{0}]{1} {2:#,0} 回", mission.targetFloor.floorId, mission.targetFloor.name, mission.targetTurns);
+            MyLog.Debug("公會任務要求 - 通關 {0} {1:#,0} 回", mission.targetFloor.name, mission.targetTurns);
 
             if (mission.isCompleted)
             {
@@ -115,7 +115,7 @@ namespace AssemblyHijack.Automation
                     string.Empty,
                     delegate
                     {
-                        MyLog.Info("完成公會任務 - 通關 [{0}]{1} {2:#,0} 回", mission.targetFloor.floorId, mission.targetFloor.name, mission.targetTurns);
+                        MyLog.Info("完成公會任務 - 通關 {0} {1:#,0} 回", mission.targetFloor.name, mission.targetTurns);
                         NextMission(next);
                     },
                     null);
@@ -132,7 +132,7 @@ namespace AssemblyHijack.Automation
         private void DonateCoin(Action next)
         {
             var mission = new GuildMission_DonateCoin(Current.json);
-            MyLog.Debug("公會任務要求 - 贊助 [{0:#,0}] 錢 [{1:#,0}] 黃金", mission.requireCoins, mission.donateGold);
+            MyLog.Debug("公會任務要求 - 贊助 {0:#,0} 錢 {1:#,0} 黃金", mission.requireCoins, mission.donateGold);
 
             if (mission.enoughCoins)
             {
@@ -141,7 +141,7 @@ namespace AssemblyHijack.Automation
                     string.Empty,
                     delegate
                     {
-                        MyLog.Info("完成公會任務 - 贊助 [{0:#,0}] 錢 [{1:#,0}] 黃金", mission.requireCoins, mission.donateGold);
+                        MyLog.Info("完成公會任務 - 贊助 {0:#,0} 錢 {1:#,0} 黃金", mission.requireCoins, mission.donateGold);
                         NextMission(next);
                     },
                     null);
@@ -207,7 +207,7 @@ namespace AssemblyHijack.Automation
             var mission = new GuildMission_SubmitCard(Current.json);
             var cardString = String.Join(", ",
                 mission.slots.Select(o =>
-                    String.Format("[{0:0000}]{1} ({2})", o.card.monsterId, o.card.name, o.availableType)
+                    String.Format("{0}({1})", o.card.name, o.availableType)
                 ).ToArray());
             MyLog.Debug("公會任務要求 - 燒卡 {0}", cardString);
 
@@ -228,7 +228,7 @@ namespace AssemblyHijack.Automation
                 var slots = mission.slots.Where(s => s.availableType != GuildMission_SubmitCard.GuildMissionCardSlot.AvailableType.AVAILABLE);
                 var cardRequiredString = String.Join(
                     ", ",
-                    slots.Select(slot => String.Format("[{0:0000}]{1} {2} 張", slot.card.monsterId, slot.card.name, slot.cardCount)).ToArray());
+                    slots.Select(slot => String.Format("{0} {1} 張", slot.card.name, slot.cardCount)).ToArray());
                 MyLog.Debug("公會任務執行 - 卡片蒐集 {0}", cardRequiredString);
 
                 foreach (var slot in slots)
@@ -243,7 +243,7 @@ namespace AssemblyHijack.Automation
                     }
                     else
                     {
-                        MyLog.Debug("卡片 [{0:0000}]{1} 不知道要去哪裡打", card.monsterId, card.name);
+                        MyLog.Debug("卡片 {0} 不知道要去哪裡打", card.name);
                     }
                 }
 
@@ -255,12 +255,18 @@ namespace AssemblyHijack.Automation
         private void SubmitCardExp(Action next)
         {
             var mission = new GuildMission_SubmitCardExp(Current.json);
-            MyLog.Debug("公會任務要求 - 燒卡片經驗 [{0:#,0}]", mission.requireExp);
+            MyLog.Debug("公會任務要求 - 燒卡片經驗 {0:#,0}", mission.requireExp);
 
-            var sacrificer = Game.runtimeData.user.inventory.cards.Values
+            var candidates = Game.runtimeData.user.inventory.cards.Values
                 .Where(c => !c.inUse && !c.bookmark && c.mergeExp >= mission.requireExp)
-                .OrderBy(c => c.mergeExp)
-                .FirstOrDefault();
+                .OrderBy(c => c.mergeExp);
+
+            Card sacrificer = null;
+            foreach (var candidate in candidates)
+            {
+                sacrificer = candidate;
+                break;
+            }
 
             if (sacrificer != null)
             {
@@ -269,14 +275,14 @@ namespace AssemblyHijack.Automation
                     sacrificer.cardId.ToString(),
                     delegate
                     {
-                        MyLog.Info("完成公會任務 - 燒卡片經驗 [{0:#,0}] 犧牲了 [{1:0000}]{2}", mission.requireExp, sacrificer.monsterId, sacrificer.name);
+                        MyLog.Info("完成公會任務 - 燒卡片經驗 {0:#,0} 犧牲了 {1}", mission.requireExp, sacrificer.name);
                         NextMission(next);
                     },
                     null);
             }
             else
             {
-                MyLog.Info("公會任務無法繼續 - 無符合燒卡經驗 [{0:#,0}] 的卡片", mission.requireExp);
+                MyLog.Info("公會任務無法繼續 - 無符合燒卡經驗 {0:#,0} 的卡片", mission.requireExp);
                 next();
             }
         }
@@ -286,15 +292,19 @@ namespace AssemblyHijack.Automation
             MyLog.Debug("分析碎片出處 [{0:0000}]", itemId);
             //card.rare == Monster.RareType.BRONZE
 
-            throw new NotImplementedException();
+            return null;
         }
 
         private Floor AnalyzeFloor(Card card)
         {
-            MyLog.Debug("分析卡片出處 [{0:0000}]{1} {2} {3}", card.monsterId, card.name, card.typeName, card.rare);
-            //card.rare == Monster.RareType.BRONZE
+            MyLog.Debug("分析卡片出處 {0} {1} {2}", card.name, card.typeName, card.rare);
 
-            throw new NotImplementedException();
+            if (card.rare == Monster.RareType.BRONZE)
+            {
+                //Game.runtimeData.stageBonus.stages[0].
+            }
+
+            return null;
         }
 
         private void EnterAndCompleteFloor(Floor target, bool isMission, Action next)
@@ -302,15 +312,13 @@ namespace AssemblyHijack.Automation
             var guide = Strategy.JudgePatro(target);
             if (guide != Strategy.PatrolGuide.NONE)
             {
-                MyLog.Debug("公會任務無法繼續 - 關卡 [{0}]{1} 無法進行", target.floorId, target.name);
+                MyLog.Debug("公會任務無法繼續 - 關卡 {0} 無法進行", target.name);
                 next();
                 return;
             }
 
             Stage stage = target.stage;
-            MyLog.Info("關卡已判定 [{0}]{1}-[{2}]{3}, 所需體力[{4}] 目前體力[{5}]",
-                stage.stageId, stage.name, target.floorId, target.name,
-                target.stamina, Game.runtimeData.user.currentStamina);
+            MyLog.Info("關卡已判定 {0}-{1}, 所需體力[{2}] 目前體力[{3}]", stage.name, target.name, target.stamina, Game.runtimeData.user.currentStamina);
 
             FloorHelper.EnterAndComplete(
                 1,
@@ -319,7 +327,7 @@ namespace AssemblyHijack.Automation
                 null,
                 delegate
                 {
-                    MyLog.Info("已完成關卡 [{0}]{1}-[{2}]{3}", stage.stageId, stage.name, target.floorId, target.name);
+                    MyLog.Info("已完成關卡 {0}-{1}", stage.name, target.name);
                     GetMissions(next);
                 });
         }
@@ -332,10 +340,7 @@ namespace AssemblyHijack.Automation
             {
                 var cardString = String.Join(
                     ", ",
-                    monsterIds
-                        .Select(monsterId => Game.database.monsters[monsterId])
-                        .Select(monster => String.Format("[{0:0000}]{1}", monster.monsterId, monster.name)
-                    ).ToArray());
+                    monsterIds.Select(monsterId => Game.database.monsters[monsterId].name).ToArray());
 
                 MyLog.Info("已取得公會任務獎勵 - ", cardString);
                 completed = true;

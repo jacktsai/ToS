@@ -26,7 +26,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
             if (lastResult == null)
                 return null;
 
-            MyLog.Debug("正在嘗試尋找 [{0}]{1} 的下一關", lastResult.floorId, lastResult.name);
+            MyLog.Debug("正在嘗試尋找 {0} 的下一關", lastResult.name);
             Floor candidate = null;
 
             if (lastResult.isCleared)
@@ -51,7 +51,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
                 // 很明顯上一回合沒有衝破關卡上限，所以直接繼續上次的獎勵關卡
                 if (candidate.isCleared && lastResult.stage.isBonus)
                 {
-                    MyLog.Debug("下一關 [{0}]{1} 已經通關，嘗試繼續上一個關卡", lastResult.floorId, lastResult.name);
+                    MyLog.Debug("下一關 {0} 已經通關，嘗試繼續上一個關卡", lastResult.name);
                     candidate = lastResult;
                 }
 
@@ -85,7 +85,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
 
                     if (!candidate.isCleared)
                     {
-                        MyLog.Debug("[{0}]{1} IS NOT CLEARED, CLEAR IT FIRST, STOP", candidate.floorId, candidate.name);
+                        MyLog.Debug("{0} IS NOT CLEARED, CLEAR IT FIRST, STOP", candidate.name);
                         goto end;
                     }
 

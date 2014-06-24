@@ -32,7 +32,7 @@ namespace AssemblyHijack.Automation
             foreach (var item in SellInfoPerMonster)
             {
                 var monster = Game.database.monsters[item.Key];
-                builder.AppendFormat("售 [{0:0000}]{1} {2:#,0} 張共 {3:#,0} 錢\n", monster.monsterId, monster.name, item.Value.count, item.Value.price);
+                builder.AppendFormat("售 {0} {1:#,0} 張共 {2:#,0} 錢\n", monster.name, item.Value.count, item.Value.price);
             }
 
             builder.AppendFormat("銷售總收入 {0:#,0}\n", TotalPrice);
@@ -60,7 +60,7 @@ namespace AssemblyHijack.Automation
                     if (cardNames.Length > 0)
                         cardNames.Append(",");
 
-                    cardNames.AppendFormat("[{0:0000}]{1}", card.monsterId, card.name);
+                    cardNames.AppendFormat("{0}", card.name);
                 }
             }
 

@@ -265,74 +265,24 @@ public class MyGame
     public static void SetData(Login.Data data, bool restore = false)
     {
         MyLog.Debug(">> - {0}.SetData", typeof(MyGame).Name);
-
-        var stageStringList = new List<string>();
-        foreach (var stageString in data.stageList)
-        {
-            GameJSON.Stage stage = ObjectParser.ParseStage(stageString);
-            var stageStringNew = String.Join(
-                "|",
-                new string[]
-                {
-	                stage.stageId .ToString(),
-	                stage.previousStageId.ToString(),
-	                stage.nextStageId.ToString(),
-	                stage.zone.ToString(),
-	                stage.typeEnum.ToString(),
-	                stage.typeValue.ToString(),
-	                stage.stoneType.ToString(),
-	                stage.startTime.ToString(),
-	                stage.endTime.ToString(),
-	                String.Format("[{0}]{1}", stage.stageId, stage.title),
-	                stage.sceneId.ToString(),
-	                stage.storyId.ToString(),
-	                stage.requiredItemId.ToString(),
-	                stage.requiredItemCollectLimit.ToString(),
-	                stage.showAllFloors.ToString(),
-                });
-            stageStringList.Add(stageStringNew);
-        }
-        data.stageList = stageStringList.ToArray();
-
-        var floorStringList = new List<string>();
-        foreach (var floorString in data.floorList)
-        {
-            GameJSON.Floor floor = ObjectParser.ParseFloor(floorString);
-            var floorStringNew = String.Join(
-                "|",
-                new string[]
-                {
-		            floor.floorId.ToString(),
-		            floor.stageId.ToString(),
-		            floor.floorIndex.ToString(),
-		            floor.monsterId.ToString(),
-		            floor.stamina.ToString(),
-		            floor.waveCount.ToString(),
-		            floor.tutorialStep.ToString(),
-		            String.Format("[{0}]{1}", floor.floorId, floor.title),
-		            floor.maxTeamCost.ToString(),
-		            floor.isChallengeFloor.ToString(),
-		            floor.unlockByItem.ToString(),
-		            floor.limitedTurns.ToString(),
-		            floor.bossScript.ToString(),
-		            floor.startScript.ToString(),
-		            floor.requiredItemAmount.ToString(),
-		            floor.isNoRetry.ToString(),
-		            floor.relatedFloorId.ToString(),
-		            floor.endScript.ToString(),
-		            floor.isRankingAvailable.ToString(),
-		            floor.startTime.ToString(),
-		            floor.endTime.ToString(),
-		            floor.teamMinMember.ToString(),
-		            floor.teamMaxMember.ToString(),
-		            floor.teamRacialTypes.ToString(),
-		            floor.teamAttributes.ToString(),
-                });
-            floorStringList.Add(floorStringNew);
-        }
-        data.floorList = floorStringList.ToArray();
-
         Game.SetData(data, restore);
+
+        foreach (var stage in Game.database.stages.Values)
+        {
+            stage.name = String.Format("[{0}]{1}", stage.stageId, stage.name);
+        }
+
+        foreach (var floor in Game.database.floors.Values)
+        {
+            floor.name = String.Format("[{0}]{1}", floor.floorId, floor.name);
+        }
+
+        foreach (var monster in Game.database.monsters.Values)
+        {
+            var nameKey = String.Format("MONSTER_{0}", monster.monsterId);
+            SimpleLocale._localeDictionary[nameKey] = String.Format("[{0:0000}]{1}", monster.monsterId, monster.name);
+        }
+
         MyLog.Debug("<< - {0}.SetData", typeof(MyGame).Name);
     }
 
@@ -380,25 +330,28 @@ public class MyGame
                         desireSetting.monsterId = cardJson.monsterId;
                     if (desireSetting.skillLv < 1)
                         desireSetting.skillLv = cardJson.skillLevel;
+                    if (desireSetting.refineLv < 1)
+                        desireSetting.refineLv = cardJson.refineLevel;
 
-                    var desireCard = new Card(desireSetting.monsterId, desireSetting.monsterLv, desireSetting.skillLv);
+                    var desireCard = new Card(desireSetting.monsterId, 0, desireSetting.skillLv, desireSetting.refineLv);
                     // 調整到相對等級
                     if (desireSetting.monsterLv < 1)
                         desireCard.exp = cardJson.exp;
 
+                    MyLog.Info("背包卡片抽換：{0} > {1} 等級 {2} > {3} 技能 {4} > {5} 昇華 {6} > {7}",
+                         currentCard.name, desireCard.name,
+                        cardJson.level, desireCard.level,
+                        cardJson.skillLevel, desireCard.skillLevel,
+                        cardJson.refineLevel, desireCard.refineLevel);
+
                     cardJson.monsterId = desireCard.monsterId;
                     cardJson.level = desireCard.level;
                     cardJson.skillLevel = desireCard.skillLevel;
+                    cardJson.refineLevel = desireCard.refineLevel;
                     cardJson.exp = desireCard.exp;
 
                     cardString_new = String.Format("{0}#{1}#{2}#{3}#{4}#{5}#{6}#{7}#{8}", cardJson.cardId, cardJson.monsterId, cardJson.exp, cardJson.level, cardJson.skillLevel, cardJson.created, cardJson.extractableSoul, cardJson.refineExp, cardJson.refineLevel);
                     replaceIndex++;
-
-                    MyLog.Info("背包卡片抽換：[{0:0000}]{1} > [{2:0000}]{3}, 卡片等級 [{4}] > [{5}], 技能等級 [{6}] > [{7}]",
-                        currentCard.monsterId, currentCard.name,
-                        desireCard.monsterId, desireCard.name,
-                        cardJson.level, desireCard.level,
-                        cardJson.skillLevel, desireCard.skillLevel);
                 }
 
                 newCardList.Add(cardString_new);
@@ -439,8 +392,10 @@ public class MyGame
                     desireSetting.monsterId = x.monsterId;
                 if (desireSetting.skillLv < 1)
                     desireSetting.skillLv = x.skillLevel;
+                if (desireSetting.refineLv < 1)
+                    desireSetting.refineLv = x.refineLevel;
 
-                var y = new Card(desireSetting.monsterId, desireSetting.monsterLv, desireSetting.skillLv);
+                var y = new Card(desireSetting.monsterId, desireSetting.monsterLv, desireSetting.skillLv, desireSetting.refineLv);
 
                 // 調整到相對等級
                 if (desireSetting.monsterLv < 1)
@@ -451,8 +406,8 @@ public class MyGame
 
                 result[i].helperCard = y;
 
-                MyLog.Info("好友卡片抽換：[{0:0000}]{1} > [{2:0000}]{3}, 卡片等級 [{4}] > [{5}], 技能等級 [{6}] > [{7}]",
-                    x.monsterId, x.name, y.monsterId, y.name, x.level, y.level, x.skillLevel, y.skillLevel);
+                MyLog.Info("好友卡片抽換：{0} > {1} 等級 {2} > {3} 技能 {4} > {5} 昇華 {6} > {7}",
+                     x.name, y.name, x.level, y.level, x.skillLevel, y.skillLevel, x.refineLevel, y.refineLevel);
             }
         }
 

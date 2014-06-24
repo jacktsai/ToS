@@ -20,7 +20,7 @@ namespace AssemblyHijack.Automation
                     Game.SetCurrentSelectedHelper(helper);
                     Game.EnterCurrentFloor(() =>
                     {
-                        MyLog.Info("進入關卡 [{0}]{1}", target.floorId, target.name);
+                        MyLog.Info("進入關卡 {0}", target.name);
                         RestoreGameplay.StartGame();
 
                         while (Game.instance.MoveToNextWave())
@@ -36,20 +36,20 @@ namespace AssemblyHijack.Automation
                                 {
                                     Loot loot = enemy.lootItem;
                                     if (loot.type == Loot.Type.COIN)
-                                        MyLog.Verbose("敵人 [{0:0000}]{1} 帶了 {2:#,0} 錢來孝敬！", enemy.monsterId, enemy.name, loot.amount);
+                                        MyLog.Verbose("敵人 {0} 帶了 {1:#,0} 錢來孝敬！", enemy.name, loot.amount);
                                     else if (loot.type == Loot.Type.MONSTER)
-                                        MyLog.Verbose("敵人 [{0:0000}]{1} 帶了 [{2:0000}]{3} 來孝敬！", enemy.monsterId, enemy.name, loot.card.monsterId, loot.card.name);
+                                        MyLog.Verbose("敵人 {0} 帶了 {1} 來孝敬！", enemy.name, loot.card.name);
                                     else if (loot.type == Loot.Type.ITEM)
-                                        MyLog.Verbose("敵人 [{0:0000}]{1} 帶了 [{2}] 塊 [{3}] 碎片來孝敬！", enemy.monsterId, enemy.name, loot.itemId, loot.amount);
+                                        MyLog.Verbose("敵人 {0} 帶了 {1} 塊 [{2:0000}] 碎片來孝敬！", enemy.name, loot.amount, loot.itemId);
                                     else
-                                        MyLog.Verbose("敵人 [{0:0000}]{1} 帶了不明物品 [{2}]！", enemy.monsterId, enemy.name, loot.type);
+                                        MyLog.Verbose("敵人 {0} 帶了不明物品 [{1}]！", enemy.name, loot.type);
 
                                     if (onLoot != null)
                                         onLoot(loot);
                                 }
                                 else
                                 {
-                                    MyLog.Verbose("不帶東西的敵人 [{0:0000}]{1} 出現了！", enemy.monsterId, enemy.name);
+                                    MyLog.Verbose("不帶東西的敵人 {0} 出現了！", enemy.name);
                                 }
                             }
                         }
@@ -59,7 +59,7 @@ namespace AssemblyHijack.Automation
 
                         Game.ClearCurrentFloor(() =>
                         {
-                            MyLog.Info("結束關卡 [{0}]{1}", target.floorId, target.name);
+                            MyLog.Info("結束關卡 {0}", target.name);
 
                             if (onClear != null)
                                 onClear();

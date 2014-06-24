@@ -75,6 +75,7 @@ public class GameConfig
         public int monsterId = 0;
         public int monsterLv = 0;
         public int skillLv = 0;
+        public int refineLv = 0;
     }
 
     public class Labyrinth

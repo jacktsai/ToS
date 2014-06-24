@@ -26,14 +26,14 @@
 	
 	"inventory" :
 	{
-		"maxCapacity" : 50,
+		"maxCapacity" : 100,
 		"desires" :
 		[
-			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12},
-			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12},
-			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12},
-			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12},
-			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12}
+			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12, "refineLv" : 4},
+			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12, "refineLv" : 4},
+			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12, "refineLv" : 4},
+			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12, "refineLv" : 4},
+			{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12, "refineLv" : 4}
 		],
 		"replace" :
 		[
@@ -45,7 +45,7 @@
 {
 	"desires" :
 	[
-		{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12}
+		{"monsterId" : 8015, "monsterLv" : 0, "skillLv" : 12, "refineLv" : 4}
 	]
 },
 

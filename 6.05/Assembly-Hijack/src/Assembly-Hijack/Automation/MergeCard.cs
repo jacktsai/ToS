@@ -52,7 +52,7 @@ namespace AssemblyHijack.Automation
                 var candidate = Game.runtimeData.user.inventory.GetCard(teamCardId);
                 if (candidate.isLevelMax)
                 {
-                    MyLog.Debug("[{0:0000}]{1} 已經到達最高級別[{2}], 不需要再強化", candidate.monsterId, candidate.name, candidate.level);
+                    MyLog.Debug("{0} 已經到達最高級別 {1} 不需要再強化", candidate.name, candidate.level);
                 }
                 else
                 {
@@ -88,9 +88,9 @@ namespace AssemblyHijack.Automation
                 var upgradedCard = Game.runtimeData.user.inventory.GetCard(target.cardId);
                 var actualExp = upgradedCard.exp - expBefore;
                 var actualCost = coinBefore - Game.runtimeData.user.coin;
-                MyLog.Info("[{0:0000}]{1} 強化成功, 經驗值增加[{2:#,0}], 實際花費[{3:#,0}]", upgradedCard.monsterId, upgradedCard.name, actualExp, actualCost);
+                MyLog.Info("{0} 強化成功, 經驗值增加[{1:#,0}], 實際花費[{2:#,0}]", upgradedCard.name, actualExp, actualCost);
 
-                var cardKey = String.Format("[{0:0000}]{1}", target.monsterId, target.name);
+                var cardKey = String.Format("{0}", target.name);
                 UpgradeInfo upgradeInfo;
                 if (!UpgradeInfoPerCard.TryGetValue(cardKey, out upgradeInfo))
                 {
@@ -127,7 +127,7 @@ namespace AssemblyHijack.Automation
 
                 if (cardNames.Length > 0)
                     cardNames.Append(",");
-                cardNames.AppendFormat("[{0:0000}]{1}", card.monsterId, card.name);
+                cardNames.AppendFormat("{0}", card.name);
 
                 if (children.Count == 5)
                     break;
@@ -135,7 +135,7 @@ namespace AssemblyHijack.Automation
 
             if (children.Count < 1)
             {
-                MyLog.Info("強化 [{0:0000}]{1} 所需經驗值只有 [{2:#,0}] 沒有適合的卡片", candidate.monsterId, candidate.name, requiredExp);
+                MyLog.Info("強化 {0} 只需要 [{1:#,0}] 經驗值, 沒有適合的卡片", candidate.name, requiredExp);
                 return false;
             }
 
@@ -145,14 +145,14 @@ namespace AssemblyHijack.Automation
 
                 if (Game.runtimeData.user.coin >= expectedCost)
                 {
-                    MyLog.Info("判定強化 [{0:0000}]{1} 預估經驗值 [{2:#,0}] 預估花費 [{3:#,0} ] EP[{4:0.00}] 餵食 {5}", candidate.monsterId, candidate.name, expectedExp, expectedCost, expectedExp / expectedCost, cardNames);
+                    MyLog.Info("判定強化 {0} 預估經驗值 [{1:#,0}] 預估花費 [{2:#,0} ] EP[{3:0.00}] 餵食 {5}", candidate.name, expectedExp, expectedCost, expectedExp / expectedCost, cardNames);
 
                     target = candidate;
                     return true;
                 }
                 else
                 {
-                    MyLog.Info("強化 [{0:0000}]{1} 預估需要 [{2:#,0}] 資產不足", candidate.monsterId, candidate.name, expectedCost);
+                    MyLog.Info("強化 {0} 預估需要 [{2:#,0}] 資產不足", candidate.name, expectedCost);
                     return false;
                 }
             }
