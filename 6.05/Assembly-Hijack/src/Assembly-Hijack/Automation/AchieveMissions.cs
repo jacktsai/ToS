@@ -1,7 +1,7 @@
-﻿using System;
+﻿using AssemblyHijack.Automation.FloorStrategy;
+using System;
 using System.Linq;
 using System.Text;
-using AssemblyHijack.Automation.FloorStrategy;
 
 namespace AssemblyHijack.Automation
 {
@@ -34,6 +34,12 @@ namespace AssemblyHijack.Automation
 
         protected override bool Check()
         {
+            if (Game.runtimeData.user.level < 15)
+            {
+                MyLog.Debug("召喚師等級不足，暫不執行公會任務");
+                return false;
+            }
+
             if (executed)
             {
                 if (skipOneTime)

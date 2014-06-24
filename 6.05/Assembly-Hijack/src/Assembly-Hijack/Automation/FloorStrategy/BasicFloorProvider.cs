@@ -16,6 +16,17 @@ namespace AssemblyHijack.Automation.FloorStrategy
 
         public override Floor NextFloor()
         {
+            if (stageType == Stage.Type.TUTORIAL)
+            {
+                if (Game.runtimeData.user.level >= 5)
+                    return null;
+            }
+            else
+            {
+                if (Game.runtimeData.user.level < 4)
+                    return null;
+            }
+
             if (wholeScanned)
                 return null;
 
@@ -26,10 +37,6 @@ namespace AssemblyHijack.Automation.FloorStrategy
             {
                 foreach (var floor in stage.floors.Values)
                 {
-                    // 發生一種詭異的情況，TUTORIAL 的1、3關不能進，2的判斷結果可以進，進了之後導致斷線，所以增加此斷邏輯來排除這個情況
-                    if (stageType == Stage.Type.TUTORIAL && floor.floorId == 1 && !floor.isAvailable)
-                        goto end;
-
                     PatrolGuide patro = JudgePatro(floor);
 
                     if (patro == PatrolGuide.SKIP)
