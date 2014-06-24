@@ -37,7 +37,7 @@ public class MyRestoreGameplay
             MyLog.Verbose("輸了？沒關係！看我的大絕「去去閃」，所有敵人已經閃了！");
             try
             {
-                while (Game.instance.MoveToNextWave())
+                while (Game.getInstance().MoveToNextWave())
                     ;
             }
             catch (Exception ex)

@@ -1,6 +1,6 @@
-﻿using System;
+﻿using JsonFx.Json;
+using System;
 using System.Collections.Generic;
-using JsonFx.Json;
 using UnityEngine;
 
 internal class MyLog

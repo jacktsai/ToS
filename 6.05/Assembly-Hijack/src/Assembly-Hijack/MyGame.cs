@@ -1,15 +1,16 @@
-﻿using System;
+﻿using AssemblyHijack;
+using AssemblyHijack.Automation;
+using GameJSON;
+using JsonFx.Json;
+using Native;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using AssemblyHijack;
-using AssemblyHijack.Automation;
-using GameJSON;
-using JsonFx.Json;
-using Native;
+using TOS;
 using UnityEngine;
 
 public class MyGame
@@ -126,6 +127,7 @@ public class MyGame
         {
             if (runner.CanRun())
             {
+                MyDialog.ChangeNetworkWaitingText("正在執行 [{0}]", runner.GetType().Name);
                 runner.Run(NextAction);
                 return;
             }
@@ -133,6 +135,7 @@ public class MyGame
 
         endTime = DateTime.Now;
         running = false;
+        MyDialog.ChangeNetworkWaitingText("請保持網絡訊號良好，以獲得更佳遊戲體驗。");
         ShowReport();
     }
 
@@ -215,7 +218,8 @@ public class MyGame
 
         ViewController.SwitchView(delegate
         {
-            AudioController.bgm.Play(TOS.BgmId.GAMEPLAY_RESULT);
+            AudioController.bgm.Play(BgmId.NONE);
+            AudioController.sfx.Play(Sound1.instance.victory);
 
             DialogBuilder builder = new DialogBuilder();
 

@@ -27,4 +27,13 @@ internal class MyDialog
             builder.Show();
         });
     }
+
+    public static void ChangeNetworkWaitingText(String format, params object[] args)
+    {
+        string message = format;
+        if (args.Length > 0)
+            message = String.Format(format, args);
+
+        SimpleLocale._localeDictionary["DIALOG_156"] = message;
+    }
 }

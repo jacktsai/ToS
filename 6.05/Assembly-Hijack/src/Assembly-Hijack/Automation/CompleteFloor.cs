@@ -1,8 +1,8 @@
-﻿using System;
+﻿using AssemblyHijack.Automation.FloorStrategy;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
-using AssemblyHijack.Automation.FloorStrategy;
 
 namespace AssemblyHijack.Automation
 {
@@ -92,10 +92,10 @@ namespace AssemblyHijack.Automation
             }
 
             if (floorCount > 0)
-                reportBuilder.AppendFormat("共通關 {0:#,0} 次地下城\n", floorCount);
+                reportBuilder.AppendFormat("通關 {0:#,0} 次地下城\n", floorCount);
 
             if (cardCount > 0)
-                reportBuilder.AppendFormat("共領取 {0:#,0} 張卡片\n", cardCount);
+                reportBuilder.AppendFormat("領取 {0:#,0} 張卡片\n", cardCount);
 
             foreach (var item in Report_User)
             {
@@ -103,7 +103,7 @@ namespace AssemblyHijack.Automation
                     continue;
 
                 if (item.Key == REPORT_USER_STAMINA)
-                    reportBuilder.AppendFormat("共花費體力 {0:#,0} 點\n", item.Value);
+                    reportBuilder.AppendFormat("花費體力 {0:#,0} 點\n", item.Value);
                 else if (item.Key == REPORT_USER_EXP)
                     reportBuilder.AppendFormat("經驗增加 {0:#,0}\n", item.Value);
                 else if (item.Key == REPORT_USER_FRIEND_POINT)

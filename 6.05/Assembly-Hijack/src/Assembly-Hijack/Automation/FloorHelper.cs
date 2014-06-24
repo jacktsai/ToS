@@ -23,7 +23,7 @@ namespace AssemblyHijack.Automation
                         MyLog.Info("進入關卡 {0}", target.name);
                         RestoreGameplay.StartGame();
 
-                        while (Game.instance.MoveToNextWave())
+                        while (Game.getInstance().MoveToNextWave())
                         {
                             int waveIndex = Game.runtimeData.currentWaveIndex - 1;
                             int waveCount = Game.runtimeData.currentFloor.waves.Count;
@@ -52,9 +52,14 @@ namespace AssemblyHijack.Automation
                                     MyLog.Verbose("不帶東西的敵人 {0} 出現了！", enemy.name);
                                 }
                             }
+
+                            int moveGemRound = UnityEngine.Random.Range(2, 30);
+                            RestoreGameplay.eatGemRound += UnityEngine.Random.Range(2, moveGemRound + 1);
+                            RestoreGameplay.moveGemRound += moveGemRound;
                         }
 
                         RestoreGameplay.End(true, false, false);
+                        MyLog.Debug("*** 移動回合 [{0:#,0}] 吃珠回合 [{1:#,0}] ***", RestoreGameplay.moveGemRound, RestoreGameplay.eatGemRound);
                         MyLog.Debug("*** 最高連擊 [{0:#,0}] 最高攻擊 [{1:#,0}] ***", RestoreGameplay.maxCombo, RestoreGameplay.maxPlayerAttack);
 
                         Game.ClearCurrentFloor(() =>

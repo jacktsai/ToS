@@ -22,7 +22,7 @@
 		"requestGuild" : 81917,
 		"acceptMember" : false,
 		"achieveMissions" : true,
-		"reservedCoin" : 1
+		"reservedCoin" : 300000
 	},
 	
 	"inventory" :

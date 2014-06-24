@@ -337,6 +337,7 @@ namespace AssemblyHijack.Automation
 
             var candidates = Game.runtimeData.user.inventory.cards.Values
                 .Where(c => !c.inUse && !c.bookmark && !c.isHelper)
+                .Where(c => c.type == Monster.RacialType.UPGRADE)
                 .Where(c => c.mergeExp >= mission.requireExp)
                 .OrderBy(c => c.mergeExp);
 

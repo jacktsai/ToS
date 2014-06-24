@@ -27,23 +27,23 @@ namespace AssemblyHijack.Automation
                 switch (item.Key)
                 {
                     case Reward.Type.COIN:
-                        builder.AppendFormat("共接受 {0:#,0} 金錢獎勵\n", item.Value);
+                        builder.AppendFormat("接受 {0:#,0} 金錢獎勵\n", item.Value);
                         break;
 
                     case Reward.Type.DIAMOND:
-                        builder.AppendFormat("共接受 {0:#,0} 顆魔法石獎勵\n", item.Value);
+                        builder.AppendFormat("接受 {0:#,0} 顆魔法石獎勵\n", item.Value);
                         break;
 
                     case Reward.Type.FRIENDPOINT:
-                        builder.AppendFormat("共接受 {0:#,0} 點好友點數獎勵\n", item.Value);
+                        builder.AppendFormat("接受 {0:#,0} 點好友點數獎勵\n", item.Value);
                         break;
 
                     case Reward.Type.FRIEND_SLOT:
-                        builder.AppendFormat("共接受 {0:#,0} 次好友擴充獎勵\n", item.Value);
+                        builder.AppendFormat("接受 {0:#,0} 次好友擴充獎勵\n", item.Value);
                         break;
 
                     case Reward.Type.INVENTORY:
-                        builder.AppendFormat("共接受 {0:#,0} 次背包擴充獎勵\n", item.Value);
+                        builder.AppendFormat("接受 {0:#,0} 次背包擴充獎勵\n", item.Value);
                         break;
 
                     default:

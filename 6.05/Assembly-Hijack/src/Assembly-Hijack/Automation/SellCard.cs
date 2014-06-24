@@ -35,13 +35,13 @@ namespace AssemblyHijack.Automation
             foreach (var item in SellInfoPerMonster)
             {
                 var monster = Game.database.monsters[item.Key];
-                builder.AppendFormat("售 {0} {1:#,0} 張共 {2:#,0} 錢\n", monster.name, item.Value.count, item.Value.price);
+                builder.AppendFormat("{0} {1:#,0} 張 {2:#,0} 錢\n", monster.name, item.Value.count, item.Value.price);
                 totalCount += item.Value.count;
                 totalPrice += item.Value.price;
             }
 
-            builder.AppendFormat("共出售 {0:#,0} 張卡片\n", totalCount);
-            builder.AppendFormat("共獲得 {0:#,0} 錢\n", totalPrice);
+            builder.AppendFormat("出售 {0:#,0} 張卡片\n", totalCount);
+            builder.AppendFormat("獲得 {0:#,0} 錢\n", totalPrice);
         }
 
         protected override bool Check()

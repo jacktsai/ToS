@@ -13,7 +13,7 @@ namespace AssemblyHijack.Automation
             if (totalAmount < 1)
                 return;
 
-            builder.AppendFormat("共捐獻 {0:#,0} 給公會\n", totalAmount);
+            builder.AppendFormat("捐獻 {0:#,0} 給公會\n", totalAmount);
         }
 
         protected override bool Check()
