@@ -32,8 +32,6 @@ public class MyGame
     private static DateTime beginTime;
     private static DateTime endTime;
 
-    private static bool requestGuildSent = false;
-
     static MyGame()
     {
         MyLog.Info("Loading RUNNERs ...");
@@ -56,16 +54,16 @@ public class MyGame
             runners.Add(claimReword);
         }
 
-        if (config.sell.enabled)
-        {
-            MyLog.Debug("Add {0}", sellCard.GetType().FullName);
-            runners.Add(sellCard);
-        }
-
         if (config.user.inventory.capacity > 0)
         {
             MyLog.Debug("Add {0}", expandInventory.GetType().FullName);
             runners.Add(expandInventory);
+        }
+
+        if (config.sell.enabled)
+        {
+            MyLog.Debug("Add {0}", sellCard.GetType().FullName);
+            runners.Add(sellCard);
         }
 
         if (config.user.guild.achieveMissions)
@@ -261,12 +259,26 @@ public class MyGame
     public static void Login(Action onSuccess)
     {
         MyLog.Debug(">> - {0}.Login", typeof(MyGame).Name);
-        Action successHook = () =>
+
+        Game.Login(delegate
         {
             onSuccess();
-            PromptAutomation();
-        };
-        Game.Login(successHook);
+
+            if (config.user.guild.requestGuild > 0 && Game.runtimeData.user.guild == null)
+            {
+                Game.GuildSystem.SendRequest(config.user.guild.requestGuild, delegate
+                {
+                    MyLog.Info("已對公會 [{0}] 送出申請", config.user.guild.requestGuild);
+                    PromptAutomation();
+                });
+            }
+            else
+            {
+                MyLog.Debug("未對公會送出申請");
+                PromptAutomation();
+            }
+        });
+
         MyLog.Debug("<< - {0}.Login", typeof(MyGame).Name);
     }
 
@@ -376,18 +388,6 @@ public class MyGame
                 TutorialController.Continue();
 
             MyLog.Info("已跳過新手導覽");
-        }
-
-        if (!requestGuildSent)
-        {
-            if (config.user.guild.requestGuild > 0 && Game.runtimeData.user.guild == null)
-            {
-                Game.GuildSystem.SendRequest(config.user.guild.requestGuild, delegate
-                {
-                    MyLog.Info("已對公會 [{0}] 送出申請", config.user.guild.requestGuild);
-                    requestGuildSent = true;
-                });
-            }
         }
 
         MyLog.Debug("<< - {0}.SetUser", typeof(MyGame).Name);
