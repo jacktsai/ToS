@@ -1,11 +1,5 @@
 *** This project is ONLY for study purpose ***
 
-0. install XposedMod of com.jack.xposed.tos.
-
-
-
-
-
 1. decode tos.apk with apktool  to tos-decoded folder.
 2. copy tos.apk to tos-hijacked.zip
 3. deassembly Assembly-CSharp.dll and make your modifications in IL.
