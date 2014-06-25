@@ -54,8 +54,8 @@ namespace AssemblyHijack.Automation
 
             var sacrificers = Game.runtimeData.user.inventory.cards.Values
                 .Where(c => !c.inUse && !c.bookmark && !c.isHelper)
-                .Where(c => MyGame.config.merge.types.Length < 1 || MyGame.config.merge.types.Contains(c.type))
-                .Where(c => MyGame.config.merge.monsterIds.Length < 1 || MyGame.config.merge.monsterIds.Contains(c.monsterId))
+                .Where(c => MyGame.config.automation.merge.types.Length < 1 || MyGame.config.automation.merge.types.Contains(c.type))
+                .Where(c => MyGame.config.automation.merge.monsterIds.Length < 1 || MyGame.config.automation.merge.monsterIds.Contains(c.monsterId))
                 .OrderBy(c => c.mergeExp).ToArray();
 
             foreach (var teamCardId in Game.runtimeData.teamCardIds)
@@ -91,12 +91,13 @@ namespace AssemblyHijack.Automation
             Game.SetMonsterUpgradeTarget(target);
             Game.SetMonsterUpgradeChildren(children.ToArray());
 
+            var upgradedCard = Game.runtimeData.user.inventory.GetCard(target.cardId);
             var expBefore = target.exp;
             var coinBefore = Game.runtimeData.user.coin;
 
+            MyDialog.SetNetworkWaitingText(null, "強化\n{0}", upgradedCard.name);
             Game.UpgradeMonster(delegate
             {
-                var upgradedCard = Game.runtimeData.user.inventory.GetCard(target.cardId);
                 var actualExp = upgradedCard.exp - expBefore;
                 var actualCost = coinBefore - Game.runtimeData.user.coin;
                 MyLog.Info("{0} 強化成功, 經驗值增加[{1:#,0}], 實際花費[{2:#,0}]", upgradedCard.name, actualExp, actualCost);

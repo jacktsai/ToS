@@ -10,20 +10,7 @@ public class MyRestoreGameplay
         MyLog.Debug(">> - {0}.StartGame", typeof(MyRestoreGameplay).Name);
 
         RestoreGameplay.StartGame();
-
-        if (MyGame.config.puzzle.time > 0)
-        {
-            Puzzle.protectedData.timeBarCountDownTime = MyGame.config.puzzle.time;
-            MyLog.Info("已設定轉珠時間為 [{0}] 秒", MyGame.config.puzzle.time);
-        }
-
-        if (MyGame.config.puzzle.comboMultiplier > 0)
-        {
-            Puzzle.protectedData.comboDamageMultiplier = MyGame.config.puzzle.comboMultiplier;
-            MyLog.Info("已設定 COMBO 傷害為 [{0}] 倍", MyGame.config.puzzle.comboMultiplier);
-        }
-
-        Puzzle.protectedData.comboDamageMultiplier = 1;
+        MyPuzzle.SetupCustomSettings();
 
         MyLog.Debug("<< - {0}.StartGame", typeof(MyRestoreGameplay).Name);
     }
@@ -51,6 +38,8 @@ public class MyRestoreGameplay
         }
 
         RestoreGameplay.End(isWin, isGiveUp, callGameMenu);
+        MyLog.Debug("*** 移動回合 [{0:#,0}] 吃珠回合 [{1:#,0}] ***", RestoreGameplay.moveGemRound, RestoreGameplay.eatGemRound);
+        MyLog.Debug("*** 最高連擊 [{0:#,0}] 最高攻擊 [{1:#,0}] ***", RestoreGameplay.maxCombo, RestoreGameplay.maxPlayerAttack);
 
         MyLog.Debug("<< - {0}.End", typeof(MyRestoreGameplay).Name);
     }

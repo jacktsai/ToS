@@ -28,7 +28,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
         {
             Stage stage = target.stage;
 
-            MyLog.Debug("開始判定關卡 {0}-{1}", stage.name, target.name);
+            MyLog.Verbose("開始判定關卡 {0}-{1}", stage.name, target.name);
 
             if (target.stamina > Game.runtimeData.user.currentStamina)
             {

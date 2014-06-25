@@ -13,12 +13,15 @@ namespace AssemblyHijack.Automation
             if (totalAmount < 1)
                 return;
 
-            builder.AppendFormat("捐獻 {0:#,0} 給公會\n", totalAmount);
+            builder.AppendFormat("捐獻 <color=yellow>{0:#,0}</color> 給公會\n", totalAmount);
         }
 
         protected override bool Check()
         {
-            var available = Game.runtimeData.user.coin - MyGame.config.user.guild.reservedCoin;
+            if (Game.runtimeData.user.guild == null)
+                return false;
+
+            var available = Game.runtimeData.user.coin - MyGame.config.automation.guild.reserveCoin;
 
             if (available >= 1000000)
                 donateCoin = 1000000;
@@ -36,6 +39,7 @@ namespace AssemblyHijack.Automation
 
         protected override void Execute(Action next)
         {
+            MyDialog.SetNetworkWaitingText(null, "捐獻\n<color=yellow>{0:#,0}</color>", donateCoin);
             Game.GuildSystem.DonateCoin(
                 donateCoin,
                 delegate

@@ -1,8 +1,8 @@
-﻿using AssemblyHijack.Automation.FloorStrategy;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using AssemblyHijack.Automation.FloorStrategy;
 
 namespace AssemblyHijack.Automation
 {
@@ -13,8 +13,6 @@ namespace AssemblyHijack.Automation
         private const string REPORT_USER_FRIEND_POINT = "friend_point";
         private const string REPORT_USER_COIN = "coin";
         private const string REPORT_USER_DIAMOND = "diamond";
-        private const string REPORT_USER_RECOVERY_REWARD = "recovery_reward";
-        private const string REPORT_USER_RECOVERY_DIAMOND = "recovery_diamond";
         private const string REPORT_USER_STAMINA = "stamina";
 
         private readonly IList<IStrategy> floorProviders = new List<IStrategy>(new IStrategy[]
@@ -34,8 +32,6 @@ namespace AssemblyHijack.Automation
             { REPORT_USER_FRIEND_POINT, 0 },
             { REPORT_USER_COIN, 0 },
             { REPORT_USER_DIAMOND, 0 },
-            { REPORT_USER_RECOVERY_REWARD, 0 },
-            { REPORT_USER_RECOVERY_DIAMOND, 0 },
             { REPORT_USER_STAMINA, 0 },
         };
 
@@ -44,9 +40,9 @@ namespace AssemblyHijack.Automation
 
         public CompleteFloor()
         {
-            if (MyGame.config.floor.floorIds.Length > 0)
+            if (MyGame.config.automation.floor.floorIds.Length > 0)
             {
-                floorProviders.Add(new Dedicated(MyGame.config.floor.floorIds));
+                floorProviders.Add(new Dedicated(MyGame.config.automation.floor.floorIds));
             }
             else
             {
@@ -76,7 +72,7 @@ namespace AssemblyHijack.Automation
                     continue;
 
                 Floor floor = Game.database.floors[item.Key];
-                reportBuilder.AppendFormat("{0} 通關 {1} 次\n", floor.name, item.Value);
+                reportBuilder.AppendFormat("{0} {1} 次\n", floor.name, item.Value);
                 floorCount += item.Value;
             }
 
@@ -87,15 +83,15 @@ namespace AssemblyHijack.Automation
                     continue;
 
                 Monster monster = Game.database.monsters[item.Key];
-                reportBuilder.AppendFormat("{0} 領取 {1} 張\n", monster.name, item.Value);
+                reportBuilder.AppendFormat("{0} {1} 張\n", monster.name, item.Value);
                 cardCount += item.Value;
             }
 
             if (floorCount > 0)
-                reportBuilder.AppendFormat("通關 {0:#,0} 次地下城\n", floorCount);
+                reportBuilder.AppendFormat("通關 <color=yellow>{0:#,0}</color> 次\n", floorCount);
 
             if (cardCount > 0)
-                reportBuilder.AppendFormat("領取 {0:#,0} 張卡片\n", cardCount);
+                reportBuilder.AppendFormat("卡片 <color=yellow>{0:#,0}</color> 張\n", cardCount);
 
             foreach (var item in Report_User)
             {
@@ -112,10 +108,6 @@ namespace AssemblyHijack.Automation
                     reportBuilder.AppendFormat("錢幣增加 {0:#,0}\n", item.Value);
                 else if (item.Key == REPORT_USER_DIAMOND)
                     reportBuilder.AppendFormat("取得魔法石 {0} 顆\n", item.Value);
-                else if (item.Key == REPORT_USER_RECOVERY_REWARD)
-                    reportBuilder.AppendFormat("使用 {0} 次體力回復獎勵\n", item.Value);
-                else if (item.Key == REPORT_USER_RECOVERY_DIAMOND)
-                    reportBuilder.AppendFormat("使用 {0} 次魔法石回復體力\n", item.Value);
                 else if (item.Key == REPORT_USER_LEVEL)
                     reportBuilder.AppendFormat("等級提升 {0} 級\n", item.Value);
             }
@@ -150,6 +142,7 @@ namespace AssemblyHijack.Automation
         {
             InitReport();
 
+            MyDialog.SetNetworkWaitingText(null, "地城目標\n<color=yellow>{0}\n{1}</color>", candidate.stage.name, candidate.name);
             var userBefore = Game.runtimeData.user.Clone();
             FloorHelper.EnterAndComplete(
                 1,
@@ -163,7 +156,7 @@ namespace AssemblyHijack.Automation
                 () =>
                 {
                     Stage stage = candidate.stage;
-                    MyLog.Info("已完成關卡 {0}-{1}", stage.name, candidate.name);
+                    MyLog.Info("完成關卡 {0}-{1}", stage.name, candidate.name);
                     Report_User[REPORT_USER_LEVEL] += Game.runtimeData.user.level - userBefore.level;
                     Report_User[REPORT_USER_EXP] += Game.runtimeData.user.accumulativeLevelExp - userBefore.accumulativeLevelExp;
                     Report_User[REPORT_USER_FRIEND_POINT] += Game.runtimeData.user.friendPoint - userBefore.friendPoint;
@@ -207,12 +200,7 @@ namespace AssemblyHijack.Automation
 
         private void SendFriendRequest(Action next)
         {
-            Action newNext = () =>
-            {
-                CheckStamina(next);
-            };
-
-            if (MyGame.config.floor.requestFriend)
+            if (MyGame.config.automation.floor.requestFriend)
             {
                 Helper helper = Game.runtimeData.currentSelectedHelper;
                 if (helper != null && !helper.isFriend && !helper.isFriendsFull && !Game.runtimeData.user.isFriendsFull)
@@ -224,68 +212,6 @@ namespace AssemblyHijack.Automation
                     }, null);
                     return;
                 }
-            }
-
-            newNext();
-        }
-
-        private void CheckStamina(Action next)
-        {
-            if (Game.runtimeData.user.currentStamina < MyGame.config.floor.recovery.threshold)
-            {
-                if (MyGame.config.floor.recovery.reward)
-                {
-                    foreach (var reward in Game.runtimeData.rewards)
-                    {
-                        if (!reward.isAvailable || reward.claimed)
-                            continue;
-
-                        if (reward.rewardType == Reward.Type.RECOVERY)
-                        {
-                            MyLog.Info("使用獎勵 [{0}] 回復體力", reward.message);
-                            Game.ClaimReward(
-                                reward.rewardId,
-                                (diamondCompensated, cardIds) =>
-                                {
-                                    reward.claimed = true;
-                                    Report_User[REPORT_USER_RECOVERY_REWARD] += 1;
-                                    next();
-                                },
-                                null);
-                            return;
-                        }
-                    }
-
-                    MyLog.Info("獎勵不足，無法回復體力");
-                }
-                else
-                {
-                    MyLog.Info("未允許使用獎勵回復體力");
-                }
-
-                if (MyGame.config.floor.recovery.diamond)
-                {
-                    if (Game.runtimeData.user.diamond > 0)
-                    {
-                        MyLog.Info("使用 [魔法石] 回復體力");
-                        Game.RecoverStamina(() =>
-                            {
-                                Report_User[REPORT_USER_RECOVERY_DIAMOND] += 1;
-                                next();
-                            }, null);
-                        return;
-                    }
-
-                    MyLog.Info("魔法石不足，無法回復體力");
-                }
-                else
-                {
-                    MyLog.Info("未允許使用魔法石回復體力");
-                }
-            }
-            else
-            {
-                MyLog.Debug("未允許自動回復體力，或目前體力 [{0}] 未小於設定值 [{1}]", Game.runtimeData.user.currentStamina, MyGame.config.floor.recovery.threshold);
             }
 
             next();

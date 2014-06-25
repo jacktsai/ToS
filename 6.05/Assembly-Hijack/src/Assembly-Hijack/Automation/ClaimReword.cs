@@ -69,7 +69,8 @@ namespace AssemblyHijack.Automation
                 if (!reward.isAvailable || reward.claimed)
                     continue;
 
-                if (MyGame.config.reward.types.Contains(reward.rewardType))
+                MyDialog.SetNetworkWaitingText(null, "領取獎勵\n{0}", reward.message);
+                if (MyGame.config.automation.reward.types.Contains(reward.rewardType))
                 {
                     MyLog.Info("領取獎勵 [{0}-{1}]", reward.rewardType, reward.message);
                     Game.ClaimReward(
@@ -99,7 +100,7 @@ namespace AssemblyHijack.Automation
                 }
             }
 
-            nextTime = DateTime.Now.AddSeconds(MyGame.config.reward.period);
+            nextTime = DateTime.Now.AddSeconds(MyGame.config.automation.reward.period);
             next();
         }
     }

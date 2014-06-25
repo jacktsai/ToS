@@ -1,4 +1,5 @@
 ﻿using System;
+using TOS;
 
 namespace AssemblyHijack.Automation
 {
@@ -21,7 +22,7 @@ namespace AssemblyHijack.Automation
                     Game.EnterCurrentFloor(() =>
                     {
                         MyLog.Info("進入關卡 {0}", target.name);
-                        RestoreGameplay.StartGame();
+                        MyRestoreGameplay.StartGame();
 
                         while (Game.getInstance().MoveToNextWave())
                         {
@@ -58,9 +59,7 @@ namespace AssemblyHijack.Automation
                             RestoreGameplay.moveGemRound += moveGemRound;
                         }
 
-                        RestoreGameplay.End(true, false, false);
-                        MyLog.Debug("*** 移動回合 [{0:#,0}] 吃珠回合 [{1:#,0}] ***", RestoreGameplay.moveGemRound, RestoreGameplay.eatGemRound);
-                        MyLog.Debug("*** 最高連擊 [{0:#,0}] 最高攻擊 [{1:#,0}] ***", RestoreGameplay.maxCombo, RestoreGameplay.maxPlayerAttack);
+                        MyRestoreGameplay.End(true, false, false);
 
                         Game.ClearCurrentFloor(() =>
                         {

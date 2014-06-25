@@ -1,7 +1,7 @@
-﻿using AssemblyHijack.Automation.FloorStrategy;
-using System;
+﻿using System;
 using System.Linq;
 using System.Text;
+using AssemblyHijack.Automation.FloorStrategy;
 
 namespace AssemblyHijack.Automation
 {
@@ -105,6 +105,7 @@ namespace AssemblyHijack.Automation
                 return;
             }
 
+            MyDialog.SetNetworkWaitingText(null, "正在執行任務\n<color=yellow>{0}</color>", Current.type);
             switch (Current.type)
             {
                 case GuildMission.Type.COMPLETE_FLOOR_COUNT:
@@ -280,7 +281,7 @@ namespace AssemblyHijack.Automation
                 mission.slots.Select(o =>
                     String.Format("{0}({1})", o.card.name, o.availableType)
                 ).ToArray());
-            MyLog.Debug("公會任務要求 - 燒卡 {0}", cardString);
+            MyLog.Debug("公會任務要求 - 獻祭 {0}", cardString);
 
             if (mission.isComplete)
             {
@@ -289,7 +290,7 @@ namespace AssemblyHijack.Automation
                     mission.availableCardsString,
                     delegate
                     {
-                        MyLog.Info("完成公會任務 - 燒卡 {0}", cardString);
+                        MyLog.Info("完成公會任務 - 獻祭 {0}", cardString);
                         foreach (var slot in mission.slots)
                         {
                             executionReport.AppendFormat("獻祭 {0}\n", slot.card.name);
@@ -333,7 +334,7 @@ namespace AssemblyHijack.Automation
         private void SubmitExp(Action next)
         {
             var mission = new GuildMission_SubmitCardExp(Current.json);
-            MyLog.Debug("公會任務要求 - 燒卡片經驗 {0:#,0}", mission.requireExp);
+            MyLog.Debug("公會任務要求 - 提供經驗值 {0:#,0}", mission.requireExp);
 
             var candidates = Game.runtimeData.user.inventory.cards.Values
                 .Where(c => !c.inUse && !c.bookmark && !c.isHelper)
@@ -355,7 +356,7 @@ namespace AssemblyHijack.Automation
                     sacrificer.cardId.ToString(),
                     delegate
                     {
-                        MyLog.Info("完成公會任務 - 燒卡片經驗 {0:#,0} 犧牲了 {1}({2:#,0})", mission.requireExp, sacrificer.name, sacrificer.mergeExp);
+                        MyLog.Info("完成公會任務 - 提供經驗值 {0:#,0} 犧牲了 {1}({2:#,0})", mission.requireExp, sacrificer.name, sacrificer.mergeExp);
                         executionReport.AppendFormat("貢獻 {0:#,0} {1}({2:#,0})\n", mission.requireExp, sacrificer.name, sacrificer.mergeExp);
                         NextMission(next);
                     },
@@ -363,7 +364,7 @@ namespace AssemblyHijack.Automation
             }
             else
             {
-                MyLog.Info("公會任務無法繼續 - 無符合燒卡經驗 {0:#,0} 的卡片", mission.requireExp);
+                MyLog.Info("公會任務無法繼續 - 無符合經驗值 {0:#,0} 的卡片", mission.requireExp);
                 lastFailMessage.AppendFormat("無符合經驗值 {0:#,0} 的卡片\n", mission.requireExp);
                 next();
             }

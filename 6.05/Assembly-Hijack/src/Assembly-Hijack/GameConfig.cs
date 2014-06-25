@@ -8,26 +8,17 @@ using UnityEngine;
 public class GameConfig
 {
     public Log log = new Log();
-    public Register register = new Register();
     public User user = new User();
     public Helper helper = new Helper();
-    public GuildMission guildMission = new GuildMission();
     public Labyrinth labyrinth = new Labyrinth();
     public Puzzle puzzle = new Puzzle();
-    public Floor floor = new Floor();
-    public Merge merge = new Merge();
-    public Sell sell = new Sell();
-    public Reward reward = new Reward();
+
+    public Registration registration = new Registration();
+    public Automation automation = new Automation();
 
     public class Log
     {
         public string level = "NA";
-    }
-
-    public class Register
-    {
-        public bool enabled = false;
-        public Element.ID partner = Element.ID.FIRE;
     }
 
     public class User
@@ -35,37 +26,16 @@ public class GameConfig
         public bool tutorial = true;
         public int teamSize = 0;
         public bool reveal = false;
-        public bool acceptFriend = false;
 
-        public Guild guild = new Guild();
+        /// <summary>
+        /// 自動申請加入的公會
+        /// </summary>
+        public int requestGuild = 0;
+
         public Inventory inventory = new Inventory();
-
-        public class Guild
-        {
-            /// <summary>
-            /// 自動申請加入的公會
-            /// </summary>
-            public int requestGuild = 0;
-
-            /// <summary>
-            /// 自動接受公會申請
-            /// </summary>
-            public bool acceptMember = false;
-
-            /// <summary>
-            /// 自動完成公會任務
-            /// </summary>
-            public bool achieveMissions = false;
-
-            /// <summary>
-            /// 捐獻保留金額，0 的話不運作
-            /// </summary>
-            public int reservedCoin = 0;
-        }
 
         public class Inventory
         {
-            public int capacity = 0;
             public Card[] desires = new Card[0];
             public Card[] replace = new Card[0];
         }
@@ -91,7 +61,7 @@ public class GameConfig
 
     public class Puzzle
     {
-        public float time = 0;
+        public int timeout = 0;
 
         /// <summary>
         /// 1 = 水
@@ -101,18 +71,70 @@ public class GameConfig
         /// 5 = 暗
         /// 6 = 心
         /// </summary>
-        public int[] elements = new int[0];
+        public int[] elements = null;
 
-        public int comboMultiplier = 0;
+        public float comboDamageMultiplier = 0;
     }
 
-    public class Floor
+    public class Registration
     {
         public bool enabled = false;
-        public int[] floorIds = new int[0];
-        public bool requestFriend = false;
+        public Element.ID partner = Element.ID.FIRE;
+    }
 
+    public class Automation
+    {
+        public bool acceptFriends = false;
+        public Inventory inventory = new Inventory();
+        public Reward reward = new Reward();
+        public Guild guild = new Guild();
+        public Floor floor = new Floor();
         public Recovery recovery = new Recovery();
+        public Merge merge = new Merge();
+        public Sell sell = new Sell();
+
+        public class Inventory
+        {
+            public int capacity = 0;
+        }
+
+        public class Reward
+        {
+            /// <summary>
+            /// 每n秒更新一次清單
+            /// </summary>
+            public int period = 0;
+
+            /// <summary>
+            /// 自動領取獎賞別
+            /// </summary>
+            public global::Reward.Type[] types = new global::Reward.Type[0];
+        }
+
+        public class Guild
+        {
+            /// <summary>
+            /// 自動接受公會申請
+            /// </summary>
+            public bool acceptMembers = false;
+
+            /// <summary>
+            /// 自動完成公會任務
+            /// </summary>
+            public bool achieveMissions = false;
+
+            /// <summary>
+            /// 捐獻保留金額，大於等於 0 才運作
+            /// </summary>
+            public int reserveCoin = -1;
+        }
+
+        public class Floor
+        {
+            public bool enabled = false;
+            public int[] floorIds = new int[0];
+            public bool requestFriend = false;
+        }
 
         /// <summary>
         /// 自動回復體力機制
@@ -124,43 +146,29 @@ public class GameConfig
             /// <summary>
             /// 使用體力回復獎賞
             /// </summary>
-            public bool reward = true;
+            public bool reward = false;
 
             /// <summary>
             /// 使用魔法石回復
             /// </summary>
             public bool diamond = false;
         }
-    }
 
-    public class Merge
-    {
-        public bool enabled = false;
-        public Monster.RacialType[] types = new Monster.RacialType[0];
-        public int[] monsterIds = new int[0];
-    }
+        public class Merge
+        {
+            public bool enabled = false;
+            public Monster.RacialType[] types = new Monster.RacialType[0];
+            public int[] monsterIds = new int[0];
+        }
 
-    public class Sell
-    {
-        public bool enabled = false;
+        public class Sell
+        {
+            public bool enabled = false;
 
-        /// <summary>
-        /// true, 每個 monster ID 至少保留 1 張
-        /// false, 全部賣掉
-        /// </summary>
-        public bool reserved = false;
-    }
-
-    public class Reward
-    {
-        /// <summary>
-        /// 每n秒更新一次清單
-        /// </summary>
-        public int period = 0;
-
-        /// <summary>
-        /// 自動領取獎賞別
-        /// </summary>
-        public global::Reward.Type[] types = new global::Reward.Type[0];
+            /// <summary>
+            /// 保留數量
+            /// </summary>
+            public int reserveAmount = 1;
+        }
     }
 }

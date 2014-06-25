@@ -4,30 +4,14 @@
 	"level" : "debug"
 },
 
-"register" :
-{
-	"enabled" : true,
-	"partner" : "FIRE"
-},
-
 "user" :
 {
 	"tutorial" : false,
 	"teamSize" : 0,
 	"reveal" : false,
-	"acceptFriend" : true,
-	
-	"guild" :
-	{
-		"requestGuild" : 81917,
-		"acceptMember" : false,
-		"achieveMissions" : true,
-		"reservedCoin" : 300000
-	},
-	
+	"requestGuild" : 81917,
 	"inventory" :
 	{
-		"capacity" : 120,
 		"desires" :
 		[
 		],
@@ -51,40 +35,64 @@
 
 "puzzle" :
 {
-	"time" : 120,
-	"elements" : [5,1,5,2,5,3,5,4,5,6,5],
-	"comboMultiplier" : 1
+	"timeout" : 120,
+	"elements" : [],
+	"comboDamageMultiplier" : 2
 },
 
-"floor" :
+"registration" :
 {
 	"enabled" : true,
-	"floorIds" : [],
-	"requestFriend" : true,
+	"partner" : "WATER"
+},
+
+"automation" :
+{
+	"acceptFriends" : true,
+	
+	"inventory" :
+	{
+		"capacity" : 120
+	},
+	
+	"reward" :
+	{
+		"period" : 120,
+		"types" : ["DIAMOND", "COIN", "FRIENDPOINT", "FRIEND_SLOT", "INVENTORY"]
+	},
+	
+	"guild" :
+	{
+		"acceptMembers" : false,
+		"achieveMissions" : true,
+		"reserveCoin" : 100000
+	},
+	
+	"floor" :
+	{
+		"enabled" : true,
+		"floorIds" : [],
+		"requestFriend" : true
+	},
+	
 	"recovery" :
 	{
-		"threshold" : 6,
+		"threshold" : 5,
 		"reward" : true,
 		"diamond" : false
+	},
+	
+	"merge" :
+	{
+		"enabled" : false,
+		"types" : ["UPGRADE"],
+		"monsterIds" : []
+	},
+
+	"sell" :
+	{
+		"enabled" : true,
+		"reserveAmount" : 1
 	}
-},
-
-"merge" :
-{
-	"enabled" : false,
-	"types" : ["UPGRADE"],
-	"monsterIds" : []
-},
-
-"sell" :
-{
-	"enabled" : true,
-	"reserved" : true
-},
-
-"reward" :
-{
-	"period" : 120,
-	"types" : ["DIAMOND", "COIN", "FRIENDPOINT", "FRIEND_SLOT", "INVENTORY"]
 }
 }

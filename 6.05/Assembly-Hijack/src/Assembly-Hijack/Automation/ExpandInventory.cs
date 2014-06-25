@@ -22,31 +22,33 @@ namespace AssemblyHijack.Automation
                 return false;
             }
 
-            if (Game.runtimeData.user.inventory.maxCapacity < MyGame.config.user.inventory.capacity)
-            {
-                if (Game.runtimeData.user.diamond < 1)
-                {
-                    MyLog.Debug("魔法石不足, 無法進行背包擴充");
-                    return false;
-                }
-
-                return true;
-            }
-            else
-            {
-                MyLog.Debug("背包空間 [{0}] 未小於設定最大空間 [{1}], 不執行擴充", Game.runtimeData.user.inventory.maxCapacity, MyGame.config.user.inventory.capacity);
-                return false;
-            }
+            return true;
         }
 
         protected override void Execute(Action next)
         {
-            Game.ExtendBox(delegate
+            if (Game.runtimeData.user.inventory.maxCapacity < MyGame.config.automation.inventory.capacity)
             {
-                MyLog.Info("背包擴充完成");
-                count++;
-                next();
-            }, null);
+                if (Game.runtimeData.user.diamond > 0)
+                {
+                    MyDialog.SetNetworkWaitingText(null, "擴充背包");
+                    Game.ExtendBox(delegate
+                    {
+                        MyLog.Info("背包擴充完成");
+                        count++;
+                        next();
+                    }, null);
+                    return;
+                }
+
+                MyLog.Debug("魔法石不足, 不執行擴充");
+            }
+            else
+            {
+                MyLog.Debug("背包空間 [{0}] 未小於設定最大空間 [{1}], 不執行擴充", Game.runtimeData.user.inventory.maxCapacity, MyGame.config.automation.inventory.capacity);
+            }
+
+            ViewController.SwitchView(ViewIndex.WORLDMAP_WORLD_MAP);
         }
     }
 }

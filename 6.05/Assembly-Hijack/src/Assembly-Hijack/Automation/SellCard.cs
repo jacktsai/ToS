@@ -40,8 +40,8 @@ namespace AssemblyHijack.Automation
                 totalPrice += item.Value.price;
             }
 
-            builder.AppendFormat("出售 {0:#,0} 張卡片\n", totalCount);
-            builder.AppendFormat("獲得 {0:#,0} 錢\n", totalPrice);
+            builder.AppendFormat("出售 <color=yellow>{0}</color> 張卡片\n", totalCount);
+            builder.AppendFormat("獲得 <color=yellow>{0:#,0}</color> 錢\n", totalPrice);
         }
 
         protected override bool Check()
@@ -54,25 +54,65 @@ namespace AssemblyHijack.Automation
 
             targets.Clear();
 
-            var candidates = Game.runtimeData.user.inventory.cards.Values.Where(c => !c.inDeck && !c.bookmark && !c.isHelper);
-            var keepList = new List<int>();
+            var candidates = Game.runtimeData.user.inventory.cards.Values;
+            var reserveAmount = MyGame.config.automation.sell.reserveAmount;
+            var reserved = new Dictionary<int, List<Card>>(); // monsterId => current skipped cards
             StringBuilder cardNames = new StringBuilder();
             foreach (var card in candidates)
             {
-                if (MyGame.config.sell.reserved)
+                var candidate = card;
+
+                if (reserveAmount > 0)
                 {
-                    if (!keepList.Contains(card.monsterId))
+                    List<Card> reservedCards;
+                    if (!reserved.TryGetValue(candidate.monsterId, out reservedCards))
                     {
-                        keepList.Add(card.monsterId);
+                        reservedCards = new List<Card>();
+                        reserved.Add(candidate.monsterId, reservedCards);
+                    }
+
+                    if (reservedCards.Count == reserveAmount) // 已經到達保留數量
+                    {
+                        if (candidate.inUse || candidate.bookmark) // 這張卡無法出售
+                        {
+                            // 找找看保留名單中是否有可以替換的卡片
+                            Card substitute = null;
+                            foreach (var substituteCandidate in reservedCards)
+                            {
+                                if (!substituteCandidate.inUse && !substituteCandidate.bookmark) // 太好了，找到可以替換的對象
+                                {
+                                    substitute = substituteCandidate;
+                                    break;
+                                }
+                            }
+
+                            if (substitute != null)
+                            {
+                                // 找到替身，交換卡片
+                                reservedCards.Remove(substitute);
+                                reservedCards.Add(candidate);
+                                candidate = substitute;
+                            }
+                            else
+                            {
+                                // 找不到替身，只好再列入保留
+                                reservedCards.Add(candidate);
+                                continue;
+                            }
+                        }
+                    }
+                    else // 未有保留卡片
+                    {
+                        reservedCards.Add(candidate);
                         continue;
                     }
                 }
 
                 if (cardNames.Length > 0)
                     cardNames.Append(",");
-                cardNames.AppendFormat("#{0}{1}", card.cardId, card.name);
+                cardNames.AppendFormat("#{0}{1}", candidate.cardId, candidate.name);
 
-                targets.Add(card);
+                targets.Add(candidate);
             }
 
             if (targets.Count < 1)
@@ -90,6 +130,7 @@ namespace AssemblyHijack.Automation
 
         protected override void Execute(Action next)
         {
+            MyDialog.SetNetworkWaitingText(null, "出售 <color=yellow>{0}</color> 張卡片", targets.Count);
             Game.SellCards(targets.ToArray(), delegate
             {
                 MyLog.Info("已售出 [{0}] 張卡片 {1}", targets.Count, candidateNames);
