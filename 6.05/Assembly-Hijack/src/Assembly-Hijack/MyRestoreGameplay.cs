@@ -38,8 +38,8 @@ public class MyRestoreGameplay
         }
 
         RestoreGameplay.End(isWin, isGiveUp, callGameMenu);
-        MyLog.Debug("*** 移動回合 [{0:#,0}] 吃珠回合 [{1:#,0}] ***", RestoreGameplay.moveGemRound, RestoreGameplay.eatGemRound);
-        MyLog.Debug("*** 最高連擊 [{0:#,0}] 最高攻擊 [{1:#,0}] ***", RestoreGameplay.maxCombo, RestoreGameplay.maxPlayerAttack);
+        MyLog.Debug("*** currentWaveIndex [{0}] maxAttack [{1:#,0}] maxCombo [{2}]***", Game.runtimeData.currentWaveIndex, Game.runtimeData.maxAttack, Game.runtimeData.maxCombo);
+        MyLog.Debug("ACSJson: {0}", Game.GetACSJson());
 
         MyLog.Debug("<< - {0}.End", typeof(MyRestoreGameplay).Name);
     }

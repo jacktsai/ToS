@@ -1,6 +1,6 @@
-﻿using JsonFx.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using JsonFx.Json;
 using UnityEngine;
 
 internal class MyLog
@@ -32,7 +32,7 @@ internal class MyLog
         if (args.Length > 0)
             message = String.Format(format, args);
 
-        UnityEngine.Debug.Log(message);
+        Log(message);
     }
 
     public static void Debug(string format, params object[] args)
@@ -44,7 +44,7 @@ internal class MyLog
         if (args.Length > 0)
             message = String.Format(format, args);
 
-        UnityEngine.Debug.Log(message);
+        Log(message);
     }
 
     public static void Info(string format, params object[] args)
@@ -56,7 +56,7 @@ internal class MyLog
         if (args.Length > 0)
             message = String.Format(format, args);
 
-        UnityEngine.Debug.Log(message);
+        Log(message);
     }
 
     public static void Error(string format, params object[] args)
@@ -71,17 +71,22 @@ internal class MyLog
         UnityEngine.Debug.LogError(message);
     }
 
-    /// <summary>
-    /// 將物件序列化輸出到 catlog，但是每行有長度限制，所以會拆每行最多800個字。
-    /// </summary>
-    /// <param name="o"></param>
     public static void Debug(object o)
     {
         if (level > Level.Debug)
             return;
 
         string json = JsonWriter.Serialize(o);
-        char[] chars = json.ToCharArray();
+        Log(json);
+    }
+
+    /// <summary>
+    /// 每行有長度限制，所以會拆每行最多800個字。
+    /// </summary>
+    /// <param name="message"></param>
+    private static void Log(string message)
+    {
+        char[] chars = message.ToCharArray();
         int packageIndex = 0;
 
         while (true)
@@ -96,7 +101,7 @@ internal class MyLog
             if (charBuffer.Count < 1)
                 break;
 
-            Debug(new String(charBuffer.ToArray()));
+            UnityEngine.Debug.Log(new String(charBuffer.ToArray()));
             packageIndex++;
             charBuffer.Clear();
         }

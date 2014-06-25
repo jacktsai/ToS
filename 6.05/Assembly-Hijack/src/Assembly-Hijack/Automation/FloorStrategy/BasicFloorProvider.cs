@@ -16,6 +16,9 @@ namespace AssemblyHijack.Automation.FloorStrategy
 
         public override Floor NextFloor()
         {
+            if (Game.runtimeData.user.currentStamina < 1)
+                return null;
+
             if (stageType == Stage.Type.TUTORIAL)
             {
                 if (Game.runtimeData.user.level >= 5)

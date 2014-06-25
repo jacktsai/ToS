@@ -7,30 +7,28 @@ namespace AssemblyHijack.Automation
     {
         public static void EnterAndComplete(int teamIndex, Floor target, bool isMission, Action<Loot> onLoot, Action onClear)
         {
-            Game.SetCurrentTeamIndex(teamIndex);
-            Game.SetCurrentZone(target.stage.zoneId);
-            Game.SetCurrentStage(target.stage);
-            Game.SetCurrentFloor(target);
-
             Game.GetHelperList(
                 target.floorId,
                 (helpers) =>
                 {
-                    // 隨機從中挑選一位助攻
-                    Helper helper = helpers[UnityEngine.Random.Range(0, helpers.Count)];
+                    Helper helper = helpers[UnityEngine.Random.Range(0, helpers.Count)]; // 隨機從中挑選一位助攻
                     Game.SetCurrentSelectedHelper(helper);
+                    Game.SetCurrentTeamIndex(teamIndex);
+                    Game.SetCurrentZone(target.stage.zoneId);
+                    Game.SetCurrentStage(target.stage);
+                    Game.SetCurrentFloor(target);
                     Game.EnterCurrentFloor(() =>
                     {
                         MyLog.Info("進入關卡 {0}", target.name);
-                        MyRestoreGameplay.StartGame();
 
-                        while (Game.getInstance().MoveToNextWave())
+                        Game.runtimeData.currentWaveIndex = 0;
+                        Game.runtimeData.waveMovedTime = 0;
+                        Game.runtimeData.eatGemRound = 0;
+                        foreach (var wave in Game.runtimeData.currentFloor.waves)
                         {
-                            int waveIndex = Game.runtimeData.currentWaveIndex - 1;
-                            int waveCount = Game.runtimeData.currentFloor.waves.Count;
-                            MyLog.Verbose("慘烈廝殺中... {0} / {1}", waveIndex + 1, waveCount);
-                            Wave wave = Game.runtimeData.currentFloor.waves[waveIndex];
+                            MyLog.Verbose("慘烈廝殺中... {0} / {1}", Game.runtimeData.currentWaveIndex + 1, Game.runtimeData.currentFloor.waves.Count);
 
+                            var sumHp = 0;
                             foreach (var enemy in wave.enemies)
                             {
                                 if (enemy.lootItem != null)
@@ -52,14 +50,26 @@ namespace AssemblyHijack.Automation
                                 {
                                     MyLog.Verbose("不帶東西的敵人 {0} 出現了！", enemy.name);
                                 }
+
+                                sumHp += enemy.HP;
                             }
 
-                            int moveGemRound = UnityEngine.Random.Range(2, 30);
-                            RestoreGameplay.eatGemRound += UnityEngine.Random.Range(2, moveGemRound + 1);
-                            RestoreGameplay.moveGemRound += moveGemRound;
-                        }
+                            while (sumHp > 0)
+                            {
+                                var eatGem = UnityEngine.Random.Range(3, 5);
+                                var combo = UnityEngine.Random.Range(10, 20);
+                                var attack = (int)(UnityEngine.Random.Range(10000, 100000) * (1 + (combo - 1) * 0.25));
 
-                        MyRestoreGameplay.End(true, false, false);
+                                Game.runtimeData.eatGemRound += eatGem;
+                                Game.runtimeData.maxCombo = Math.Max(Game.runtimeData.maxCombo, combo);
+                                Game.runtimeData.maxAttack = Math.Max(Game.runtimeData.maxAttack, attack);
+
+                                sumHp -= attack;
+                            }
+
+                            Game.runtimeData.currentWaveIndex++;
+                            Game.runtimeData.waveMovedTime++;
+                        }
 
                         Game.ClearCurrentFloor(() =>
                         {

@@ -13,6 +13,9 @@ namespace AssemblyHijack.Automation.FloorStrategy
 
         public override Floor NextFloor()
         {
+            if (Game.runtimeData.user.currentStamina < 1)
+                return null;
+
             if (Game.runtimeData.user.currentStamina == Game.runtimeData.user.maxStamina)
             {
                 // 體力滿的時候就從頭找
