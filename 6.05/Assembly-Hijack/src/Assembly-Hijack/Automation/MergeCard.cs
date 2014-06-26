@@ -35,7 +35,6 @@ namespace AssemblyHijack.Automation
             var totalCardCount = 0;
             foreach (var item in UpgradeInfoPerCard)
             {
-                builder.AppendFormat("<color=yellow>{0}</color>\n", item.Key);
                 totalCount += item.Value.count;
                 totalExp += item.Value.exp;
                 totalCost += item.Value.cost;
@@ -108,7 +107,7 @@ namespace AssemblyHijack.Automation
             var expBefore = target.exp;
             var coinBefore = Game.runtimeData.user.coin;
 
-            MyDialog.SetNetworkWaitingText(null, "強化\n{0}", target.name);
+            MyDialog.SetNetworkWaitingText(null, "強化\n<color=yellow>{0}</color>", target.name);
             Game.UpgradeMonster(delegate
             {
                 var upgradedCard = Game.runtimeData.user.inventory.GetCard(target.cardId);
