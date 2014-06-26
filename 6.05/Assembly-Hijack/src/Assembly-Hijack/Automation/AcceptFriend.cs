@@ -12,7 +12,7 @@ namespace AssemblyHijack.Automation
         public override void AppendReport(System.Text.StringBuilder builder)
         {
             if (TotalFriend > 0)
-                builder.AppendFormat("接受 {0:#,0} 位好友的邀請\n", TotalFriend);
+                builder.AppendFormat("接受 {0:#,0} 位好友邀請\n", TotalFriend);
         }
 
         protected override bool Check()

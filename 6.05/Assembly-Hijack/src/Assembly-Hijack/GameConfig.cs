@@ -157,8 +157,7 @@ public class GameConfig
         public class Merge
         {
             public bool enabled = false;
-            public Monster.RacialType[] types = new Monster.RacialType[0];
-            public int[] monsterIds = new int[0];
+            public int[] sacrificers = new int[0];
         }
 
         public class Sell
@@ -169,6 +168,21 @@ public class GameConfig
             /// 保留數量
             /// </summary>
             public int reserveAmount = 1;
+
+            /// <summary>
+            /// 卡片出售判斷的最低稀有度，高於此設定的不列入出售範圍
+            /// </summary>
+            public Monster.RareType lowestRare = Monster.RareType.NONE;
+
+            /// <summary>
+            /// 列入出售的卡片，即使稀有程度大於 lowestRare
+            /// </summary>
+            public int[] includeMonsterIds = new int[0];
+
+            /// <summary>
+            /// 不列入出售的卡片
+            /// </summary>
+            public int[] excludeMonsterIds = new int[0];
         }
     }
 }

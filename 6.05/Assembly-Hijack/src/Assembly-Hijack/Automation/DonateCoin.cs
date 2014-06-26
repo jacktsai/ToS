@@ -13,7 +13,7 @@ namespace AssemblyHijack.Automation
             if (totalAmount < 1)
                 return;
 
-            builder.AppendFormat("捐獻 <color=yellow>{0:#,0}</color> 給公會\n", totalAmount);
+            builder.AppendFormat("捐獻金幣 <color=yellow>{0:#,0}</color>\n", totalAmount);
         }
 
         protected override bool Check()
@@ -39,12 +39,12 @@ namespace AssemblyHijack.Automation
 
         protected override void Execute(Action next)
         {
-            MyDialog.SetNetworkWaitingText(null, "捐獻\n<color=yellow>{0:#,0}</color>", donateCoin);
+            MyDialog.SetNetworkWaitingText(null, "捐獻金幣\n<color=yellow>{0:#,0}</color>", donateCoin);
             Game.GuildSystem.DonateCoin(
                 donateCoin,
                 delegate
                 {
-                    MyLog.Info("已完成公會捐獻金額 {0:#,0}", donateCoin);
+                    MyLog.Info("已完成捐獻金幣 {0:#,0}", donateCoin);
                     totalAmount += donateCoin;
                     next();
                 });

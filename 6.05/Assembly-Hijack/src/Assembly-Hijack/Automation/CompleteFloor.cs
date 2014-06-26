@@ -27,12 +27,12 @@ namespace AssemblyHijack.Automation
 
         private IDictionary<string, int> Report_User = new Dictionary<string, int>
         {
-            { REPORT_USER_LEVEL, 0 },
-            { REPORT_USER_EXP, 0 },
-            { REPORT_USER_FRIEND_POINT, 0 },
-            { REPORT_USER_COIN, 0 },
-            { REPORT_USER_DIAMOND, 0 },
             { REPORT_USER_STAMINA, 0 },
+            { REPORT_USER_COIN, 0 },
+            { REPORT_USER_EXP, 0 },
+            { REPORT_USER_DIAMOND, 0 },
+            { REPORT_USER_LEVEL, 0 },
+            { REPORT_USER_FRIEND_POINT, 0 },
         };
 
         private IDictionary<int, int> Report_Floor = new Dictionary<int, int>();
@@ -56,7 +56,7 @@ namespace AssemblyHijack.Automation
 
             if (report.Length > 0)
             {
-                reportBuilder.AppendFormat("=== 地下城攻打成果 ===\n");
+                reportBuilder.AppendFormat("=== 通關成果報告 ===\n");
                 reportBuilder.Append(report);
             }
         }
@@ -99,17 +99,17 @@ namespace AssemblyHijack.Automation
                     continue;
 
                 if (item.Key == REPORT_USER_STAMINA)
-                    reportBuilder.AppendFormat("花費體力 {0:#,0} 點\n", item.Value);
+                    reportBuilder.AppendFormat("體力 <color=yellow>{0:#,0}</color>\n", item.Value);
                 else if (item.Key == REPORT_USER_EXP)
-                    reportBuilder.AppendFormat("經驗增加 {0:#,0}\n", item.Value);
+                    reportBuilder.AppendFormat("經驗值 <color=yellow>{0:#,0}</color>\n", item.Value);
                 else if (item.Key == REPORT_USER_FRIEND_POINT)
-                    reportBuilder.AppendFormat("點數增加 {0:#,0} 點\n", item.Value);
+                    reportBuilder.AppendFormat("好友點數 <color=yellow>{0:#,0}</color>\n", item.Value);
                 else if (item.Key == REPORT_USER_COIN)
-                    reportBuilder.AppendFormat("錢幣增加 {0:#,0}\n", item.Value);
+                    reportBuilder.AppendFormat("金幣 <color=yellow>{0:#,0}</color>\n", item.Value);
                 else if (item.Key == REPORT_USER_DIAMOND)
-                    reportBuilder.AppendFormat("取得魔法石 {0} 顆\n", item.Value);
+                    reportBuilder.AppendFormat("魔法石 <color=yellow>{0}</color>\n", item.Value);
                 else if (item.Key == REPORT_USER_LEVEL)
-                    reportBuilder.AppendFormat("等級提升 {0} 級\n", item.Value);
+                    reportBuilder.AppendFormat("等級提升 <color=yellow>{0}</color>\n", item.Value);
             }
 
             return reportBuilder;
@@ -142,7 +142,7 @@ namespace AssemblyHijack.Automation
         {
             InitReport();
 
-            MyDialog.SetNetworkWaitingText(null, "地城目標\n<color=yellow>{0}\n{1}</color>", candidate.stage.name, candidate.name);
+            MyDialog.SetNetworkWaitingText(null, "進行關卡\n<color=yellow>{0}\n{1}</color>", candidate.stage.name, candidate.name);
             var userBefore = Game.runtimeData.user.Clone();
             FloorHelper.EnterAndComplete(
                 1,

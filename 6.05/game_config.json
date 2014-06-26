@@ -14,9 +14,6 @@
 	{
 		"desires" :
 		[
-		],
-		"replace" :
-		[
 		]
 	}
 },
@@ -52,20 +49,20 @@
 	
 	"inventory" :
 	{
-		"capacity" : 120
+		"capacity" : 200
 	},
 	
 	"reward" :
 	{
 		"period" : 120,
-		"types" : ["DIAMOND", "COIN", "FRIENDPOINT", "FRIEND_SLOT", "INVENTORY"]
+		"types" : ["DIAMOND", "COIN", "CARD", "FRIENDPOINT", "LUCKYDRAW", "FRIEND_SLOT", "INVENTORY", "RANDOM_CARDS"]
 	},
 	
 	"guild" :
 	{
 		"acceptMembers" : false,
 		"achieveMissions" : true,
-		"reserveCoin" : 100000
+		"reserveCoin" : 500000
 	},
 	
 	"floor" :
@@ -84,15 +81,17 @@
 	
 	"merge" :
 	{
-		"enabled" : false,
-		"types" : ["UPGRADE"],
-		"monsterIds" : []
+		"enabled" : true,
+		"sacrificers" : [280, 281, 282, 283, 284, 291, 398, 426, 427, 428]
 	},
 
 	"sell" :
 	{
 		"enabled" : true,
-		"reserveAmount" : 1
+		"reserveAmount" : 1,
+		"lowestRare" : "GOLD",
+		"includeMonsterIds" : [576, 577, 578],
+		"excludeMonsterIds" : [280, 281, 282, 283, 284, 291, 398, 426, 427, 428, 400, 423, 424, 425]
 	}
 }
 }

@@ -7,7 +7,7 @@ namespace AssemblyHijack.Automation
 {
     internal class AchieveMissions : Runnable
     {
-        private bool executed = false;
+        private int executeCount = 0;
         private bool completed = false;
         private bool skipOneTime = false;
         private StringBuilder lastFailMessage = new StringBuilder();
@@ -22,7 +22,7 @@ namespace AssemblyHijack.Automation
         {
             if (executionReport.Length > 0 || lastFailMessage.Length > 0)
             {
-                builder.AppendFormat("=== 公會任務進度 ===\n");
+                builder.AppendFormat("=== 公會任務進度報告 ===\n");
 
                 if (executionReport.Length > 0)
                     builder.Append(executionReport);
@@ -36,11 +36,11 @@ namespace AssemblyHijack.Automation
         {
             if (Game.runtimeData.user.level < 15)
             {
-                MyLog.Debug("召喚師等級不足，暫不執行公會任務");
+                MyLog.Debug("等級不足，暫不執行公會任務");
                 return false;
             }
 
-            if (executed)
+            if (executeCount > 0)
             {
                 if (skipOneTime)
                 {
@@ -57,14 +57,10 @@ namespace AssemblyHijack.Automation
 
         protected override void Execute(Action next)
         {
-            if (executed)
-                MyLog.Debug("非第一次執行公會任務");
-            else
-                MyLog.Debug("第一次執行公會任務");
+            executeCount++;
+            MyLog.Debug("第 [{0}] 次執行公會任務", executeCount);
 
-            executed = true;
             lastFailMessage.Length = 0; // 避免相同的失敗訊息重複累積
-
             GetMissions(delegate
             {
                 skipOneTime = !Game.runtimeData.user.achievedAllGuildMission;
@@ -100,12 +96,11 @@ namespace AssemblyHijack.Automation
                 }
 
                 MyLog.Info("公會任務已經完成");
-                executionReport.AppendFormat("公會任務在稍早已經完成\n");
+                executionReport.AppendFormat("公會任務在之前已經完成\n");
                 next();
                 return;
             }
 
-            MyDialog.SetNetworkWaitingText(null, "正在執行任務\n<color=yellow>{0}</color>", Current.type);
             switch (Current.type)
             {
                 case GuildMission.Type.COMPLETE_FLOOR_COUNT:
@@ -143,6 +138,7 @@ namespace AssemblyHijack.Automation
         {
             var mission = new GuildMission_CompleteFloorCount(Current.json);
             MyLog.Debug("公會任務要求 - 通關 {0} {1:#,0} 次", mission.targetFloor.name, mission.targetTimes);
+            MyDialog.SetNetworkWaitingText(null, "通關任務\n<color=yellow>{0}\n{1} 次</color>", mission.targetFloor.name, mission.targetTimes);
 
             if (mission.isCompleted)
             {
@@ -170,6 +166,7 @@ namespace AssemblyHijack.Automation
         {
             var mission = new GuildMission_CompleteFloorTurns(Current.json);
             MyLog.Debug("公會任務要求 - 通關 {0} {1:#,0} 回", mission.targetFloor.name, mission.targetTurns);
+            MyDialog.SetNetworkWaitingText(null, "通關任務\n<color=yellow>{0}\n{1} 回</color>", mission.targetFloor.name, mission.targetTurns);
 
             if (mission.isCompleted)
             {
@@ -196,7 +193,8 @@ namespace AssemblyHijack.Automation
         private void DonateCoin(Action next)
         {
             var mission = new GuildMission_DonateCoin(Current.json);
-            MyLog.Debug("公會任務要求 - 贊助 {0:#,0} 錢 {1:#,0} 黃金", mission.requireCoins, mission.donateGold);
+            MyLog.Debug("公會任務要求 - 捐獻 {0:#,0} 金幣 {1:#,0} 黃金", mission.requireCoins, mission.donateGold);
+            MyDialog.SetNetworkWaitingText(null, "捐獻黃金\n<color=yellow>{0:#,0}</color>", mission.donateGold);
 
             if (mission.enoughCoins)
             {
@@ -205,16 +203,16 @@ namespace AssemblyHijack.Automation
                     string.Empty,
                     delegate
                     {
-                        MyLog.Info("完成公會任務 - 贊助 {0:#,0} 錢 {1:#,0} 黃金", mission.requireCoins, mission.donateGold);
-                        executionReport.AppendFormat("贊助 {0:#,0} 錢 {1:#,0} 黃金\n", mission.requireCoins, mission.donateGold);
+                        MyLog.Info("完成公會任務 - 捐獻 {0:#,0} 金幣 {1:#,0} 黃金", mission.requireCoins, mission.donateGold);
+                        executionReport.AppendFormat("捐獻 {0:#,0} 金幣 {1:#,0} 黃金\n", mission.requireCoins, mission.donateGold);
                         NextMission(next);
                     },
                     null);
             }
             else
             {
-                MyLog.Info("公會任務無法繼續 - 錢幣不足");
-                lastFailMessage.AppendFormat("無法贊助 {0:#,0} 錢 {1:#,0} 黃金\n", mission.requireCoins, mission.donateGold);
+                MyLog.Info("公會任務無法繼續 - 金幣不足");
+                lastFailMessage.AppendFormat("無法捐獻 {0:#,0} 金幣 {1:#,0} 黃金\n", mission.requireCoins, mission.donateGold);
                 next();
             }
         }
@@ -227,6 +225,11 @@ namespace AssemblyHijack.Automation
                     String.Format("[{0:0000}]({1})", o.itemId, o.availableType)
                 ).ToArray());
             MyLog.Debug("公會任務要求 - 交碎片 {0}", itemString);
+            MyDialog.SetNetworkWaitingText(null, "碎片交付\n<color=yellow>{0:0000}</color>",
+                String.Join("\n",
+                mission.slots.Select(o =>
+                    String.Format("[{0:0000}]", o.itemId)
+                ).ToArray()));
 
             if (mission.isComplete)
             {
@@ -282,6 +285,8 @@ namespace AssemblyHijack.Automation
                     String.Format("{0}({1})", o.card.name, o.availableType)
                 ).ToArray());
             MyLog.Debug("公會任務要求 - 獻祭 {0}", cardString);
+            MyDialog.SetNetworkWaitingText(null, "獻祭\n<color=yellow>{0:0000}</color>",
+                String.Join("\n", mission.slots.Select(o => o.card.name).ToArray()));
 
             if (mission.isComplete)
             {
@@ -305,7 +310,7 @@ namespace AssemblyHijack.Automation
                 var cardRequiredString = String.Join(
                     ", ",
                     slots.Select(slot => slot.card.name).ToArray());
-                MyLog.Debug("公會任務執行 - 卡片蒐集 {0}", cardRequiredString);
+                MyLog.Debug("公會任務執行 - 獻祭 {0}", cardRequiredString);
 
                 foreach (var slot in slots)
                 {
@@ -326,7 +331,7 @@ namespace AssemblyHijack.Automation
                     lastFailMessage.AppendFormat("無法獻祭 {0}\n", slot.card.name);
                 }
 
-                MyLog.Info("公會任務無法繼續 - 卡片無法蒐集 {0}", cardRequiredString);
+                MyLog.Info("公會任務無法繼續 - 無法獻祭卡片 {0}", cardRequiredString);
                 next();
             }
         }
@@ -334,7 +339,8 @@ namespace AssemblyHijack.Automation
         private void SubmitExp(Action next)
         {
             var mission = new GuildMission_SubmitCardExp(Current.json);
-            MyLog.Debug("公會任務要求 - 提供經驗值 {0:#,0}", mission.requireExp);
+            MyLog.Debug("公會任務要求 - 捐獻經驗值 {0:#,0}", mission.requireExp);
+            MyDialog.SetNetworkWaitingText(null, "捐獻經驗值\n<color=yellow>{0:#,0}</color>", mission.requireExp);
 
             var candidates = Game.runtimeData.user.inventory.cards.Values
                 .Where(c => !c.inUse && !c.bookmark && !c.isHelper)

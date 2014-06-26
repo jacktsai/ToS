@@ -35,13 +35,13 @@ namespace AssemblyHijack.Automation
                                 {
                                     Loot loot = enemy.lootItem;
                                     if (loot.type == Loot.Type.COIN)
-                                        MyLog.Verbose("敵人 {0} 帶了 {1:#,0} 錢來孝敬！", enemy.name, loot.amount);
+                                        MyLog.Verbose("敵人 {0} 帶了 {1:#,0} 個金幣來孝敬！", enemy.name, loot.amount);
                                     else if (loot.type == Loot.Type.MONSTER)
-                                        MyLog.Verbose("敵人 {0} 帶了 {1} 來孝敬！", enemy.name, loot.card.name);
+                                        MyLog.Verbose("敵人 {0} 帶了卡片 {1} 來孝敬！", enemy.name, loot.card.name);
                                     else if (loot.type == Loot.Type.ITEM)
                                         MyLog.Verbose("敵人 {0} 帶了 {1} 塊 [{2:0000}] 碎片來孝敬！", enemy.name, loot.amount, loot.itemId);
                                     else
-                                        MyLog.Verbose("敵人 {0} 帶了不明物品 [{1}]！", enemy.name, loot.type);
+                                        MyLog.Verbose("敵人 {0} 帶了不明物品 {1}！", enemy.name, loot.type);
 
                                     if (onLoot != null)
                                         onLoot(loot);

@@ -33,15 +33,15 @@ namespace AssemblyHijack.Automation
             var totalCost = 0;
             foreach (var item in UpgradeInfoPerCard)
             {
-                builder.AppendFormat("強化 {0} {1:#,0} 次\n", item.Key, item.Value.count);
+                builder.AppendFormat("強化 <color=yellow>{0} {1} 次</color>\n", item.Key, item.Value.count);
                 totalCount += item.Value.count;
                 totalExp += item.Value.exp;
                 totalCost = item.Value.cost;
             }
 
-            builder.AppendFormat("強化總次數 {0:#,0}\n", totalCount);
-            builder.AppendFormat("強化總經驗值 {0:#,0}\n", totalExp);
-            builder.AppendFormat("強化總支出 {0:#,0}\n", totalCost);
+            builder.AppendFormat("強化次數 {0:#,0}\n", totalCount);
+            builder.AppendFormat("強化經驗值 {0:#,0}\n", totalExp);
+            builder.AppendFormat("強化費用 {0:#,0}\n", totalCost);
         }
 
         protected override bool Check()
@@ -52,27 +52,37 @@ namespace AssemblyHijack.Automation
                 return false;
             }
 
-            var sacrificers = Game.runtimeData.user.inventory.cards.Values
-                .Where(c => !c.inUse && !c.bookmark && !c.isHelper)
-                .Where(c => MyGame.config.automation.merge.types.Length < 1 || MyGame.config.automation.merge.types.Contains(c.type))
-                .Where(c => MyGame.config.automation.merge.monsterIds.Length < 1 || MyGame.config.automation.merge.monsterIds.Contains(c.monsterId))
-                .OrderBy(c => c.mergeExp).ToArray();
-
-            foreach (var teamCardId in Game.runtimeData.teamCardIds)
+            if (MyGame.config.automation.merge.sacrificers.Length < 1)
             {
-                var candidate = Game.runtimeData.user.inventory.GetCard(teamCardId);
-                if (candidate.isLevelMax)
-                {
-                    MyLog.Debug("{0} 已經到達最高級別 {1} 不需要再強化", candidate.name, candidate.level);
-                }
-                else
-                {
-                    if (Estimate(candidate, sacrificers))
-                        return true;
-                }
+                MyLog.Debug("未設定被強化的卡片，不進行卡片強化");
+                return false;
             }
 
-            MyLog.Info("找不到合適的卡片進行強化！");
+            var sacrificers = Game.runtimeData.user.inventory.cards.Values
+                .Where(c => !c.inUse && !c.bookmark)
+                .Where(c => MyGame.config.automation.merge.sacrificers.Contains(c.monsterId))
+                .OrderBy(c => c.mergeExp)
+                .OrderBy(c => c.element)
+                .ToArray();
+
+            if (sacrificers.Length < 1)
+            {
+                MyLog.Debug("找不到合適的飼料卡進行強化！");
+                return false;
+            }
+
+            var candidate = Game.runtimeData.user.helperCard;
+            if (candidate.isLevelMax)
+            {
+                MyLog.Debug("{0} 已經到達最高級別 {1} 不需要再強化", candidate.name, candidate.level);
+            }
+            else
+            {
+                if (Estimate(candidate, sacrificers))
+                    return true;
+
+                MyLog.Debug("找不到合適的卡片進行強化！");
+            }
 
             return false;
         }
@@ -91,16 +101,16 @@ namespace AssemblyHijack.Automation
             Game.SetMonsterUpgradeTarget(target);
             Game.SetMonsterUpgradeChildren(children.ToArray());
 
-            var upgradedCard = Game.runtimeData.user.inventory.GetCard(target.cardId);
             var expBefore = target.exp;
             var coinBefore = Game.runtimeData.user.coin;
 
-            MyDialog.SetNetworkWaitingText(null, "強化\n{0}", upgradedCard.name);
+            MyDialog.SetNetworkWaitingText(null, "強化\n{0}", target.name);
             Game.UpgradeMonster(delegate
             {
+                var upgradedCard = Game.runtimeData.user.inventory.GetCard(target.cardId);
                 var actualExp = upgradedCard.exp - expBefore;
                 var actualCost = coinBefore - Game.runtimeData.user.coin;
-                MyLog.Info("{0} 強化成功, 經驗值增加[{1:#,0}], 實際花費[{2:#,0}]", upgradedCard.name, actualExp, actualCost);
+                MyLog.Info("{0} 強化成功, 經驗值[{1:#,0}], 費用[{2:#,0}]金幣, 等級提昇[{3}]", target.name, actualExp, actualCost, upgradedCard.level - target.level);
 
                 var cardKey = String.Format("{0}", target.name);
                 UpgradeInfo upgradeInfo;
@@ -127,47 +137,35 @@ namespace AssemblyHijack.Automation
             int childrenBonus = 0;
             foreach (var card in sarcrificers)
             {
-                if (expectedExp + card.predictedMergeExp > requiredExp)
-                    break;
+                if (card.element == card.element)
+                    expectedExp += (int)(card.mergeExp * 1.5);
+                else
+                    expectedExp += card.mergeExp;
 
-                expectedExp += card.predictedMergeExp;
                 childrenBonus += card.bonus;
-
                 children.Add(card);
 
                 if (cardNames.Length > 0)
                     cardNames.Append(",");
                 cardNames.AppendFormat("{0}", card.name);
 
-                if (children.Count == 5)
+                if (/*children.Count == 5 ||*/ expectedExp >= requiredExp)
                     break;
             }
 
-            if (children.Count < 1)
+            expectedCost = candidate.mergeCoin * children.Count + (candidate.bonus + childrenBonus) * Core.Config.UPGRADE_CARDBOUNS_COST;
+
+            if (Game.runtimeData.user.coin >= expectedCost)
             {
-                MyLog.Info("強化 {0} 只需要 [{1:#,0}] 經驗值, 沒有適合的卡片", candidate.name, requiredExp);
+                MyLog.Info("判定強化 {0} 預估經驗值 [{1:#,0}] 預估費用 [{2:#,0} ] 餵食 {3}", candidate.name, expectedExp, expectedCost, cardNames);
+                target = candidate;
+                return true;
+            }
+            else
+            {
+                MyLog.Info("強化 {0} 預估需要 [{1:#,0}] 資產不足", candidate.name, expectedCost);
                 return false;
             }
-
-            if (children.Count == 5 || Game.runtimeData.user.inventory.isFull)
-            {
-                expectedCost = candidate.mergeCoin * children.Count + (candidate.bonus + childrenBonus) * Core.Config.UPGRADE_CARDBOUNS_COST;
-
-                if (Game.runtimeData.user.coin >= expectedCost)
-                {
-                    MyLog.Info("判定強化 {0} 預估經驗值 [{1:#,0}] 預估花費 [{2:#,0} ] EP[{3:0.00}] 餵食 {5}", candidate.name, expectedExp, expectedCost, expectedExp / expectedCost, cardNames);
-
-                    target = candidate;
-                    return true;
-                }
-                else
-                {
-                    MyLog.Info("強化 {0} 預估需要 [{2:#,0}] 資產不足", candidate.name, expectedCost);
-                    return false;
-                }
-            }
-
-            return false;
         }
     }
 }

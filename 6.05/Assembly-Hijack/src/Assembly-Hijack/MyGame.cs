@@ -69,16 +69,16 @@ public class MyGame
             runners.Add(expandInventory);
         }
 
-        if (config.automation.recovery.threshold > 0)
-        {
-            MyLog.Debug("Add {0}", recoverStamina.GetType().FullName);
-            runners.Add(recoverStamina);
-        }
-
         if (config.automation.merge.enabled)
         {
             MyLog.Debug("Add {0}", mergeCard.GetType().FullName);
             runners.Add(mergeCard);
+        }
+
+        if (config.automation.recovery.threshold > 0)
+        {
+            MyLog.Debug("Add {0}", recoverStamina.GetType().FullName);
+            runners.Add(recoverStamina);
         }
 
         if (config.automation.floor.enabled)
@@ -357,7 +357,7 @@ public class MyGame
         Timer.Create(1000, delegate(bool timeout)
         {
             MyDialog.Confirm(
-                "是否要立即建立新帳號？\n" + SystemInformation.LocalKey,
+                "是否要建立新帳號？\n" + SystemInformation.LocalKey,
                 delegate
                 {
                     var name = String.Format("#{0:000}", UnityEngine.Random.Range(1, 10000));
@@ -369,7 +369,7 @@ public class MyGame
                     Game.runtimeData.selectedPartner = partner;
                     Game.runtimeData.registrationType = type;
 
-                    MyDialog.SetNetworkWaitingText("正在註冊新帳號...", "名字：{0}\n伙夥：{1}\n{2}", name, partner, Game.UniqueKey);
+                    MyDialog.SetNetworkWaitingText("正在建立新帳號...", "名字：{0}\n伙夥：{1}\n{2}", name, partner, Game.UniqueKey);
                     Game.Register(name, partner, type,
                         Game.runtimeData.registrationSocialUID,
                         Game.runtimeData.registrationSocialToken,
@@ -394,7 +394,7 @@ public class MyGame
             Timer.Create(1000, delegate(bool timeout)
             {
                 MyDialog.Confirm(
-                    "是否要啟動<color=#80FFFFFF>自動化程序</color>？",
+                    "是否要啟動<color=#80FFFFFF>自動導航</color>？",
                     delegate
                     {
                         ViewController.SwitchView(ViewIndex.WORLDMAP_WORLD_MAP);
