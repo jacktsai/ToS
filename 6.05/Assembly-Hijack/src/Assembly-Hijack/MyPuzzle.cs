@@ -34,9 +34,6 @@ public class MyPuzzle
 
     public static void SetupCustomSettings()
     {
-        if (MyGame.runningAutomation)
-            return;
-
         if (MyGame.config.puzzle.timeout != 0)
         {
             Puzzle.protectedData.timeBarCountDownTime = MyGame.config.puzzle.timeout;

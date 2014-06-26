@@ -71,6 +71,16 @@ internal class MyLog
         UnityEngine.Debug.LogError(message);
     }
 
+    public static void Assert(string name, object expected, object actual)
+    {
+        if (level > Level.Assert)
+            return;
+
+        string message = String.Format("{0} 預期為 {1} 實際為 {2}", name, expected, actual);
+
+        UnityEngine.Debug.Log(message);
+    }
+
     public static void Debug(object o)
     {
         if (level > Level.Debug)

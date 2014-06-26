@@ -36,6 +36,7 @@
     <Compile Include="Automation\AcceptMember.cs" />
     <Compile Include="Automation\AchieveMissions.cs" />
     <Compile Include="Automation\ClaimReword.cs" />
+    <Compile Include="Automation\Combat.cs" />
     <Compile Include="Automation\DonateCoin.cs" />
     <Compile Include="Automation\ExpandInventory.cs" />
     <Compile Include="Automation\FloorHelper.cs" />

@@ -24,20 +24,33 @@ public class GameConfig
     public class User
     {
         public bool tutorial = true;
-        public int teamSize = 0;
-        public bool reveal = false;
 
         /// <summary>
         /// 自動申請加入的公會
         /// </summary>
         public int requestGuild = 0;
 
+        public int teamSize = 0;
+        public int teamRoom = 0;
+
+        public bool teamEnabled = false;
+        public Card[] team0 = new Card[0];
+        public Card[] team1 = new Card[0];
+        public Card[] team2 = new Card[0];
+        public Card[] team3 = new Card[0];
+        public Card[] team4 = new Card[0];
+        public Card[] team5 = new Card[0];
+        public Card[] team6 = new Card[0];
+        public Card[] team7 = new Card[0];
+        public Card[] team8 = new Card[0];
+        public Card[] team9 = new Card[0];
+
         public Inventory inventory = new Inventory();
 
         public class Inventory
         {
+            public bool enabled = false;
             public Card[] desires = new Card[0];
-            public Card[] replace = new Card[0];
         }
     }
 

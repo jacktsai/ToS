@@ -21,15 +21,17 @@ namespace AssemblyHijack.Automation
                     {
                         MyLog.Info("進入關卡 {0}", target.name);
 
-                        Game.runtimeData.currentWaveIndex = 0;
-                        Game.runtimeData.waveMovedTime = 0;
-                        Game.runtimeData.eatGemRound = 0;
-                        foreach (var wave in Game.runtimeData.currentFloor.waves)
-                        {
-                            MyLog.Verbose("慘烈廝殺中... {0} / {1}", Game.runtimeData.currentWaveIndex + 1, Game.runtimeData.currentFloor.waves.Count);
-
-                            var sumHp = 0;
-                            foreach (var enemy in wave.enemies)
+                        var combat = new Combat(Game.runtimeData.currentFloor.waves);
+                        combat.GoGoGo(
+                            (waveOrder, waveCount) =>
+                            {
+                                MyLog.Verbose("第 {0}/{1} 波戰鬥開始", waveOrder, waveCount);
+                            },
+                            (waveOrder, waveCount) =>
+                            {
+                                MyLog.Verbose("第 {0}/{1} 波戰鬥結束", waveOrder, waveCount);
+                            },
+                            (enemy) =>
                             {
                                 if (enemy.lootItem != null)
                                 {
@@ -50,34 +52,17 @@ namespace AssemblyHijack.Automation
                                 {
                                     MyLog.Verbose("不帶東西的敵人 {0} 出現了！", enemy.name);
                                 }
-
-                                sumHp += enemy.HP;
-                            }
-
-                            while (sumHp > 0)
+                            },
+                            () =>
                             {
-                                var eatGem = UnityEngine.Random.Range(3, 5);
-                                var combo = UnityEngine.Random.Range(10, 20);
-                                var attack = (int)(UnityEngine.Random.Range(10000, 100000) * (1 + (combo - 1) * 0.25));
+                                Game.ClearCurrentFloor(() =>
+                                {
+                                    MyLog.Info("結束關卡 {0}", target.name);
 
-                                Game.runtimeData.eatGemRound += eatGem;
-                                Game.runtimeData.maxCombo = Math.Max(Game.runtimeData.maxCombo, combo);
-                                Game.runtimeData.maxAttack = Math.Max(Game.runtimeData.maxAttack, attack);
-
-                                sumHp -= attack;
-                            }
-
-                            Game.runtimeData.currentWaveIndex++;
-                            Game.runtimeData.waveMovedTime++;
-                        }
-
-                        Game.ClearCurrentFloor(() =>
-                        {
-                            MyLog.Info("結束關卡 {0}", target.name);
-
-                            if (onClear != null)
-                                onClear();
-                        });
+                                    if (onClear != null)
+                                        onClear();
+                                });
+                            });
                     },
                     isMission);
                 },

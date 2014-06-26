@@ -33,8 +33,6 @@ public class MyGame
     private static DateTime beginTime;
     private static DateTime endTime;
 
-    public static bool runningAutomation = false;
-
     static MyGame()
     {
         MyLog.Info("Loading RUNNERs ...");
@@ -185,69 +183,70 @@ public class MyGame
     {
         MyLog.Debug(">> - {0}.SetUser", typeof(MyGame).Name);
 
-        if (!runningAutomation && userInfo.user != null)
+        if (userInfo.user != null)
         {
             if (config.user.teamSize > 0)
             {
                 userInfo.user.teamSize = config.user.teamSize;
-                MyLog.Info("隊伍空間 [{0}] 已調整為 [{1}]", userInfo.user.teamSize, config.user.teamSize);
+                MyLog.Info("隊伍空間已調整為 {0}", userInfo.user.teamSize);
             }
 
-            if (config.user.reveal)
+            if (config.user.teamRoom > 0)
             {
-                userInfo.user.completedFloorIds = Game.database.floors.Keys.ToArray();
-                userInfo.user.completedStageIds = Game.database.stages.Keys.ToArray();
-                MyLog.Info("已打開玩家全部視野");
+                userInfo.user.teamRoom = config.user.teamRoom;
+                MyLog.Info("隊伍數量已調整為 {0}", userInfo.user.teamRoom);
             }
         }
 
-        if (!runningAutomation && userInfo.cards != null && config.user.inventory.desires.Length > 0)
+        if (userInfo.user != null && userInfo.cards != null)
         {
-            var newCardList = new List<string>();
-            var desireSettings = (GameConfig.Card[])config.user.inventory.desires.Clone();
+            var cardMap = new Dictionary<int, GameConfig.Card>();
+            if (config.user.teamEnabled)
+            {
+                MyLog.Debug("隊伍卡片抽換功能已啟用");
+                FillCardMap(userInfo.user.team0Array, config.user.team0, cardMap);
+                FillCardMap(userInfo.user.team1Array, config.user.team1, cardMap);
+                FillCardMap(userInfo.user.team2Array, config.user.team2, cardMap);
+                FillCardMap(userInfo.user.team3Array, config.user.team3, cardMap);
+                FillCardMap(userInfo.user.team4Array, config.user.team4, cardMap);
+                FillCardMap(userInfo.user.team5Array, config.user.team5, cardMap);
+                FillCardMap(userInfo.user.team6Array, config.user.team6, cardMap);
+                FillCardMap(userInfo.user.team7Array, config.user.team7, cardMap);
+                FillCardMap(userInfo.user.team8Array, config.user.team8, cardMap);
+                FillCardMap(userInfo.user.team9Array, config.user.team9, cardMap);
+            }
+
+            if (config.user.inventory.enabled)
+            {
+                MyLog.Debug("背包卡片抽換功能已啟用");
+            }
+
+            var replacedList = new List<string>();
             var replaceIndex = 0;
 
             foreach (var cardString in userInfo.cards)
             {
-                var cardString_new = cardString;
+                var card = new Card(ObjectParser.ParseCard(cardString));
+                GameConfig.Card setting = null;
 
-                var cardJson = ObjectParser.ParseCard(cardString);
-                var currentCard = Game.database.monsters[cardJson.monsterId];
-
-                if (replaceIndex < desireSettings.Length)
+                if (!cardMap.TryGetValue(card.cardId, out setting))
                 {
-                    var desireSetting = desireSettings[replaceIndex];
-
-                    if (desireSetting.monsterId < 1)
-                        desireSetting.monsterId = cardJson.monsterId;
-                    if (desireSetting.skillLv < 1)
-                        desireSetting.skillLv = cardJson.skillLevel;
-                    if (desireSetting.refineLv < 1)
-                        desireSetting.refineLv = cardJson.refineLevel;
-
-                    var desireCard = new Card(desireSetting.monsterId, desireSetting.monsterLv, desireSetting.skillLv, 0, desireSetting.refineLv);
-
-                    // 調整到相對應等級
-                    if (desireSetting.monsterLv < 1)
-                        desireCard.exp = cardJson.exp;
-
-                    desireCard.cardId = cardJson.cardId;
-                    desireCard.created = cardJson.created;
-
-                    MyLog.Info("背包卡片抽換：{0} > {1} 等級 {2} > {3} 技能 {4} > {5} 昇華 {6} > {7}",
-                         currentCard.name, desireCard.name,
-                        cardJson.level, desireCard.level,
-                        cardJson.skillLevel, desireCard.skillLevel,
-                        cardJson.refineLevel, desireCard.refineLevel);
-
-                    cardString_new = desireCard.ToString();
-                    replaceIndex++;
+                    if (config.user.inventory.enabled && replaceIndex < config.user.inventory.desires.Length)
+                    {
+                        setting = config.user.inventory.desires[replaceIndex];
+                        replaceIndex++;
+                    }
                 }
 
-                newCardList.Add(cardString_new);
+                if (setting != null)
+                {
+                    card = CreateCard(card, setting);
+                }
+
+                replacedList.Add(card.ToString());
             }
 
-            userInfo.cards = newCardList.ToArray();
+            userInfo.cards = replacedList.ToArray();
         }
 
         Game.SetUser(userInfo, restore);
@@ -267,39 +266,34 @@ public class MyGame
     {
         MyLog.Debug(">> - {0}.GetHelperList", typeof(MyGame).Name);
 
-        List<Helper> result = Game.GetHelperList(helpers);
+        string[] replacedHelpers = helpers;
 
-        if (!runningAutomation && config.helper.desires.Length > 0)
+        if (config.helper.desires.Length > 0)
         {
-            var desireSettings = (GameConfig.Card[])config.helper.desires.Clone();
+            var replacedList = new List<string>();
+            var replaceIndex = 0;
 
-            for (int i = 0; i < result.Count && i < config.helper.desires.Length; i++)
+            foreach (var helperString in helpers)
             {
-                var x = result[i].helperCard;
-                var desireSetting = config.helper.desires[i];
+                var helperString_new = helperString;
 
-                if (desireSetting.monsterId < 1)
-                    desireSetting.monsterId = x.monsterId;
-                if (desireSetting.skillLv < 1)
-                    desireSetting.skillLv = x.skillLevel;
-                if (desireSetting.refineLv < 1)
-                    desireSetting.refineLv = x.refineLevel;
+                if (replaceIndex < config.helper.desires.Length)
+                {
+                    var helper = new Helper(ObjectParser.ParseHelper(helperString));
+                    var setting = config.helper.desires[replaceIndex];
+                    helper.helperCard = CreateCard(helper.helperCard, setting);
+                    helperString_new = helper.ToString();
 
-                var y = new Card(desireSetting.monsterId, desireSetting.monsterLv, desireSetting.skillLv, 0, desireSetting.refineLv);
+                    replaceIndex++;
+                }
 
-                // 調整到相對應等級
-                if (desireSetting.monsterLv < 1)
-                    y.exp = x.exp;
-
-                y.cardId = x.cardId;
-                y.refineLevel = x.refineLevel;
-
-                result[i].helperCard = y;
-
-                MyLog.Info("好友卡片抽換：{0} > {1} 等級 {2} > {3} 技能 {4} > {5} 昇華 {6} > {7}",
-                     x.name, y.name, x.level, y.level, x.skillLevel, y.skillLevel, x.refineLevel, y.refineLevel);
+                replacedList.Add(helperString_new);
             }
+
+            replacedHelpers = replacedList.ToArray();
         }
+
+        List<Helper> result = Game.GetHelperList(replacedHelpers);
 
         MyLog.Debug("<< - {0}.GetHelperList", typeof(MyGame).Name);
 
@@ -333,6 +327,43 @@ public class MyGame
         return new GameConfig();
     }
 
+    private static void FillCardMap(string teamArrayString, GameConfig.Card[] cardArray, IDictionary<int, GameConfig.Card> cardMap)
+    {
+        if (cardArray.Length < 1)
+            return;
+
+        var teamArray = teamArrayString.Split(',').Select(s => int.Parse(s)).ToArray();
+
+        for (int i = 0; i < 5; i++)
+        {
+            if (i >= cardArray.Length)
+                break;
+
+            var cardId = teamArray[i];
+            if (cardId == 0)
+                continue;
+
+            cardMap[cardId] = cardArray[i];
+        }
+    }
+
+    private static Card CreateCard(Card target, GameConfig.Card setting)
+    {
+        var monsterId = setting.monsterId > 0 ? setting.monsterId : target.monsterId;
+        var monsterLv = setting.monsterLv > 0 ? setting.monsterLv : target.level;
+        var skillLv = setting.skillLv > 0 ? setting.skillLv : target.skillLevel;
+        var refineLv = setting.refineLv > 0 ? setting.refineLv : target.refineLevel;
+
+        var card = new Card(monsterId, monsterLv, skillLv, 0, refineLv);
+        card.cardId = target.cardId;
+        card.created = target.created;
+
+        MyLog.Info("卡片抽換：{0} >> {1} 等級 {2} >> {3} 技能 {4} >> {5} 昇華 {6} >> {7}",
+             target.name, card.name, target.level, card.level, target.skillLevel, card.skillLevel, target.refineLevel, card.refineLevel);
+
+        return card;
+    }
+
     private static void NextAction()
     {
         foreach (var runner in runners)
@@ -347,7 +378,6 @@ public class MyGame
         }
 
         endTime = DateTime.Now;
-        runningAutomation = false;
         MyDialog.RestoreNetworkWaitingText();
         ShowReport();
     }
@@ -360,7 +390,7 @@ public class MyGame
                 "是否要建立新帳號？\n" + SystemInformation.LocalKey,
                 delegate
                 {
-                    var name = String.Format("#{0:000}", UnityEngine.Random.Range(1, 10000));
+                    var name = String.Format("#{0:0000}", UnityEngine.Random.Range(1, 10000));
                     var partner = config.registration.partner;
                     var type = "device";
 
@@ -398,7 +428,6 @@ public class MyGame
                     delegate
                     {
                         ViewController.SwitchView(ViewIndex.WORLDMAP_WORLD_MAP);
-                        runningAutomation = true;
                         beginTime = DateTime.Now;
                         NextAction();
                     },

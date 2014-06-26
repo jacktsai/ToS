@@ -7,21 +7,39 @@
 "user" :
 {
 	"tutorial" : false,
-	"teamSize" : 0,
-	"reveal" : false,
 	"requestGuild" : 81917,
+	"teamSize" : 120,
+	"teamRoom" : 10,
+	"teamEnabled" : true,
+	"team0" : [
+		{ "monsterId":515, "monsterLv":99, "skillLv":12, "refineLv":4 },
+		{ "monsterId":513, "monsterLv":99, "skillLv":12, "refineLv":4 },
+		{ "monsterId":512, "monsterLv":99, "skillLv":12, "refineLv":4 },
+		{ "monsterId":514, "monsterLv":99, "skillLv":12, "refineLv":4 },
+		{ "monsterId":212, "monsterLv":99, "skillLv":12, "refineLv":4 }
+	],
+	"team1" : [
+		{ "monsterId":202, "monsterLv":99, "skillLv":12, "refineLv":4 },
+		{ "monsterId":204, "monsterLv":99, "skillLv":12, "refineLv":4 },
+		{ "monsterId":206, "monsterLv":99, "skillLv":12, "refineLv":4 },
+		{ "monsterId":208, "monsterLv":99, "skillLv":12, "refineLv":4 },
+		{ "monsterId":210, "monsterLv":99, "skillLv":12, "refineLv":4 }
+	],
 	"inventory" :
 	{
-		"desires" :
-		[
+		"enabled" : true,
+		"desires" : [
+			{ "monsterId":8015, "monsterLv":99, "skillLv":12, "refineLv":4 },
+			{ "monsterId":8012, "monsterLv":99, "skillLv":12, "refineLv":4 }
 		]
 	}
 },
 
 "helper" :
 {
-	"desires" :
-	[
+	"desires" : [
+		{ "monsterId":515, "monsterLv":99, "skillLv":12, "refineLv":4 },
+		{ "monsterId":202, "monsterLv":99, "skillLv":12, "refineLv":4 }
 	]
 },
 
@@ -49,7 +67,7 @@
 	
 	"inventory" :
 	{
-		"capacity" : 200
+		"capacity" : 120
 	},
 	
 	"reward" :
