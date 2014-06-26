@@ -1,9 +1,23 @@
-*** This project is ONLY for study purpose ***
+*** 注意：此專案僅可用於軟體工程學習的目的，請勿作其它用途。 ***
 
-1. decode tos.apk with apktool  to tos-decoded folder.
-2. copy tos.apk to tos-hijacked.zip
-3. deassembly Assembly-CSharp.dll and make your modifications in IL.
-4. keep original Assembly-CSharp.dll with new name as Assembly-CSharp-origin.dll.
-5. assembly modified IL to Assembly-CSharp.dll
-6. copy Assembly-CSharp.dll and Assembly-CSharp-origin.dll into tos-hijacked.zip
-7. sign tos-hijacked.zip as tos-hijacked.apk, and give it a go.
+此專案開發內容分為四大部份，分述如下：
+
+一、背包卡片抽換
+  1. 指定隊伍抽換
+  2. 助攻卡片抽換
+二、遊戲功能調整
+  1. 調整隊伍空間
+  2. 調整隊伍數量
+  3. 調整轉珠時間
+  4. 調整掉珠機率
+  5. 調整combo傷害加成
+三、帳號自動註冊
+  1. 自動註冊新帳號
+四、遊戲自動導航
+  1. 自動擴充背包
+  2. 自動領取獎賞
+  3. 自動解完每日公會任務
+  4. 自動進行關卡
+  5. 自動回復體力
+  6. 自動卡片強化
+  7. 自動出售不要的卡片
