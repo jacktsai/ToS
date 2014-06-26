@@ -1,9 +1,0 @@
-[com.madhead.tos.zh][<470> Thread-470] com.jack.xposed.mod.TosHandler$3.afterHookedMethod [TosHandler.java #255]
--> de.robv.android.xposed.XposedBridge.handleHookedMethod [XposedBridge.java #645]
--> java.net.URL.openConnection [URL.java #-2]
--> com.unity3d.player.WWW.run [null #-1]
-
-https://zh.towerofsaviors.com/api/card/merge?sourceCardId=1&targetCardIds=5&uid=725629019&session=3fbda5475b2ec4ebc27867e72855b8f9&language=zh_TW&platform=android&version=6.05&timestamp=1402988976&timezone=8&nData=27a594aa1908a7c625b5bbd401ccadcd&iay=563995c&hash=eb87df22476247572ff4a1a65ee3c49d
-
-[RESPONSE CONTENT]
-{"respond":1,"user":{"uid":"725629019","name":"qryug","lastLogin":"1402988935","locale":"zh_TW","timezone":"8","level":"3","loginType":"device","exp":"25","teamSize":"11","teamRoom":"1","team0Array":"1,2,3,4,0","team1Array":"0,0,0,0,0","team2Array":"0,0,0,0,0","team3Array":"0,0,0,0,0","team4Array":"0,0,0,0,0","team5Array":"0,0,0,0,0","team6Array":"0,0,0,0,0","team7Array":"0,0,0,0,0","team8Array":"0,0,0,0,0","team9Array":"0,0,0,0,0","inventoryCapacity":"20","totalFriends":"0","friendsCapacity":"50","totalSouls":"0","totalCards":5,"newFriend":"0","newRequest":"0","newReward":"1","servertime":1402988977,"localDateTime":"2014-06-17 15:09:37","currentStamina":"31","maxStamina":"31","lastStaminaRecharge":"1402988935","friendPoint":"210","coin":10367,"diamond":"0","session":"3fbda5475b2ec4ebc27867e72855b8f9","helperCardId":"1","dailyUpdateExpire":32086,"guildId":"0","guildAllowedJoin":"0","enableChat":true},"cards":["1#5#1010#5#1#1402988418#0#0#0","2#96#0#1#1#1402988418#0#0#0","3#100#0#1#1#1402988418#0#0#0","4#102#0#1#1#1402988758#0#0#0","6#264#0#1#1#1402988925#0#0#0"],"data":{"coin":100,"bonus":0,"card":{"cardId":"1","created":"1402988418","monsterId":"5","exp":1010,"level":5,"skillLevel":"1","extractableSoul":"0","refineExp":"0","refineLevel":"0"}}}ÿÿ
