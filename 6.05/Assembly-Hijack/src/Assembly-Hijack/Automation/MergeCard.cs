@@ -13,6 +13,7 @@ namespace AssemblyHijack.Automation
             public int count = 0;
             public int exp = 0;
             public int cost = 0;
+            public int cardCount = 0;
         }
 
         private IDictionary<string, UpgradeInfo> UpgradeInfoPerCard = new Dictionary<string, UpgradeInfo>();
@@ -31,17 +32,20 @@ namespace AssemblyHijack.Automation
             var totalCount = 0;
             var totalExp = 0;
             var totalCost = 0;
+            var totalCardCount = 0;
             foreach (var item in UpgradeInfoPerCard)
             {
-                builder.AppendFormat("強化 <color=yellow>{0} {1} 次</color>\n", item.Key, item.Value.count);
+                builder.AppendFormat("<color=yellow>{0}</color>\n", item.Key);
                 totalCount += item.Value.count;
                 totalExp += item.Value.exp;
-                totalCost = item.Value.cost;
+                totalCost += item.Value.cost;
+                totalCardCount += item.Value.cardCount;
             }
 
-            builder.AppendFormat("強化次數 {0:#,0}\n", totalCount);
-            builder.AppendFormat("強化經驗值 {0:#,0}\n", totalExp);
-            builder.AppendFormat("強化費用 {0:#,0}\n", totalCost);
+            builder.AppendFormat("次數 <color=yellow>{0:#,0}</color>\n", totalCount);
+            builder.AppendFormat("費用 <color=yellow>{0:#,0}</color>\n", totalCost);
+            builder.AppendFormat("經驗值 <color=yellow>{0:#,0}</color>\n", totalExp);
+            builder.AppendFormat("卡片數 <color=yellow>{0:#,0}</color>\n", totalCardCount);
         }
 
         protected override bool Check()
@@ -110,7 +114,7 @@ namespace AssemblyHijack.Automation
                 var upgradedCard = Game.runtimeData.user.inventory.GetCard(target.cardId);
                 var actualExp = upgradedCard.exp - expBefore;
                 var actualCost = coinBefore - Game.runtimeData.user.coin;
-                MyLog.Info("{0} 強化成功, 經驗值[{1:#,0}], 費用[{2:#,0}]金幣, 等級提昇[{3}]", target.name, actualExp, actualCost, upgradedCard.level - target.level);
+                MyLog.Info("{0} 強化成功, 經驗值{1:#,0}, 費用{2:#,0}金幣, 等級提昇{3}", target.name, actualExp, actualCost, upgradedCard.level - target.level);
 
                 var cardKey = String.Format("{0}", target.name);
                 UpgradeInfo upgradeInfo;
@@ -123,6 +127,7 @@ namespace AssemblyHijack.Automation
                 upgradeInfo.count++;
                 upgradeInfo.exp += actualExp;
                 upgradeInfo.cost += actualCost;
+                upgradeInfo.cardCount += children.Count;
                 next();
             });
         }
@@ -149,7 +154,7 @@ namespace AssemblyHijack.Automation
                     cardNames.Append(",");
                 cardNames.AppendFormat("{0}", card.name);
 
-                if (/*children.Count == 5 ||*/ expectedExp >= requiredExp)
+                if (expectedExp >= requiredExp)
                     break;
             }
 
@@ -157,13 +162,13 @@ namespace AssemblyHijack.Automation
 
             if (Game.runtimeData.user.coin >= expectedCost)
             {
-                MyLog.Info("判定強化 {0} 預估經驗值 [{1:#,0}] 預估費用 [{2:#,0} ] 餵食 {3}", candidate.name, expectedExp, expectedCost, cardNames);
+                MyLog.Info("判定強化 {0} 預估經驗值 {1:#,0} 預估費用 {2:#,0} 餵食 {3} 張卡 {4}", candidate.name, expectedExp, expectedCost, children.Count, cardNames);
                 target = candidate;
                 return true;
             }
             else
             {
-                MyLog.Info("強化 {0} 預估需要 [{1:#,0}] 資產不足", candidate.name, expectedCost);
+                MyLog.Info("強化 {0} 預估需要 {1:#,0} 資產不足", candidate.name, expectedCost);
                 return false;
             }
         }

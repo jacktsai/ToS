@@ -152,14 +152,13 @@ namespace AssemblyHijack.Automation
             data.numOfwave = waves.Count;
             data.currentGamePlayTeamData = data.currentTeamData;
             data.monsterNum = cards.Count;
-            data.gameplayTime = (float)((DateTime.Now - beginTime).TotalSeconds);
 
             // 我方攻擊資訊(14)
             data.maxUserAttackSumPerWave = maxUserAttackSumPerWave.ToArray();
             data.minHP = (int)maxUserHPSum;
             data.maxHP = (int)maxUserHPSum;
             data.minPlayerHPPerWave = maxUserHPSumPerWave.ToArray();
-            data.eatGemRound = waves.Count + R.Range(1, 5);
+            data.eatGemRound = waves.Count + R.Range(1, 3);
             data.maxAttack = maxAttack;
             data.maxCombo = maxCombo;
             data.maxComboPerWave = maxComboPerWave.ToArray();
@@ -200,6 +199,12 @@ namespace AssemblyHijack.Automation
             data.endMoveGemPosY = null;
             data.numOfStraightLineMoveGem = 0;
             data.numOfEqualPointMoveGem = 0;
+
+            // 遊戲時間
+            if (MyGame.config.automation.floor.gamePlayError == 0)
+                data.gameplayTime = (float)((DateTime.Now - beginTime).TotalSeconds);
+            else
+                data.gameplayTime = R.Range(6.33f, 8.19f) * data.eatGemRound + 3.5f * waves.Count;
         }
     }
 }

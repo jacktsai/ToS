@@ -1,7 +1,7 @@
-﻿using System;
+﻿using AssemblyHijack.Automation.FloorStrategy;
+using System;
 using System.Linq;
 using System.Text;
-using AssemblyHijack.Automation.FloorStrategy;
 
 namespace AssemblyHijack.Automation
 {
@@ -194,7 +194,7 @@ namespace AssemblyHijack.Automation
         {
             var mission = new GuildMission_DonateCoin(Current.json);
             MyLog.Debug("公會任務要求 - 捐獻 {0:#,0} 金幣 {1:#,0} 黃金", mission.requireCoins, mission.donateGold);
-            MyDialog.SetNetworkWaitingText(null, "捐獻黃金\n<color=yellow>{0:#,0}</color>", mission.donateGold);
+            MyDialog.SetNetworkWaitingText(null, "捐獻\n<color=yellow>{0} 黃金\n{1:#,0} 金幣</color>", mission.donateGold, mission.requireCoins);
 
             if (mission.enoughCoins)
             {
@@ -340,7 +340,7 @@ namespace AssemblyHijack.Automation
         {
             var mission = new GuildMission_SubmitCardExp(Current.json);
             MyLog.Debug("公會任務要求 - 捐獻經驗值 {0:#,0}", mission.requireExp);
-            MyDialog.SetNetworkWaitingText(null, "捐獻經驗值\n<color=yellow>{0:#,0}</color>", mission.requireExp);
+            MyDialog.SetNetworkWaitingText(null, "捐獻\n<color=yellow>{0:#,0} 經驗值</color>", mission.requireExp);
 
             var candidates = Game.runtimeData.user.inventory.cards.Values
                 .Where(c => !c.inUse && !c.bookmark && !c.isHelper)

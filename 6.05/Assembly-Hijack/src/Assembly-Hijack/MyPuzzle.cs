@@ -16,7 +16,7 @@ public class MyPuzzle
             int[] elements;
 
             if (MyGame.config.puzzle.elements.Length != 0)
-                elements = MyGame.config.puzzle.elements;
+                elements = MyGame.config.puzzle.elements.Select(e => (int)e).ToArray();
             else
                 elements = AddCurrentTeamElementsToCurrentChance();
 
