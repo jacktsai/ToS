@@ -5,7 +5,7 @@ namespace AssemblyHijack.Automation
 {
     internal class FloorHelper
     {
-        public static void EnterAndComplete(int teamIndex, Floor target, bool isMission, Action<Loot> onLoot, Action onClear)
+        public static void EnterAndComplete(int teamIndex, Floor target, bool isMission, Action<Loot> onLoot, Action onCleared)
         {
             Game.GetHelperList(
                 target.floorId,
@@ -59,8 +59,8 @@ namespace AssemblyHijack.Automation
                                 {
                                     MyLog.Info("結束關卡 {0}", target.name);
 
-                                    if (onClear != null)
-                                        onClear();
+                                    if (onCleared != null)
+                                        onCleared();
                                 });
                             });
                     },

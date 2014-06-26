@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using R = UnityEngine.Random;
 
 namespace AssemblyHijack.Automation
 {
     internal class Combat
     {
+        private DateTime beginTime = DateTime.Now;
+
         private IList<Wave> waves;
         private IList<Card> cards;
 
@@ -26,7 +29,7 @@ namespace AssemblyHijack.Automation
 
         private IList<int> maxDamageTakenPerWave = new List<int>();
 
-        private int sumEnemyCount = 0;
+        private int sumEnemyCount;
         private IList<int> sumEnemyHPPerWave = new List<int>();
         private IList<int> sumEnemyAttackPerWave = new List<int>();
         private IList<int> sumEnemyDefencePerWave = new List<int>();
@@ -58,17 +61,15 @@ namespace AssemblyHijack.Automation
 
         public void GoGoGo(Action<int, int> OnWaveBegin, Action<int, int> OnWaveEnd, Action<Enemy> OnEnemyAppeared, Action OnCleared)
         {
-            waveOrder = 0;
-            waveMoved = 0;
-
-            maxCombo = R.Range(10, 20);
-            maxAttack = 0;
+            maxCombo = R.Range(3, 16);
 
             foreach (var wave in waves)
             {
                 waveOrder++;
                 waveMoved++;
-                OnWaveBegin(waveOrder, waves.Count);
+
+                if (OnWaveBegin != null)
+                    OnWaveBegin(waveOrder, waves.Count);
 
                 int sumEnemyHP = 0, sumEnemyAttack = 0, sumEnemyDefence = 0, sumEnemyCD = 0;
                 foreach (var enemy in wave.enemies)
@@ -84,7 +85,8 @@ namespace AssemblyHijack.Automation
 
                     #endregion 固定資訊
 
-                    OnEnemyAppeared(enemy);
+                    if (OnEnemyAppeared != null)
+                        OnEnemyAppeared(enemy);
                 }
 
                 #region 固定資訊
@@ -106,14 +108,14 @@ namespace AssemblyHijack.Automation
                 int attack = 0;
                 if (waveOrder == waves.Count)
                 {
-                    int round = R.Range(2, 3);
+                    int round = R.Range(2, 5);
                     sumMoveGemRoundPerWave.Add(round);
-                    attack = (int)R.Range(sumEnemyHP / round * 1.123f, sumEnemyHP / round * 1.955f); // 用敵人的血量來回推應該有的攻擊量
+                    attack = (int)R.Range(sumEnemyHP / round * 2.323f, sumEnemyHP / round * 3.855f); // 用敵人的血量來回推應該有的攻擊量
                 }
                 else
                 {
                     sumMoveGemRoundPerWave.Add(1);
-                    attack = (int)R.Range(sumEnemyHP * 1.123f, sumEnemyHP * 1.955f);
+                    attack = (int)R.Range(sumEnemyHP * 1.223f, sumEnemyHP * 1.955f);
                 }
 
                 maxComboPerWave.Add(R.Range(2, maxCombo));
@@ -121,7 +123,14 @@ namespace AssemblyHijack.Automation
                 maxPlayerAttackPerWave.Add(attack);
                 maxAttack = Math.Max(maxAttack, attack);
 
-                OnWaveEnd(waveOrder, waves.Count);
+                if (MyGame.config.automation.floor.gamePlayError == 0)
+                {
+                    // 當 gamePlayError = 0 時，server 會檢查通關時間是否過短
+                    Thread.Sleep(MyGame.config.automation.floor.waveTime * 1000);
+                }
+
+                if (OnWaveEnd != null)
+                    OnWaveEnd(waveOrder, waves.Count);
             }
 
             SetAntiCheatingData();
@@ -129,7 +138,8 @@ namespace AssemblyHijack.Automation
             MyLog.Debug("*** currentWaveIndex [{0}] maxAttack [{1:#,0}] maxCombo [{2}]***", Game.runtimeData.currentWaveIndex, Game.runtimeData.maxAttack, Game.runtimeData.maxCombo);
             MyLog.Debug("ACSJson: {0}", MyRestoreGameplay.GetACSJson());
 
-            OnCleared();
+            if (OnCleared != null)
+                OnCleared();
         }
 
         private void SetAntiCheatingData()
@@ -142,7 +152,7 @@ namespace AssemblyHijack.Automation
             data.numOfwave = waves.Count;
             data.currentGamePlayTeamData = data.currentTeamData;
             data.monsterNum = cards.Count;
-            data.gameplayTime = R.Range(5, 15) * sumEnemyCount * waves.Count; // 以平均每波30~90秒計算
+            data.gameplayTime = (float)((DateTime.Now - beginTime).TotalSeconds);
 
             // 我方攻擊資訊(14)
             data.maxUserAttackSumPerWave = maxUserAttackSumPerWave.ToArray();
@@ -182,7 +192,7 @@ namespace AssemblyHijack.Automation
             // 其它資訊 (10)
             data.dieTime = 0;
             data.retryTime = 0;
-            data.gamePlayError = -1;
+            data.gamePlayError = MyGame.config.automation.floor.gamePlayError;
             data.restoreCount = 0;
             data.startMoveGemPosX = null;
             data.startMoveGemPosY = null;

@@ -1,7 +1,7 @@
 {
 "log" :
 {
-	"level" : "debug"
+	"level" : "verbose"
 },
 
 "user" :
@@ -11,14 +11,14 @@
 	"teamSize" : 120,
 	"teamRoom" : 10,
 	"teamEnabled" : true,
-	"team0" : [
+	"team1" : [
 		{ "monsterId":515, "monsterLv":99, "skillLv":12, "refineLv":4 },
 		{ "monsterId":513, "monsterLv":99, "skillLv":12, "refineLv":4 },
 		{ "monsterId":512, "monsterLv":99, "skillLv":12, "refineLv":4 },
 		{ "monsterId":514, "monsterLv":99, "skillLv":12, "refineLv":4 },
 		{ "monsterId":212, "monsterLv":99, "skillLv":12, "refineLv":4 }
 	],
-	"team1" : [
+	"team2" : [
 		{ "monsterId":202, "monsterLv":99, "skillLv":12, "refineLv":4 },
 		{ "monsterId":204, "monsterLv":99, "skillLv":12, "refineLv":4 },
 		{ "monsterId":206, "monsterLv":99, "skillLv":12, "refineLv":4 },
@@ -27,7 +27,7 @@
 	],
 	"inventory" :
 	{
-		"enabled" : true,
+		"enabled" : false,
 		"desires" : [
 			{ "monsterId":8015, "monsterLv":99, "skillLv":12, "refineLv":4 },
 			{ "monsterId":8012, "monsterLv":99, "skillLv":12, "refineLv":4 }
@@ -38,8 +38,6 @@
 "helper" :
 {
 	"desires" : [
-		{ "monsterId":515, "monsterLv":99, "skillLv":12, "refineLv":4 },
-		{ "monsterId":202, "monsterLv":99, "skillLv":12, "refineLv":4 }
 	]
 },
 
@@ -87,7 +85,10 @@
 	{
 		"enabled" : true,
 		"floorIds" : [],
-		"requestFriend" : true
+		"requestFriend" : true,
+		"oneShot" : false,
+		"gamePlayError" : -1,
+		"waveTime" : 5
 	},
 	
 	"recovery" :

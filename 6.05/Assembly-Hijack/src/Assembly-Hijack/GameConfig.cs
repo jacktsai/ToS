@@ -147,6 +147,9 @@ public class GameConfig
             public bool enabled = false;
             public int[] floorIds = new int[0];
             public bool requestFriend = false;
+            public bool oneShot = false;
+            public int gamePlayError = 0;
+            public int waveTime = 5;
         }
 
         /// <summary>

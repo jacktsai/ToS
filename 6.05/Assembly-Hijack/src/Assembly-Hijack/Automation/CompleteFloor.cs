@@ -1,8 +1,8 @@
-﻿using System;
+﻿using AssemblyHijack.Automation.FloorStrategy;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
-using AssemblyHijack.Automation.FloorStrategy;
 
 namespace AssemblyHijack.Automation
 {
@@ -208,13 +208,16 @@ namespace AssemblyHijack.Automation
                     Game.SendFriendRequest(helper.uid, delegate
                     {
                         MyLog.Info("已對 '[#{0}]{1}' 發送好友邀請", helper.uid, helper.name);
-                        next();
+
+                        if (!MyGame.config.automation.floor.oneShot)
+                            next();
                     }, null);
                     return;
                 }
             }
 
-            next();
+            if (!MyGame.config.automation.floor.oneShot)
+                next();
         }
     }
 }
