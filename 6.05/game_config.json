@@ -143,8 +143,7 @@
 	
 	"merge" :
 	{
-		"enabled" : true,
-		"sacrificers" : [280, 281, 282, 283, 284, 291, 398, 426, 427, 428]
+		"enabled" : true
 	},
 
 	"sell" :

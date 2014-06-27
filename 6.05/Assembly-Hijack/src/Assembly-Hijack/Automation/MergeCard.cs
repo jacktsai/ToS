@@ -8,15 +8,21 @@ namespace AssemblyHijack.Automation
 {
     internal class MergeCard : Runnable
     {
+        private static int[] ExpCard = new[] { 280, 281, 282, 283, 284, 291, 398, 426, 427, 428 };
+        private static int Up1LevelCard = 423; // 異域法眼，強化時必定升上1個等級
+        private static int Up3LevelCard = 424; // 機關騎士，強化時必定升上3個等級
+        private static int Up5LevelCard = 425; // 永劫碑文像，強化時必定升上5個等級
+
         private class UpgradeInfo
         {
             public int count = 0;
+            public int level = 0;
             public int exp = 0;
             public int cost = 0;
             public int cardCount = 0;
         }
 
-        private IDictionary<string, UpgradeInfo> UpgradeInfoPerCard = new Dictionary<string, UpgradeInfo>();
+        private UpgradeInfo upgradeInfo = null;
 
         private Card target = null;
         private IList<Card> children = new List<Card>();
@@ -24,46 +30,22 @@ namespace AssemblyHijack.Automation
 
         public override void AppendReport(StringBuilder builder)
         {
-            if (UpgradeInfoPerCard.Count < 1)
+            if (upgradeInfo == null)
                 return;
 
-            builder.AppendFormat("=== 卡片強化報告 ===\n");
-
-            var totalCount = 0;
-            var totalExp = 0;
-            var totalCost = 0;
-            var totalCardCount = 0;
-            foreach (var item in UpgradeInfoPerCard)
-            {
-                totalCount += item.Value.count;
-                totalExp += item.Value.exp;
-                totalCost += item.Value.cost;
-                totalCardCount += item.Value.cardCount;
-            }
-
-            builder.AppendFormat("次數 <color=yellow>{0:#,0}</color>\n", totalCount);
-            builder.AppendFormat("費用 <color=yellow>{0:#,0}</color>\n", totalCost);
-            builder.AppendFormat("經驗值 <color=yellow>{0:#,0}</color>\n", totalExp);
-            builder.AppendFormat("卡片數 <color=yellow>{0:#,0}</color>\n", totalCardCount);
+            builder.AppendFormat("=== 強化報告 ===\n");
+            builder.AppendFormat("強化次數 <color=yellow>{0:#,0}</color>\n", upgradeInfo.count);
+            builder.AppendFormat("強化費用 <color=yellow>{0:#,0}</color>\n", upgradeInfo.cost);
+            builder.AppendFormat("獲經驗值 <color=yellow>{0:#,0}</color>\n", upgradeInfo.exp);
+            builder.AppendFormat("等級提升 <color=yellow>{0:#,0}</color>\n", upgradeInfo.level);
+            builder.AppendFormat("餵食卡數 <color=yellow>{0:#,0}</color>\n", upgradeInfo.cardCount);
         }
 
         protected override bool Check()
         {
-            if (!Game.runtimeData.user.inventory.isFull)
-            {
-                MyLog.Debug("背包未滿, 暫不判定需要強化的卡片");
-                return false;
-            }
-
-            if (MyGame.config.automation.merge.sacrificers.Length < 1)
-            {
-                MyLog.Debug("未設定被強化的卡片，不進行卡片強化");
-                return false;
-            }
-
             var sacrificers = Game.runtimeData.user.inventory.cards.Values
                 .Where(c => !c.inUse && !c.bookmark)
-                .Where(c => MyGame.config.automation.merge.sacrificers.Contains(c.monsterId))
+                .Where(c => ExpCard.Contains(c.monsterId))
                 .OrderBy(c => c.mergeExp)
                 .OrderBy(c => c.element)
                 .ToArray();
@@ -83,8 +65,6 @@ namespace AssemblyHijack.Automation
             {
                 if (Estimate(candidate, sacrificers))
                     return true;
-
-                MyLog.Debug("找不到合適的卡片進行強化！");
             }
 
             return false;
@@ -104,6 +84,7 @@ namespace AssemblyHijack.Automation
             Game.SetMonsterUpgradeTarget(target);
             Game.SetMonsterUpgradeChildren(children.ToArray());
 
+            var levelBefore = target.level;
             var expBefore = target.exp;
             var coinBefore = Game.runtimeData.user.coin;
 
@@ -111,22 +92,20 @@ namespace AssemblyHijack.Automation
             Game.UpgradeMonster(delegate
             {
                 var upgradedCard = Game.runtimeData.user.inventory.GetCard(target.cardId);
+                var actualLevel = upgradedCard.level - levelBefore;
                 var actualExp = upgradedCard.exp - expBefore;
                 var actualCost = coinBefore - Game.runtimeData.user.coin;
                 MyLog.Info("{0} 強化成功, 經驗值{1:#,0}, 費用{2:#,0}金幣, 等級提昇{3}", target.name, actualExp, actualCost, upgradedCard.level - target.level);
 
-                var cardKey = String.Format("{0}", target.name);
-                UpgradeInfo upgradeInfo;
-                if (!UpgradeInfoPerCard.TryGetValue(cardKey, out upgradeInfo))
-                {
+                if (upgradeInfo == null)
                     upgradeInfo = new UpgradeInfo();
-                    UpgradeInfoPerCard.Add(cardKey, upgradeInfo);
-                }
 
                 upgradeInfo.count++;
+                upgradeInfo.level += actualLevel;
                 upgradeInfo.exp += actualExp;
                 upgradeInfo.cost += actualCost;
                 upgradeInfo.cardCount += children.Count;
+
                 next();
             });
         }
@@ -136,16 +115,13 @@ namespace AssemblyHijack.Automation
             children.Clear();
             StringBuilder cardNames = new StringBuilder();
 
+            Game.SetMonsterUpgradeTarget(candidate);
             int requiredExp = candidate.LevelToExp(candidate.maxLevel + 1) - candidate.accumulativeLevelExp;
             int expectedExp = 0;
             int childrenBonus = 0;
             foreach (var card in sarcrificers)
             {
-                if (card.element == card.element)
-                    expectedExp += (int)(card.mergeExp * 1.5);
-                else
-                    expectedExp += card.mergeExp;
-
+                expectedExp += card.predictedMergeExp;
                 childrenBonus += card.bonus;
                 children.Add(card);
 
@@ -161,9 +137,17 @@ namespace AssemblyHijack.Automation
 
             if (Game.runtimeData.user.coin >= expectedCost)
             {
-                MyLog.Info("判定強化 {0} 預估經驗值 {1:#,0} 預估費用 {2:#,0} 餵食 {3} 張卡 {4}", candidate.name, expectedExp, expectedCost, children.Count, cardNames);
-                target = candidate;
-                return true;
+                if (expectedExp >= requiredExp || Game.runtimeData.user.inventory.isFull)
+                {
+                    MyLog.Info("判定強化 {0} 預估經驗值 {1:#,0} 預估費用 {2:#,0} 餵食 {3} 張卡 {4}", candidate.name, expectedExp, expectedCost, children.Count, cardNames);
+                    target = candidate;
+                    return true;
+                }
+                else
+                {
+                    MyLog.Debug("背包未滿, 執行卡片強化");
+                    return false;
+                }
             }
             else
             {

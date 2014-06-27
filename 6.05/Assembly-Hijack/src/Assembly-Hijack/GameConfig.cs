@@ -268,11 +268,6 @@ public class GameConfig
             /// 是否使用卡片自動強化功能，目前僅針對代表卡進行強化
             /// </summary>
             public bool enabled = false;
-
-            /// <summary>
-            /// 飼料卡名單
-            /// </summary>
-            public int[] sacrificers = new int[0];
         }
 
         public class Sell

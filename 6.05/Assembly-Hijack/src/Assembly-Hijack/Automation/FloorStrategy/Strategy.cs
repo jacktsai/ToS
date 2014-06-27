@@ -48,9 +48,9 @@ namespace AssemblyHijack.Automation.FloorStrategy
                 return PatrolGuide.SKIP;
             }
 
-            if (target.unlockByItem && !target.isItemCollected)
+            if (target.unlockByItem)
             {
-                MyLog.Debug("{0}-{1} IS NOT ENOUGH ITEM, SKIP", stage.name, target.name);
+                MyLog.Debug("{0}-{1} IS LOCKED BYITEM, SKIP", stage.name, target.name);
                 return PatrolGuide.SKIP;
             }
 

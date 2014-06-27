@@ -9,6 +9,14 @@ namespace AssemblyHijack.Automation.FloorStrategy
     /// </summary>
     internal class Extreme : Strategy
     {
+        /// <summary>
+        /// 要排除在外的 stage IDs
+        /// </summary>
+        private static int[] ExcludedStageIds = new[]
+        {
+            191, 192, 193, 244, 245 // 布蘭克洞窟
+        };
+
         private Floor lastResult = null;
 
         public override Floor NextFloor()
@@ -50,6 +58,11 @@ namespace AssemblyHijack.Automation.FloorStrategy
                 else
                 {
                     Stage nextStage = lastResult.stage.nextStage;
+                    while (nextStage != null && ExcludedStageIds.Contains(nextStage.stageId))
+                    {
+                        nextStage = nextStage.nextStage;
+                    }
+
                     if (nextStage != null)
                     {
                         candidate = nextStage.floors[1];
@@ -80,7 +93,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
             Floor bonus = null;
 
             MyLog.Debug("開始從頭尋找關卡...");
-            foreach (var stage in Game.database.stages.Values.Where(s => s.type == Stage.Type.NORMAL))
+            foreach (var stage in Game.database.stages.Values.Where(s => s.type == Stage.Type.NORMAL && !ExcludedStageIds.Contains(s.stageId)))
             {
                 foreach (var floor in stage.floors.Values)
                 {
