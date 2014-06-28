@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 
 internal class MyDB
 {
@@ -42,6 +39,7 @@ internal class MyDB
 
         MyLog.Debug("開始分析 {0}({1})({2}) 可能會出現的關卡", monster.name, monster.rare, monster.type);
 
+        int zoneId = (int)monster.element; // zone 編號與元素編號相同
         int stageIndex = 0;
         int floorIndex = 0;
 
@@ -104,14 +102,21 @@ internal class MyDB
 
         if (stageIndex > 0 && floorIndex > 0)
         {
-            foreach (var stageBonus in Game.runtimeData.stageBonus.stages.OrderBy(s => s.stageId))
+            foreach (var zone in Game.runtimeData.availableZones)
             {
-                stageIndex--;
-
-                if (stageIndex == 0)
+                if (zone.zoneId == zoneId)
                 {
-                    var stage = Game.database.stages[stageBonus.stageId];
-                    floor = stage.floors[floorIndex];
+                    foreach (var stage in zone.stages.Values.OrderBy(s => s.stageId))
+                    {
+                        stageIndex--;
+
+                        if (stageIndex == 0)
+                        {
+                            floor = stage.floors[floorIndex];
+                            break;
+                        }
+                    }
+
                     break;
                 }
             }

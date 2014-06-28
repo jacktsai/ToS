@@ -62,13 +62,14 @@ namespace WinForm
                 foreach (var stageItem in typeItem)
                 {
                     string title;
+                    var stage = stageItem.Stage;
                     if (stageItem.Story != null)
-                        title = String.Format("[{0}]{1} ({2}) - {3}", stageItem.Stage.stageId, stageItem.Stage.title, stageItem.Floors.Count(), stageItem.Story.name);
+                        title = String.Format("{4}[{0}]{1} ({2}) - {3}", stage.stageId, stage.title, stageItem.Floors.Count(), stageItem.Story.name, stage.zone);
                     else
-                        title = String.Format("[{0}]{1} ({2})", stageItem.Stage.stageId, stageItem.Stage.title, stageItem.Floors.Count());
+                        title = String.Format("{3}[{0}]{1} ({2})", stage.stageId, stage.title, stageItem.Floors.Count(), stage.zone);
 
                     TreeNode stageNode = stageTypeNode.Nodes.Add(title);
-                    stageNode.Tag = stageItem.Stage;
+                    stageNode.Tag = stage;
                     foreach (var floor in stageItem.Floors)
                     {
                         TreeNode floorNode = stageNode.Nodes.Add(String.Format("[{0}]{1}", floor.floorId, floor.title));

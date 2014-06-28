@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
 
 namespace AssemblyHijack.Automation
 {
@@ -12,26 +11,6 @@ namespace AssemblyHijack.Automation
         /// 經驗值卡
         /// </summary>
         private static int[] ExpCards = new[] { 280, 281, 282, 283, 284, 291, 398, 426, 427, 428 };
-
-        /// <summary>
-        /// 異域法眼，強化時必定升上1個等級
-        /// </summary>
-        private static int Up1LevelCard = 423;
-
-        /// <summary>
-        /// 機關騎士，強化時必定升上3個等級
-        /// </summary>
-        private static int Up3LevelCard = 424;
-
-        /// <summary>
-        /// 永劫碑文像，強化時必定升上5個等級
-        /// </summary>
-        private static int Up5LevelCard = 425;
-
-        /// <summary>
-        /// 等級卡
-        /// </summary>
-        private static int[] LevelCards = new[] { Up1LevelCard, Up3LevelCard, Up5LevelCard };
 
         private class UpgradeInfo
         {
@@ -156,39 +135,14 @@ namespace AssemblyHijack.Automation
             return expectedExp >= requiredExp || Game.runtimeData.user.inventory.isFull;
         }
 
-        private bool EstimateWithLevelCard()
-        {
-            var levelCards = Game.runtimeData.user.inventory.cards.Values
-                .Where(c => !c.inUse && !c.bookmark)
-                .Where(c => LevelCards.Contains(c.monsterId))
-                .OrderByDescending(c => c.monsterId)
-                .ToArray();
-
-            children.Clear();
-
-            int requiredLevel = target.maxLevel - target.level;
-            int expectedLevel = 0;
-            foreach (var card in levelCards)
-            {
-                if (card.monsterId == Up1LevelCard)
-                    expectedLevel += 1;
-                else if (card.monsterId == Up3LevelCard)
-                    expectedLevel += 3;
-                else if (card.monsterId == Up5LevelCard)
-                    expectedLevel += 5;
-
-                children.Add(card);
-
-                if (expectedLevel >= requiredLevel)
-                    break;
-            }
-
-            return children.Count > 0 || Game.runtimeData.user.inventory.isFull;
-        }
-
         private bool EstimateCost()
         {
-            var childrenBonus = children.Sum(card => card.bonus);
+            var childrenBonus = 0;
+            foreach (var child in children)
+            {
+                childrenBonus += child.bonus;
+            }
+
             expectedCost = target.mergeCoin * children.Count + (target.bonus + childrenBonus) * Core.Config.UPGRADE_CARDBOUNS_COST;
 
             return Game.runtimeData.user.coin >= expectedCost;

@@ -121,7 +121,7 @@
 	{
 		"acceptMembers" : false,
 		"achieveMissions" : true,
-		"reserveCoin" : 500000
+		"reserveCoin" : 100000
 	},
 	
 	"floor" :
@@ -152,7 +152,7 @@
 		"reserveAmount" : 2,
 		"lowestRare" : "GOLD",
 		"includeMonsterIds" : [576, 577, 578],
-		"excludeMonsterIds" : [280, 281, 282, 283, 284, 291, 398, 426, 427, 428, 400, 423, 424, 425]
+		"excludeMonsterIds" : [280, 281, 282, 283, 284, 291, 398, 426, 427, 428]
 	}
 }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AssemblyHijack.Automation.FloorStrategy
+﻿namespace AssemblyHijack.Automation.FloorStrategy
 {
     internal abstract class Strategy : IStrategy
     {

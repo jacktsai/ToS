@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-
-public class GameConfig
+﻿public class GameConfig
 {
     public Log log = new Log();
     public User user = new User();
