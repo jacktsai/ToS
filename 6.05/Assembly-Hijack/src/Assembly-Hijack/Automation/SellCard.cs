@@ -15,8 +15,17 @@ namespace AssemblyHijack.Automation
 
         private class ReservedConatiner
         {
-            private int reserveAmount = MyGame.config.automation.sell.reserveAmount;
-            private Dictionary<int, List<Card>> reserved = new Dictionary<int, List<Card>>(); // monsterId => current skipped cards
+            private IDictionary<Monster.RacialType, int> reserveAmount = new Dictionary<Monster.RacialType, int>();
+            private IDictionary<int, List<Card>> reserved = new Dictionary<int, List<Card>>(); // monsterId => current skipped cards
+
+            public ReservedConatiner()
+            {
+                foreach (var item in MyGame.config.automation.sell.reserveAmount)
+                {
+                    var race = (Monster.RacialType)Enum.Parse(typeof(Monster.RacialType), item.Key, true);
+                    reserveAmount[race] = item.Value;
+                }
+            }
 
             /// <summary>
             /// 檢查此卡片是否需要保留
@@ -27,7 +36,11 @@ namespace AssemblyHijack.Automation
             /// </returns>
             public Card Check(Card candidate)
             {
-                if (reserveAmount < 1)
+                int amount;
+                if (!reserveAmount.TryGetValue(candidate.type, out amount))
+                    amount = 0;
+
+                if (amount < 1)
                     return candidate;
 
                 List<Card> reservedCards;
@@ -37,7 +50,7 @@ namespace AssemblyHijack.Automation
                     reserved.Add(candidate.monsterId, reservedCards);
                 }
 
-                if (reservedCards.Count == reserveAmount) // 已經到達保留數量
+                if (reservedCards.Count == amount) // 已經到達保留數量
                 {
                     if (candidate.inUse || candidate.bookmark) // 這張卡無法出售
                     {
@@ -91,7 +104,15 @@ namespace AssemblyHijack.Automation
             if (SellInfoPerMonster.Count < 1)
                 return;
 
+            var report = CreateReport();
             builder.AppendFormat("=== 卡片銷售統計 ===\n");
+            builder.Append(report);
+        }
+
+        private StringBuilder CreateReport()
+        {
+            var builder = new StringBuilder();
+
             var totalCount = 0;
             var totalPrice = 0;
 
@@ -103,8 +124,10 @@ namespace AssemblyHijack.Automation
                 totalPrice += item.Value.price;
             }
 
-            builder.AppendFormat("出售 <color=yellow>{0}</color> 張卡片\n", totalCount);
-            builder.AppendFormat("獲得 <color=yellow>{0:#,0}</color> 金幣\n", totalPrice);
+            builder.Insert(0, String.Format("獲得 <color=yellow>{0:#,0}</color> 金幣\n", totalPrice));
+            builder.Insert(0, String.Format("出售 <color=yellow>{0}</color> 張卡片\n", totalCount));
+
+            return builder;
         }
 
         protected override bool Check()

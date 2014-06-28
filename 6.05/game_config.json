@@ -149,10 +149,10 @@
 	"sell" :
 	{
 		"enabled" : true,
-		"reserveAmount" : 2,
+		"excludeMonsterIds" : [280, 281, 282, 283, 284, 291, 398, 426, 427, 428],
+		"includeMonsterIds" : [292, 425, 578],
 		"lowestRare" : "GOLD",
-		"includeMonsterIds" : [576, 577, 578],
-		"excludeMonsterIds" : [280, 281, 282, 283, 284, 291, 398, 426, 427, 428]
+		"reserveAmount" : {"HUMAN":1, "MONSTER":1, "FAIRY":1, "DRAGON":1, "GOD":1, "DEVIL":1, "UPGRADE":0, "EVOLVE":4}
 	}
 }
 }

@@ -8,15 +8,7 @@ namespace AssemblyHijack.Automation
     {
         public bool CanRun()
         {
-            bool checkResult = false;
-            try
-            {
-                checkResult = this.Check();
-            }
-            catch (Exception exception)
-            {
-                Debug.LogError(exception.ToString());
-            }
+            bool checkResult = this.Check();
 
             if (!checkResult)
             {
@@ -28,14 +20,7 @@ namespace AssemblyHijack.Automation
 
         public void Run(Action next)
         {
-            try
-            {
-                this.Execute(next);
-            }
-            catch (Exception exception)
-            {
-                Debug.LogError(exception.ToString());
-            }
+            this.Execute(next);
         }
 
         public virtual void AppendReport(StringBuilder builder)

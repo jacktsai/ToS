@@ -368,7 +368,6 @@ public class MyGame
             {
                 MyDialog.SetNetworkWaitingText(String.Format("正在執行 <color=#80FFFFFF>{0}</color> ...", runner.GetType().Name), "...");
                 runner.Run(NextAction);
-                AudioController.bgm.Play(BgmId.NONE);
                 return;
             }
         }

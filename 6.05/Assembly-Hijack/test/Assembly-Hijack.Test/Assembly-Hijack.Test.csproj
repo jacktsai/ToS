@@ -59,6 +59,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Automation\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
@@ -68,13 +69,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Automation\CombatTest.cs" />
-    <Compile Include="Automation\MergeCardTest.cs" />
     <Compile Include="GameConfigTest.cs" />
-    <Compile Include="MyGameTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="game_config.json" />
+    <None Include="game_config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

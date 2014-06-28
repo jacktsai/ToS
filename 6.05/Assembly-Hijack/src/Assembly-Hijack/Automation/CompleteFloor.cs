@@ -86,30 +86,34 @@ namespace AssemblyHijack.Automation
                 cardCount += item.Value;
             }
 
-            if (floorCount > 0)
-                reportBuilder.AppendFormat("通關 <color=yellow>{0:#,0}</color> 次\n", floorCount);
-
-            if (cardCount > 0)
-                reportBuilder.AppendFormat("卡片 <color=yellow>{0:#,0}</color> 張\n", cardCount);
-
             foreach (var item in Report_User)
             {
                 if (item.Value < 1)
                     continue;
 
+                var message = string.Empty;
+
                 if (item.Key == REPORT_USER_STAMINA)
-                    reportBuilder.AppendFormat("體力 <color=yellow>{0:#,0}</color>\n", item.Value);
+                    message = String.Format("體力 <color=yellow>{0:#,0}</color>\n", item.Value);
                 else if (item.Key == REPORT_USER_EXP)
-                    reportBuilder.AppendFormat("經驗值 <color=yellow>{0:#,0}</color>\n", item.Value);
+                    message = String.Format("經驗值 <color=yellow>{0:#,0}</color>\n", item.Value);
                 else if (item.Key == REPORT_USER_FRIEND_POINT)
-                    reportBuilder.AppendFormat("好友點數 <color=yellow>{0:#,0}</color>\n", item.Value);
+                    message = String.Format("好友點數 <color=yellow>{0:#,0}</color>\n", item.Value);
                 else if (item.Key == REPORT_USER_COIN)
-                    reportBuilder.AppendFormat("金幣 <color=yellow>{0:#,0}</color>\n", item.Value);
+                    message = String.Format("金幣 <color=yellow>{0:#,0}</color>\n", item.Value);
                 else if (item.Key == REPORT_USER_DIAMOND)
-                    reportBuilder.AppendFormat("魔法石 <color=yellow>{0}</color>\n", item.Value);
+                    message = String.Format("魔法石 <color=yellow>{0}</color>\n", item.Value);
                 else if (item.Key == REPORT_USER_LEVEL)
-                    reportBuilder.AppendFormat("等級提升 <color=yellow>{0}</color>\n", item.Value);
+                    message = String.Format("等級提升 <color=yellow>{0}</color>\n", item.Value);
+
+                reportBuilder.Insert(0, message);
             }
+
+            if (cardCount > 0)
+                reportBuilder.Insert(0, String.Format("卡片 <color=yellow>{0:#,0}</color> 張\n", cardCount));
+
+            if (floorCount > 0)
+                reportBuilder.Insert(0, String.Format("通關 <color=yellow>{0:#,0}</color> 次\n", floorCount));
 
             return reportBuilder;
         }

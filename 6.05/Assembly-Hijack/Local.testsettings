@@ -1,9 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<TestSettings name="本機" id="61fb9429-2c23-46f6-bd45-f3a7fc037bca" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+<TestSettings name="Local" id="61fb9429-2c23-46f6-bd45-f3a7fc037bca" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
   <Description>這些是本機測試回合的預設測試設定。</Description>
-  <Deployment>
-    <DeploymentItem filename="test\Assembly-Hijack.Test\game_config.json" />
-  </Deployment>
+  <Deployment enabled="false" />
   <Execution>
     <TestTypeSpecific>
       <UnitTestRunConfig testTypeId="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b">
@@ -23,6 +21,17 @@
       </WebTestRunConfiguration>
     </TestTypeSpecific>
     <AgentRule name="LocalMachineDefaultRole">
+      <DataCollectors>
+        <DataCollector uri="datacollector://microsoft/CodeCoverage/1.0" assemblyQualifiedName="Microsoft.VisualStudio.TestTools.CodeCoverage.CoveragePlugIn, Microsoft.VisualStudio.QualityTools.Plugins.CodeCoverage, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" friendlyName="Code Coverage (Visual Studio 2010)">
+          <Configuration>
+            <CodeCoverage xmlns="">
+              <Regular>
+                <CodeCoverageItem binaryFile="src\Assembly-Hijack\bin\Debug\Assembly-Hijack.dll" pdbFile="src\Assembly-Hijack\bin\Debug\Assembly-Hijack.pdb" instrumentInPlace="true" />
+              </Regular>
+            </CodeCoverage>
+          </Configuration>
+        </DataCollector>
+      </DataCollectors>
     </AgentRule>
   </Execution>
 </TestSettings>

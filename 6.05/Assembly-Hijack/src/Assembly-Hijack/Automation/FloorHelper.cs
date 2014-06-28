@@ -1,4 +1,5 @@
 ﻿using System;
+using TOS;
 
 namespace AssemblyHijack.Automation
 {
