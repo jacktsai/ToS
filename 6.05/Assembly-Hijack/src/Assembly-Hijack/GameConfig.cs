@@ -273,24 +273,14 @@ public class GameConfig
             public bool enabled = false;
 
             /// <summary>
-            /// 不列入出售的卡片
+            /// 列入出售的卡片群
             /// </summary>
-            public int[] excludeMonsterIds = new int[0];
+            public string[] target = new string[0];
 
             /// <summary>
-            /// 無條件列入出售的卡片
+            /// 排除出售的卡片群
             /// </summary>
-            public int[] includeMonsterIds = new int[0];
-
-            /// <summary>
-            /// 不在include也不在exclude時，依稀有度判斷，低於等於此設定的列入出售範圍
-            /// </summary>
-            public Monster.RareType lowestRare = Monster.RareType.NONE;
-
-            /// <summary>
-            /// 在低於lowestRare設定範圍內，依種族設定各種同卡號卡片的保留數量，可用於保留公會獻祭卡，也可用於保留進化卡
-            /// </summary>
-            public Dictionary<string, int> reserveAmount = new Dictionary<string, int>();
+            public string[] exclude = new string[0];
         }
     }
 }

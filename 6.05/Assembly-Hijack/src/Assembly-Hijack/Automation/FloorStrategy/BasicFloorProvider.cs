@@ -36,7 +36,7 @@ namespace AssemblyHijack.Automation.FloorStrategy
             Floor candidate = null;
 
             MyLog.Debug("嘗試取得[{0}]關卡...", stageType);
-            foreach (var stage in Game.database.stages.Values.Where(s => s.type == stageType))
+            foreach (var stage in Game.database.stages.Values.Where(s => s.type == stageType && s.requiredItemId != 13 /*布蘭克洞窟鑰匙*/))
             {
                 foreach (var floor in stage.floors.Values)
                 {

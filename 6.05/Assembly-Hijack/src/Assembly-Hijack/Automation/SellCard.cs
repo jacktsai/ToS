@@ -7,90 +7,80 @@ namespace AssemblyHijack.Automation
 {
     internal class SellCard : Runnable
     {
+        private class PatternContainer
+        {
+            private class Range
+            {
+                public int begin;
+                public int end;
+            }
+
+            private readonly IList<Range> ranges = new List<Range>();
+            private readonly IList<Monster.RacialType> racials = new List<Monster.RacialType>();
+
+            public PatternContainer(string[] patterns)
+            {
+                foreach (var pattern in patterns)
+                {
+                    int id;
+                    if (int.TryParse(pattern, out id))
+                    {
+                        ranges.Add(new Range { begin = id, end = id });
+                    }
+                    else
+                    {
+                        string[] blocks = pattern.Split('~');
+                        if (blocks.Length == 2)
+                        {
+                            ranges.Add(new Range
+                                {
+                                    begin = int.Parse(blocks[0]),
+                                    end = int.Parse(blocks[1]),
+                                });
+                        }
+                        else
+                        {
+                            try
+                            {
+                                var racial = (Monster.RacialType)Enum.Parse(typeof(Monster.RacialType), pattern, true);
+                                racials.Add(racial);
+                            }
+                            catch
+                            {
+                            }
+                        }
+                    }
+                }
+            }
+
+            public bool IsMatch(Card card)
+            {
+                foreach (var range in ranges)
+                {
+                    if (card.monsterId >= range.begin && card.monsterId <= range.end)
+                        return true;
+                }
+
+                foreach (var racial in racials)
+                {
+                    if (card.type == racial)
+                        return true;
+                }
+
+                return false;
+            }
+        }
+
         private class SellInfo
         {
             public int count = 0;
             public int price = 0;
         }
 
-        private class ReservedConatiner
-        {
-            private IDictionary<Monster.RacialType, int> reserveAmount = new Dictionary<Monster.RacialType, int>();
-            private IDictionary<int, List<Card>> reserved = new Dictionary<int, List<Card>>(); // monsterId => current skipped cards
-
-            public ReservedConatiner()
-            {
-                foreach (var item in MyGame.config.automation.sell.reserveAmount)
-                {
-                    var race = (Monster.RacialType)Enum.Parse(typeof(Monster.RacialType), item.Key, true);
-                    reserveAmount[race] = item.Value;
-                }
-            }
-
-            /// <summary>
-            /// 檢查此卡片是否需要保留
-            /// </summary>
-            /// <param name="candidate">被檢查的卡片</param>
-            /// <returns>
-            /// null，請略過此卡；否則，將回傳的卡列入出售
-            /// </returns>
-            public Card Check(Card candidate)
-            {
-                int amount;
-                if (!reserveAmount.TryGetValue(candidate.type, out amount))
-                    amount = 0;
-
-                if (amount < 1)
-                    return candidate;
-
-                List<Card> reservedCards;
-                if (!reserved.TryGetValue(candidate.monsterId, out reservedCards))
-                {
-                    reservedCards = new List<Card>();
-                    reserved.Add(candidate.monsterId, reservedCards);
-                }
-
-                if (reservedCards.Count == amount) // 已經到達保留數量
-                {
-                    if (candidate.inUse || candidate.bookmark) // 這張卡無法出售
-                    {
-                        // 找找看保留名單中是否有可以替換的卡片
-                        Card substitute = null;
-                        foreach (var substituteCandidate in reservedCards)
-                        {
-                            if (!substituteCandidate.inUse && !substituteCandidate.bookmark) // 太好了，找到可以替換的對象
-                            {
-                                substitute = substituteCandidate;
-                                break;
-                            }
-                        }
-
-                        if (substitute != null)
-                        {
-                            // 找到替身，交換卡片
-                            reservedCards.Remove(substitute);
-                            reservedCards.Add(candidate);
-                            return substitute;
-                        }
-                        else
-                        {
-                            // 找不到替身，只好再列入保留
-                            reservedCards.Add(candidate);
-                            return null;
-                        }
-                    }
-                }
-                else // 未有保留卡片
-                {
-                    reservedCards.Add(candidate);
-                    return null;
-                }
-
-                return candidate;
-            }
-        }
-
         private IDictionary<int, SellInfo> SellInfoPerMonster = new Dictionary<int, SellInfo>();
+
+        private PatternContainer target = new PatternContainer(MyGame.config.automation.sell.target);
+        private PatternContainer exclude = new PatternContainer(MyGame.config.automation.sell.exclude);
 
         /// <summary>
         /// 預計售出卡片
@@ -139,27 +129,14 @@ namespace AssemblyHijack.Automation
             }
 
             targets.Clear();
-            var lowestRare = MyGame.config.automation.sell.lowestRare;
-            var excludeIds = MyGame.config.automation.sell.excludeMonsterIds;
-            var includeIds = MyGame.config.automation.sell.includeMonsterIds;
-            var reservedContainer = new ReservedConatiner();
             var cardNames = new StringBuilder();
-            foreach (var card in Game.runtimeData.user.inventory.cards.Values)
+            foreach (var candidate in Game.runtimeData.user.inventory.cards.Values)
             {
-                var candidate = card;
-
-                if (excludeIds.Contains(candidate.monsterId))
+                if (!target.IsMatch(candidate))
                     continue;
 
-                if (!includeIds.Contains(candidate.monsterId))
-                {
-                    if (candidate.rare > lowestRare)
-                        continue;
-
-                    candidate = reservedContainer.Check(card);
-                    if (candidate == null)
-                        continue;
-                }
+                if (exclude.IsMatch(candidate))
+                    continue;
 
                 if (cardNames.Length > 0)
                     cardNames.Append(",");

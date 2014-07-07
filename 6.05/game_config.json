@@ -165,10 +165,8 @@
 	"sell" :
 	{
 		"enabled" : true,
-		"excludeMonsterIds" : [280, 281, 282, 283, 284, 291, 398, 426, 427, 428],
-		"includeMonsterIds" : [292, 425, 578],
-		"lowestRare" : "GOLD",
-		"reserveAmount" : {"HUMAN":0, "MONSTER":0, "FAIRY":0, "DRAGON":0, "GOD":0, "DEVIL":0, "UPGRADE":0, "EVOLVE":0}
+		"target" : ["56~115", "241~269", "292", "425", "578", "UPGRADE", "241~269", "8031~8044"],
+		"exclude" : ["280~284", "291", "398", "426~428"]
 	}
 }
 }
