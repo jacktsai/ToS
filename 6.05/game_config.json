@@ -142,7 +142,7 @@
 	
 	"floor" :
 	{
-		"enabled" : true,
+		"enabled" : false,
 		"floorIds" : [],
 		"requestFriend" : true,
 		"oneShot" : false,
@@ -166,7 +166,7 @@
 	{
 		"enabled" : true,
 		"target" : ["56~115", "241~269", "292", "425", "578", "UPGRADE", "241~269", "8031~8044"],
-		"exclude" : ["280~284", "291", "398", "426~428"]
+		"exclude" : ["291", "398", "426~428"]
 	}
 }
 }

@@ -43,60 +43,88 @@ internal class MyDB
         int stageIndex = 0;
         int floorIndex = 0;
 
-        switch (monster.rare)
+        switch (monsterId)
         {
-            case Monster.RareType.NORMAL:
-                stageIndex = 1;
-                floorIndex = 1;
+            case 87:
+            case 89:
+            case 91:
+            case 93:
+            case 95:
+            case 107:
+            case 109:
+            case 111:
+            case 113:
+            case 115:
+                stageIndex = 5;
+                floorIndex = 5;
                 break;
 
-            case Monster.RareType.BRONZE:
-                stageIndex = 3; // 第三個 stage
-                switch (monster.type)
+            case 97:
+            case 99:
+            case 101:
+            case 103:
+            case 105:
+                stageIndex = 6;
+                floorIndex = 5;
+                break;
+
+            default:
+                switch (monster.rare)
                 {
-                    case Monster.RacialType.DEVIL:
-                        floorIndex = 5; // 第一個 floor
-                        break;
-
-                    case Monster.RacialType.DRAGON:
-                        floorIndex = 2;
-                        break;
-
-                    case Monster.RacialType.FAIRY:
+                    case Monster.RareType.NORMAL:
+                        stageIndex = 1;
                         floorIndex = 1;
                         break;
 
-                    case Monster.RacialType.GOD:
+                    case Monster.RareType.BRONZE:
+                        stageIndex = 3; // 第三個 stage
+                        switch (monster.type)
+                        {
+                            case Monster.RacialType.DEVIL:
+                                floorIndex = 5; // 第一個 floor
+                                break;
+
+                            case Monster.RacialType.DRAGON:
+                                floorIndex = 2;
+                                break;
+
+                            case Monster.RacialType.FAIRY:
+                                floorIndex = 1;
+                                break;
+
+                            case Monster.RacialType.GOD:
+                                break;
+
+                            case Monster.RacialType.HUMAN:
+                                floorIndex = 3;
+                                break;
+
+                            case Monster.RacialType.MONSTER:
+                                floorIndex = 4;
+                                break;
+
+                            default:
+                                break;
+                        }
                         break;
 
-                    case Monster.RacialType.HUMAN:
-                        floorIndex = 3;
+                    case Monster.RareType.SILVER:
+                        stageIndex = 4;
+                        floorIndex = 5;
                         break;
 
-                    case Monster.RacialType.MONSTER:
-                        floorIndex = 4;
+                    case Monster.RareType.GOLD:
+                        break;
+
+                    case Monster.RareType.PLATINUM:
+                        break;
+
+                    case Monster.RareType.DIAMOND:
                         break;
 
                     default:
                         break;
                 }
-                break;
-
-            case Monster.RareType.SILVER:
-                stageIndex = 4;
-                floorIndex = 5;
-                break;
-
-            case Monster.RareType.GOLD:
-                break;
-
-            case Monster.RareType.PLATINUM:
-                break;
-
-            case Monster.RareType.DIAMOND:
-                break;
-
-            default:
                 break;
         }
 
