@@ -83,6 +83,8 @@ internal class MyDB
                 break;
 
             case Monster.RareType.SILVER:
+                stageIndex = 4;
+                floorIndex = 5;
                 break;
 
             case Monster.RareType.GOLD:
