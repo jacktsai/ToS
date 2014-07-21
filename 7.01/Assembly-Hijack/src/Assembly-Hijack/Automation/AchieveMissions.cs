@@ -40,6 +40,13 @@ namespace AssemblyHijack.Automation
                 return false;
             }
 
+            if (Game.runtimeData.user.inventory.isFull)
+            {
+                MyLog.Info("背包已滿");
+                skipOneTime = false;
+                return false;
+            }
+
             if (executeCount > 0)
             {
                 if (skipOneTime)
@@ -85,6 +92,13 @@ namespace AssemblyHijack.Automation
 
         private void NextMission(Action next)
         {
+            if (Game.runtimeData.user.inventory.isFull)
+            {
+                MyLog.Info("背包已滿");
+                next();
+                return;
+            }
+
             if (Game.runtimeData.user.achievedAllGuildMission)
             {
                 completed = true;
