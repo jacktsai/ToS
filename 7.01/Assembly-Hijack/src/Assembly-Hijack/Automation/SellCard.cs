@@ -130,7 +130,7 @@ namespace AssemblyHijack.Automation
 
             targets.Clear();
             var cardNames = new StringBuilder();
-            foreach (var candidate in Game.runtimeData.user.inventory.cards.Values)
+            foreach (var candidate in Game.runtimeData.user.inventory.cards.Values.Where(c => !c.inUse && !c.bookmark))
             {
                 if (!target.IsMatch(candidate))
                     continue;
