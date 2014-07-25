@@ -6,21 +6,25 @@ internal class MyDB
     {
         //各情境的第一個高級關卡編號
         int floorIdBase = 0;
+        int itemIdBase = 0;
 
         if (itemId <= 20)
         {
             //黃道十二宮
             floorIdBase = 336;
+            itemIdBase = 1;
         }
         else if (itemId <= 30)
         {
             //封神仙境
             floorIdBase = 723;
+            itemIdBase = 21;
         }
         else if (itemId <= 40)
         {
             //魔宅異境
             floorIdBase = 820;
+            itemIdBase = 31;
         }
         else
         {
@@ -28,7 +32,7 @@ internal class MyDB
             return null;
         }
 
-        int floorId = floorIdBase + (itemId - 1) * 4;
+        int floorId = floorIdBase + (itemId - itemIdBase) * 4;
 
         return Game.database.floors[floorId];
     }
