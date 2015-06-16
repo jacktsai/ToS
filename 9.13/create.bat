@@ -1,0 +1,1 @@
+jar cfm tos-hijacked.apk tos/META-INF/MANIFEST.MF -C tos/ .
