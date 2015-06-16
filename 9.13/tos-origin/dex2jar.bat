@@ -1,0 +1,1 @@
+call "C:\dex2jar-2.0\d2j-dex2jar.bat" classes.dex

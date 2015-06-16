@@ -1,0 +1,56 @@
+call       void Game::Login(class [System.Core]System.Action)
+call       void ['Assembly-Hijack']MyGame::Login(class [System.Core]System.Action)
+
+call       void Game::GetConfig(class [System.Core]System.Action)
+call       void ['Assembly-Hijack']MyGame::GetConfig(class [System.Core]System.Action)
+
+call       void Game::SetData(class GameJSON.Login/Data,
+call       void ['Assembly-Hijack']MyGame::SetData(class GameJSON.Login/Data,
+
+call       void Game::SetUser(class GameJSON.BaseJson,
+call       void ['Assembly-Hijack']MyGame::SetUser(class GameJSON.BaseJson,
+
+call       class [mscorlib]System.Collections.Generic.List`1<class Helper> Game::GetHelperList(string[])
+call       class [mscorlib]System.Collections.Generic.List`1<class Helper> ['Assembly-Hijack']MyGame::GetHelperList(string[])
+
+call       void RestoreGameplay::StartGame()
+call       void ['Assembly-Hijack']MyRestoreGameplay::StartGame()
+
+call       void Puzzle::GetCanOnlyDropElement()
+call       void ['Assembly-Hijack']MyPuzzle::GetCanOnlyDropElement()
+
+call       void SkillInstance::EndWholeRoundEvent()
+call       void ['Assembly-Hijack']MySkillInstance::EndWholeRoundEvent()
+
+call       void RestoreGameplay::End(bool,
+call       void ['Assembly-Hijack']MyRestoreGameplay::End(bool,
+
+call       string ['Assembly-CSharp-firstpass']MadHead.Checksum::GetHash(string,
+call       string ['Assembly-Hijack']MyChecksum::GetHash(string,
+
+call       class API/Result API::_startURLRequest(string,
+call       class API/Result ['Assembly-Hijack']MyAPI::_startURLRequest(string,
+
+.field private static class [mscorlib]System.Collections.Generic.Dictionary`2<string,string> _localeDictionary
+.field public static class [mscorlib]System.Collections.Generic.Dictionary`2<string,string> _localeDictionary
+
+  .method public hidebysig static void  ShowHints() cil managed
+  {
+    // Code size       14 (0xe)
+    .maxstack  8
+    IL_0000:  call       class DialogBuilder PresetDialog/Create::Game_Hints()
+    IL_0005:  ldc.i4.0
+    IL_0006:  ldnull
+    IL_0007:  ldc.i4.0
+    IL_0008:  callvirt   instance void DialogBuilder::Show(bool,
+                                                           class AVG_Data,
+                                                           bool)
+    IL_000d:  ret
+  } // end of method Game::ShowHints
+  .method public hidebysig static void  ShowHints() cil managed
+  {
+    // Code size       14 (0xe)
+    .maxstack  8
+    IL_0000:  ret
+  } // end of method Game::ShowHints
+

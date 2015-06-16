@@ -1,0 +1,74 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0B669603-305B-488B-B275-76B0189C9381}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-Hijack", "src\Assembly-Hijack\Assembly-Hijack.csproj", "{7F470302-7D30-46AE-809A-3E56C93C9F6F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{FF51F5C2-5496-4F2A-AB78-60C328DC1EE6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C037DA27-6D49-4EF9-BD6A-CB330F1973E0}"
+	ProjectSection(SolutionItems) = preProject
+		Assembly-Hijack.vsmdi = Assembly-Hijack.vsmdi
+		Local.testsettings = Local.testsettings
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinForm", "src\WinForm\WinForm.csproj", "{E8C22317-C790-4868-A16A-755B938EAF9C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HashTest", "test\HashTest\HashTest.csproj", "{029E0ABB-7B35-436C-AE65-D6A147E298FF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7F470302-7D30-46AE-809A-3E56C93C9F6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F470302-7D30-46AE-809A-3E56C93C9F6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F470302-7D30-46AE-809A-3E56C93C9F6F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{7F470302-7D30-46AE-809A-3E56C93C9F6F}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{7F470302-7D30-46AE-809A-3E56C93C9F6F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7F470302-7D30-46AE-809A-3E56C93C9F6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F470302-7D30-46AE-809A-3E56C93C9F6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F470302-7D30-46AE-809A-3E56C93C9F6F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{7F470302-7D30-46AE-809A-3E56C93C9F6F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{7F470302-7D30-46AE-809A-3E56C93C9F6F}.Release|x86.ActiveCfg = Release|Any CPU
+		{E8C22317-C790-4868-A16A-755B938EAF9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8C22317-C790-4868-A16A-755B938EAF9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8C22317-C790-4868-A16A-755B938EAF9C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{E8C22317-C790-4868-A16A-755B938EAF9C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{E8C22317-C790-4868-A16A-755B938EAF9C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E8C22317-C790-4868-A16A-755B938EAF9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8C22317-C790-4868-A16A-755B938EAF9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8C22317-C790-4868-A16A-755B938EAF9C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{E8C22317-C790-4868-A16A-755B938EAF9C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{E8C22317-C790-4868-A16A-755B938EAF9C}.Release|x86.ActiveCfg = Release|Any CPU
+		{029E0ABB-7B35-436C-AE65-D6A147E298FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{029E0ABB-7B35-436C-AE65-D6A147E298FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{029E0ABB-7B35-436C-AE65-D6A147E298FF}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{029E0ABB-7B35-436C-AE65-D6A147E298FF}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{029E0ABB-7B35-436C-AE65-D6A147E298FF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{029E0ABB-7B35-436C-AE65-D6A147E298FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{029E0ABB-7B35-436C-AE65-D6A147E298FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{029E0ABB-7B35-436C-AE65-D6A147E298FF}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{029E0ABB-7B35-436C-AE65-D6A147E298FF}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{029E0ABB-7B35-436C-AE65-D6A147E298FF}.Release|x86.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7F470302-7D30-46AE-809A-3E56C93C9F6F} = {0B669603-305B-488B-B275-76B0189C9381}
+		{E8C22317-C790-4868-A16A-755B938EAF9C} = {0B669603-305B-488B-B275-76B0189C9381}
+		{029E0ABB-7B35-436C-AE65-D6A147E298FF} = {FF51F5C2-5496-4F2A-AB78-60C328DC1EE6}
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = Assembly-Hijack.vsmdi
+	EndGlobalSection
+EndGlobal
